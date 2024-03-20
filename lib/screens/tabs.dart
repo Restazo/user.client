@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
 
@@ -10,13 +12,82 @@ class TabsScreen extends StatefulWidget {
   State<TabsScreen> createState() => _TabsScreenState();
 }
 
-class _TabsScreenState extends State<TabsScreen> {
+class _TabsScreenState extends State<TabsScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _tabSwitchButtonAnimationController;
   int _selectedPageIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _tabSwitchButtonAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Stop and dispose all the animation controllers
+    _tabSwitchButtonAnimationController.stop();
+    _tabSwitchButtonAnimationController.dispose();
+    super.dispose();
+  }
+
+  // Create animated bottom navigation item
+  BottomNavigationBarItem createBottomNavItem({
+    required String iconPath,
+    required String label,
+    required bool isSelected,
+  }) {
+    return BottomNavigationBarItem(
+      icon: AnimatedBuilder(
+        animation: _tabSwitchButtonAnimationController,
+        builder: (context, _) {
+          final double yOffset = isSelected
+              ? Tween<double>(begin: 0.0, end: -7.0)
+                      .animate(
+                        CurvedAnimation(
+                          parent: _tabSwitchButtonAnimationController,
+                          curve: Curves.easeOut,
+                        ),
+                      )
+                      .value *
+                  (1 - _tabSwitchButtonAnimationController.value) *
+                  2
+              : 0.0;
+
+          return Transform.translate(
+            offset: Offset(0, yOffset),
+            child: Image.asset(
+              iconPath,
+              width: 28,
+              height: 28,
+              color: isSelected
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
+          );
+        },
+      ),
+      label: label,
+    );
+  }
+
   void _selectScreen(int index) {
+    // Run the tab item animation only if it is not active
+    if (_selectedPageIndex != index) {
+      _tabSwitchButtonAnimationController.forward(from: 0.0);
+    }
+
     setState(() {
       _selectedPageIndex = index;
     });
+
+    // Give some light haptic feedback
     HapticFeedback.lightImpact();
   }
 
@@ -31,90 +102,128 @@ class _TabsScreenState extends State<TabsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          activePageTitle,
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: const Color.fromARGB(255, 255, 255, 255),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize:
+            const Size.fromHeight(kToolbarHeight), // Default AppBar height
+        child: ClipRect(
+          // Clip the widget to only apply effects within its bounds
+          child: BackdropFilter(
+            // Apply a filter to the background content
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), // Blur effect
+            child: AppBar(
+              scrolledUnderElevation: 0.0,
+              title: Text(
+                activePageTitle,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                    ),
               ),
-        ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        centerTitle: true,
-        leading: IconButton(
-          highlightColor: Theme.of(context).highlightColor,
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-          },
-          icon: Image.asset(
-            'assets/setting.png',
-            width: 28,
-            height: 28,
-          ),
-        ),
-        actions: [
-          IconButton(
-            highlightColor: Theme.of(context).highlightColor,
-            onPressed: () {},
-            icon: Image.asset(
-              'assets/qr-code-scan.png',
-              width: 28,
-              height: 28,
+              backgroundColor: Theme.of(context)
+                  .scaffoldBackgroundColor
+                  .withOpacity(0.0), // Semi-transparent
+              centerTitle: true,
+              leading: IconButton(
+                highlightColor: Theme.of(context).highlightColor,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                },
+                icon: Image.asset(
+                  'assets/setting.png',
+                  width: 28,
+                  height: 28,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  highlightColor: Theme.of(context).highlightColor,
+                  onPressed: () {},
+                  icon: Image.asset(
+                    'assets/qr-code-scan.png',
+                    width: 28,
+                    height: 28,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
       body: activeScreen,
+      extendBody: true,
       bottomNavigationBar: Container(
-        // padding: const EdgeInsets.only(top: 14.0),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(61, 15, 34, 40),
+              Color.fromARGB(62, 15, 34, 40),
+              Color.fromARGB(200, 14, 35, 42),
+              Color.fromARGB(245, 16, 30, 35),
+              Color.fromARGB(255, 19, 31, 35),
               Color.fromARGB(255, 22, 32, 35),
             ],
           ),
         ),
-        child: BottomNavigationBar(
-          selectedLabelStyle: const TextStyle(fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 10),
-          onTap: _selectScreen,
-          currentIndex: _selectedPageIndex,
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/serving-dish.png",
-                width: 28,
-                height: 28,
-                color: _selectedPageIndex == 0
-                    ? Theme.of(context)
-                        .bottomNavigationBarTheme
-                        .selectedItemColor
-                    : Theme.of(context)
-                        .bottomNavigationBarTheme
-                        .unselectedItemColor,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            // Override the canvas color to transparent to let the gradient show through
+            canvasColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            selectedFontSize: 10,
+            unselectedFontSize: 10,
+            onTap: _selectScreen,
+            currentIndex: _selectedPageIndex,
+            items: [
+              createBottomNavItem(
+                iconPath: "assets/serving-dish.png",
+                label: "Restaurants",
+                isSelected: _selectedPageIndex == 0,
               ),
-              label: "Restaurants",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/map.png",
-                width: 28,
-                height: 28,
-                color: _selectedPageIndex == 1
-                    ? Theme.of(context)
-                        .bottomNavigationBarTheme
-                        .selectedItemColor
-                    : Theme.of(context)
-                        .bottomNavigationBarTheme
-                        .unselectedItemColor,
+              createBottomNavItem(
+                iconPath: "assets/map.png",
+                label: "Map",
+                isSelected: _selectedPageIndex == 1,
               ),
-              label: "Map",
-            )
-          ],
+            ],
+          ),
         ),
       ),
+
+      // bottomNavigationBar: Container(
+      //   decoration: const BoxDecoration(
+      //     gradient: LinearGradient(
+      //       begin: Alignment.topCenter,
+      //       end: Alignment.bottomCenter,
+      //       colors: [
+      //         Color.fromARGB(61, 15, 34, 40),
+      //         Color.fromARGB(255, 22, 32, 35),
+      //       ],
+      //     ),
+      //   ),
+      //   child: BottomNavigationBar(
+      //     backgroundColor: Colors.transparent,
+      //     selectedFontSize: 10,
+      //     unselectedFontSize: 10,
+      //     onTap: _selectScreen,
+      //     currentIndex: _selectedPageIndex,
+      //     items: [
+      //       createBottomNavItem(
+      //         iconPath: "assets/serving-dish.png",
+      //         label: "Restaurants",
+      //         isSelected: _selectedPageIndex == 0,
+      //       ),
+      //       createBottomNavItem(
+      //         iconPath: "assets/map.png",
+      //         label: "Map",
+      //         isSelected: _selectedPageIndex == 1,
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }

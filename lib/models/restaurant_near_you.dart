@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class RestaurantNearYou {
   const RestaurantNearYou({
     required this.id,
@@ -11,7 +9,7 @@ class RestaurantNearYou {
   });
 
   final String id;
-  final Image coverImage;
+  final String coverImage;
   final String name;
   final String description;
   final String addressLine;
