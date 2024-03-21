@@ -18,4 +18,17 @@ class RestaurantNearYou {
   final int affordability;
   final double longitude;
   final double latitude;
+
+  factory RestaurantNearYou.fromJson(Map<String, dynamic> json) {
+    return RestaurantNearYou(
+      id: json['id'] as String,
+      coverImage: json['coverImage'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      addressLine: json['addressLine'] as String,
+      affordability: json['affordability'] as int,
+      longitude: double.parse(json['longitude'] as String),
+      latitude: double.parse(json['latitude'] as String),
+    );
+  }
 }
