@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
-import 'package:restazo_user_mobile/widgets/loaders/restaurant_near_you_cover_loader.dart';
 
 class RestaurantNearYouCard extends StatelessWidget {
   const RestaurantNearYouCard({super.key, required this.restauranInfo});
@@ -47,10 +46,14 @@ class RestaurantNearYouCard extends StatelessWidget {
                     height: 128,
                     width: 128,
                     fit: BoxFit.cover,
-                    // placeholder: (context, url) =>
-                    //     const CircularProgressIndicator(),
-                    placeholder: (context, url) =>
-                        const RestaurantNearYouCoverLoader(),
+                    placeholder: (context, url) => Container(
+                      height: 128,
+                      width: 128,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: const Color.fromARGB(50, 255, 255, 255)),
+                    ),
+                    // const RestaurantNearYouCoverLoader(),
                     errorWidget: (context, url, error) => const Icon(
                       Icons.error,
                       color: Colors.white,
