@@ -17,6 +17,11 @@ class _TabsScreenState extends State<TabsScreen>
   late AnimationController _tabSwitchButtonAnimationController;
   int _selectedPageIndex = 0;
 
+  final List<Widget> _pages = [
+    const RestaurantsListViewScreen(),
+    const MapScreen(),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -93,19 +98,16 @@ class _TabsScreenState extends State<TabsScreen>
 
   @override
   Widget build(BuildContext context) {
-    Widget activeScreen = const RestaurantsListViewScreen();
     String activePageTitle = "Near You";
 
     if (_selectedPageIndex == 1) {
-      activeScreen = const MapScreen();
       activePageTitle = 'Map';
     }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize:
-            const Size.fromHeight(kToolbarHeight), // Default AppBar height
+        preferredSize: const Size.fromHeight(kToolbarHeight),
         child: ClipRect(
           // Clip the widget to only apply effects within its bounds
           child: BackdropFilter(
@@ -119,9 +121,8 @@ class _TabsScreenState extends State<TabsScreen>
                       color: const Color.fromARGB(255, 255, 255, 255),
                     ),
               ),
-              backgroundColor: Theme.of(context)
-                  .scaffoldBackgroundColor
-                  .withOpacity(0.0), // Semi-transparent
+              backgroundColor:
+                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.0),
               centerTitle: true,
               leading: IconButton(
                 highlightColor: Theme.of(context).highlightColor,
@@ -149,7 +150,10 @@ class _TabsScreenState extends State<TabsScreen>
           ),
         ),
       ),
-      body: activeScreen,
+      body: IndexedStack(
+        index: _selectedPageIndex,
+        children: _pages,
+      ),
       extendBody: true,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -192,38 +196,6 @@ class _TabsScreenState extends State<TabsScreen>
           ),
         ),
       ),
-
-      // bottomNavigationBar: Container(
-      //   decoration: const BoxDecoration(
-      //     gradient: LinearGradient(
-      //       begin: Alignment.topCenter,
-      //       end: Alignment.bottomCenter,
-      //       colors: [
-      //         Color.fromARGB(61, 15, 34, 40),
-      //         Color.fromARGB(255, 22, 32, 35),
-      //       ],
-      //     ),
-      //   ),
-      //   child: BottomNavigationBar(
-      //     backgroundColor: Colors.transparent,
-      //     selectedFontSize: 10,
-      //     unselectedFontSize: 10,
-      //     onTap: _selectScreen,
-      //     currentIndex: _selectedPageIndex,
-      //     items: [
-      //       createBottomNavItem(
-      //         iconPath: "assets/serving-dish.png",
-      //         label: "Restaurants",
-      //         isSelected: _selectedPageIndex == 0,
-      //       ),
-      //       createBottomNavItem(
-      //         iconPath: "assets/map.png",
-      //         label: "Map",
-      //         isSelected: _selectedPageIndex == 1,
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }

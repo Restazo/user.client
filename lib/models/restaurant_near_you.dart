@@ -6,6 +6,8 @@ class RestaurantNearYou {
     required this.coverImage,
     required this.description,
     required this.name,
+    required this.latitude,
+    required this.longitude,
   });
 
   final String id;
@@ -14,4 +16,6 @@ class RestaurantNearYou {
   final String description;
   final String addressLine;
   final int affordability;
+  final double longitude;
+  final double latitude;
 }
