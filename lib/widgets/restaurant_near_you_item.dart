@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 
 class RestaurantNearYouCard extends StatelessWidget {
@@ -74,15 +75,24 @@ class RestaurantNearYouCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(
-                        restauranInfo.name,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 18,
-                            ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 18.0),
+                        child: Text(
+                          restauranInfo.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                fontSize: 18,
+                              ),
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Padding(
+                      Container(
+                        height: 48,
                         padding: const EdgeInsets.only(right: 14),
                         child: Text(
                           restauranInfo.description,
@@ -93,6 +103,7 @@ class RestaurantNearYouCard extends StatelessWidget {
                               .bodySmall!
                               .copyWith(
                                 color: const Color.fromARGB(255, 222, 222, 222),
+                                // fontSize: 12,
                               ),
                         ),
                       ),
@@ -100,18 +111,21 @@ class RestaurantNearYouCard extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: Text(
-                              restauranInfo.addressLine,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                    fontSize: 12,
-                                    color: const Color.fromARGB(
-                                        255, 222, 222, 222),
-                                  ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 24.0),
+                              child: Text(
+                                restauranInfo.addressLine,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontSize: 12,
+                                      color: const Color.fromARGB(
+                                          255, 222, 222, 222),
+                                    ),
+                              ),
                             ),
                           ),
                           Expanded(

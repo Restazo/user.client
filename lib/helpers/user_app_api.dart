@@ -17,7 +17,7 @@ class APIService {
     return env == 'prod' ? 'https' : 'http';
   }
 
-  Future<List<RestaurantNearYou>> loadRestaurantsNearYou() async {
+  Future<List<RestaurantNearYou>?> loadRestaurantsNearYou() async {
     final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
     final protocol = getProtocol();
 
@@ -34,19 +34,23 @@ class APIService {
 
     try {
       final res = await http.get(url);
-      final resJson = json.decode(res.body);
-      final List<dynamic> jsonData = resJson['data'];
 
-      List<RestaurantNearYou> data = jsonData
-          .map((restaurantJson) => RestaurantNearYou.fromJson(restaurantJson))
-          .toList();
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final List<dynamic> jsonData = resJson['data'];
 
-      return data;
+        List<RestaurantNearYou> data = jsonData
+            .map((restaurantJson) => RestaurantNearYou.fromJson(restaurantJson))
+            .toList();
+
+        return data;
+      } else {
+        print("Failed to load data. Status code: ${res.statusCode}");
+        return null;
+      }
     } catch (e) {
       print(e);
-      return [];
+      return null;
     }
   }
 }
-
-// Future<List<RestaurantNearYou>>

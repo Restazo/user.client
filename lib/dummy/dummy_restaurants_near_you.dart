@@ -3,13 +3,15 @@ import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 final restaurants = [
   const RestaurantNearYou(
     id: 'df7f6d73-0580-402a-ae3e-97db9152fb18',
-    addressLine: "Willow Walk 66",
+    addressLine:
+        "Willow Walk 66skdlfjsldkfjslkdfjlsdfjlsdjflskdfjsldfjlskdfjlsdfjsldfkjslkdfjlsjdf",
     affordability: 1,
     coverImage:
         'https://images.unsplash.com/photo-1598532213919-078e54dd1f40?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     description:
-        "A slice of heaven in every bite. Artisanal pizzas crafted with love.",
-    name: "Curry Corner",
+        "A slice of heaven in every bite. Artisanal pizzas crafted with love.slkdjflskdfjlskjfdlskjfdskdjflsjdfsldkfjslkfjsldkfjsldkfjslfjslkdfjlskdjflskdjflksdjflksdjflksdjfklsjflksjflksjdlfkjslkdfjlskjflsd",
+    name:
+        "Curry Cornersldkfjslkdfjlskfjlskdjflksjdflksjdflksjdflksjdflksjflsjdflksjdflkjslkdfjslkfjslkdfjlksjflsjflksjdfkjdkfljsdf",
     longitude: 23.98473,
     latitude: 83.92878,
   ),
@@ -19,8 +21,7 @@ final restaurants = [
     affordability: 2,
     coverImage:
         'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    description:
-        "Savor the spice of life with our authentic curries, made from ancient recipes.",
+    description: "Savor the spice ",
     name: "Gourmet Gala",
     longitude: 24.98473,
     latitude: 83.92878,
