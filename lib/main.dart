@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:restazo_user_mobile/app_block/theme.dart';
+import 'package:restazo_user_mobile/screens/location_view.dart';
 
 void main() {
   runApp(const App());
@@ -13,7 +14,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: appTheme,
-      home: ...,
+      home: LocationView(),
     );
   }
 }
