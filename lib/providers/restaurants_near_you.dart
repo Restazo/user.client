@@ -4,10 +4,10 @@ import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 
 class RestaurantsNearYouState {
+  RestaurantsNearYouState({this.restaurants, this.error});
+
   final List<RestaurantNearYou>? restaurants;
   final String? error;
-
-  RestaurantsNearYouState({this.restaurants, this.error});
 }
 
 class RestaurantsNearYouNotifier
@@ -26,7 +26,6 @@ class RestaurantsNearYouNotifier
     } catch (e) {
       state =
           RestaurantsNearYouState(restaurants: const [], error: e.toString());
-      print(e.toString());
     }
   }
 }

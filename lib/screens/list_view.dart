@@ -72,12 +72,15 @@ class _RestaurantsListViewScreenState
       );
     } else {
       // List is empty or an error occurred, show the message
-      content = const KeyedSubtree(
-        key: ValueKey('message'),
+      content = KeyedSubtree(
+        key: const ValueKey('message'),
         child: Center(
           child: Text(
             "No restaurants found",
             textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Colors.white,
+                ),
           ),
         ),
       );

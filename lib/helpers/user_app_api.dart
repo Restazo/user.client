@@ -29,7 +29,7 @@ class APIService {
         queryParameters: {
           userLatitudeQueryName: '65.012093',
           userLongitudeQueryName: '25.465076',
-          rangeQueryName: '300',
+          // Add here user range from settinggs
         });
 
     try {
@@ -45,11 +45,9 @@ class APIService {
 
         return data;
       } else {
-        print("Failed to load data. Status code: ${res.statusCode}");
         return null;
       }
     } catch (e) {
-      print(e);
       return null;
     }
   }
