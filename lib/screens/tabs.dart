@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
@@ -16,11 +17,14 @@ class _TabsScreenState extends State<TabsScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _tabSwitchButtonAnimationController;
   int _selectedPageIndex = 0;
+  // late LocationData? _locationData;
 
-  final List<Widget> _pages = [
-    const RestaurantsListViewScreen(),
-    const MapScreen(),
-  ];
+  List<Widget> get _pages {
+    return [
+      RestaurantsListViewScreen(getCurrentLocation: _getCurrentLocation()),
+      const MapScreen(),
+    ];
+  }
 
   @override
   void initState() {
@@ -30,6 +34,42 @@ class _TabsScreenState extends State<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
+  }
+
+  Future<LocationData> _getCurrentLocation() async {
+    final Location location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        // Set to London's location
+        locationData = LocationData.fromMap({
+          "latitude": 51.5074,
+          "longitude": -0.1278,
+        });
+        return locationData;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        // Set to London's location
+        locationData = LocationData.fromMap({
+          "latitude": 51.5074,
+          "longitude": -0.1278,
+        });
+        return locationData;
+      }
+    }
+
+    locationData = await location.getLocation();
+    return locationData;
   }
 
   @override

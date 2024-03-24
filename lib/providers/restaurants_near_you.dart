@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:location/location.dart';
 
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
@@ -15,10 +16,10 @@ class RestaurantsNearYouNotifier
   RestaurantsNearYouNotifier()
       : super(RestaurantsNearYouState(restaurants: const [], error: null));
 
-  Future<void> loadRestaurantsNearYou() async {
+  Future<void> loadRestaurantsNearYou(LocationData locationData) async {
     try {
       List<RestaurantNearYou>? restaurants =
-          await APIService().loadRestaurantsNearYou();
+          await APIService().loadRestaurantsNearYou(locationData);
 
       if (restaurants == null) throw Exception('Failed to load restaurants');
 

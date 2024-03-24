@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart';
 import 'dart:convert';
 
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
@@ -17,7 +18,8 @@ class APIService {
     return env == 'prod' ? 'https' : 'http';
   }
 
-  Future<List<RestaurantNearYou>?> loadRestaurantsNearYou() async {
+  Future<List<RestaurantNearYou>?> loadRestaurantsNearYou(
+      LocationData locationData) async {
     final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
     final protocol = getProtocol();
 
@@ -27,8 +29,8 @@ class APIService {
         port: baseUrlParsed.port,
         path: restaurantsNearMeEndpoint,
         queryParameters: {
-          userLatitudeQueryName: '65.012093',
-          userLongitudeQueryName: '25.465076',
+          userLatitudeQueryName: locationData.latitude.toString(),
+          userLongitudeQueryName: locationData.longitude.toString(),
           // Add here user range from settinggs
         });
 

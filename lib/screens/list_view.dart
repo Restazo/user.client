@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:location/location.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurants_near_you_loader.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
-  const RestaurantsListViewScreen({super.key});
+  const RestaurantsListViewScreen(
+      {super.key, required this.getCurrentLocation});
+
+  final Future<LocationData> getCurrentLocation;
 
   @override
   ConsumerState<RestaurantsListViewScreen> createState() =>
@@ -22,14 +26,16 @@ class _RestaurantsListViewScreenState
     reloadRestaurants();
   }
 
-  void reloadRestaurants() {
+  void reloadRestaurants() async {
     setState(() {
       _isLoading = true;
     });
 
+    final currentLocation = await widget.getCurrentLocation;
+
     ref
         .read(restaurantsNearYouProvider.notifier)
-        .loadRestaurantsNearYou()
+        .loadRestaurantsNearYou(currentLocation)
         .then((_) {
       if (mounted) {
         setState(() {
