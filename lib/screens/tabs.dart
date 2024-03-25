@@ -17,7 +17,6 @@ class _TabsScreenState extends State<TabsScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _tabSwitchButtonAnimationController;
   int _selectedPageIndex = 0;
-  // late LocationData? _locationData;
 
   List<Widget> get _pages {
     return [
