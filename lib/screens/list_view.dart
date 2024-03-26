@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:location/location.dart';
+
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurants_near_you_loader.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
-  const RestaurantsListViewScreen(
-      {super.key, required this.getCurrentLocation});
+  const RestaurantsListViewScreen({
+    super.key,
+    required this.reloadRestaurants,
+  });
 
-  final Future<LocationData> getCurrentLocation;
+  final Future reloadRestaurants;
 
   @override
   ConsumerState<RestaurantsListViewScreen> createState() =>
@@ -23,31 +25,18 @@ class _RestaurantsListViewScreenState
   @override
   void initState() {
     super.initState();
-    reloadRestaurants();
+    _reloadRestaurants();
   }
 
-  void reloadRestaurants() async {
+  void _reloadRestaurants() async {
     setState(() {
       _isLoading = true;
     });
 
-    final currentLocation = await widget.getCurrentLocation;
+    await widget.reloadRestaurants;
 
-    ref
-        .read(restaurantsNearYouProvider.notifier)
-        .loadRestaurantsNearYou(currentLocation)
-        .then((_) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }).catchError((error) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    setState(() {
+      _isLoading = false;
     });
   }
 
@@ -113,7 +102,7 @@ class _RestaurantsListViewScreenState
           behavior: SnackBarBehavior.floating,
           action: SnackBarAction(
             label: "Reload",
-            onPressed: reloadRestaurants,
+            onPressed: _reloadRestaurants,
             textColor: Colors.green,
           ),
         ));

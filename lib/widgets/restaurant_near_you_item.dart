@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 
 class RestaurantNearYouCard extends StatelessWidget {
@@ -42,7 +43,8 @@ class RestaurantNearYouCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: CachedNetworkImage(
-                    imageUrl: restauranInfo.coverImage,
+                    imageUrl:
+                        "${dotenv.env["PLATFORM_IMAGES_URL"]}${restauranInfo.coverImage}",
                     height: 128,
                     width: 128,
                     fit: BoxFit.cover,

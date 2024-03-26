@@ -1,26 +1,29 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:location/location.dart';
 
+import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
 
-class TabsScreen extends StatefulWidget {
+class TabsScreen extends ConsumerStatefulWidget {
   const TabsScreen({super.key});
 
   @override
-  State<TabsScreen> createState() => _TabsScreenState();
+  ConsumerState<TabsScreen> createState() => _TabsScreenState();
 }
 
-class _TabsScreenState extends State<TabsScreen>
+class _TabsScreenState extends ConsumerState<TabsScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _tabSwitchButtonAnimationController;
   int _selectedPageIndex = 0;
 
   List<Widget> get _pages {
     return [
-      RestaurantsListViewScreen(getCurrentLocation: _getCurrentLocation()),
+      RestaurantsListViewScreen(reloadRestaurants: reloadRestaurants()),
       const MapScreen(),
     ];
   }
@@ -33,6 +36,14 @@ class _TabsScreenState extends State<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
+  }
+
+  Future reloadRestaurants() async {
+    final currentLocation = await _getCurrentLocation();
+
+    await ref
+        .read(restaurantsNearYouProvider.notifier)
+        .loadRestaurantsNearYou(currentLocation);
   }
 
   Future<LocationData> _getCurrentLocation() async {
@@ -68,6 +79,11 @@ class _TabsScreenState extends State<TabsScreen>
     }
 
     locationData = await location.getLocation();
+    // TODO: delete this, use for testing only
+    // locationData = LocationData.fromMap({
+    //   "latitude": 65.5074,
+    //   "longitude": 25.1278,
+    // });
     return locationData;
   }
 
@@ -165,8 +181,12 @@ class _TabsScreenState extends State<TabsScreen>
               centerTitle: true,
               leading: IconButton(
                 highlightColor: Theme.of(context).highlightColor,
-                onPressed: () {
+                onPressed: () async {
                   HapticFeedback.mediumImpact();
+
+                  // TODO: delete these lines, they are only for testing purposes
+                  final storage = const FlutterSecureStorage();
+                  await storage.delete(key: "device_id");
                 },
                 icon: Image.asset(
                   'assets/setting.png',
