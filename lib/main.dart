@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:restazo_user_mobile/app_block/theme.dart';
+import 'package:restazo_user_mobile/screens/tabs.dart';
 
-void main() {
-  runApp(const App());
+void main() async {
+  await dotenv.load(fileName: ".env");
+
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((fn) {
+    runApp(const ProviderScope(
+      child: App(),
+    ));
+  });
 }
 
 class App extends StatelessWidget {
@@ -13,7 +25,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: appTheme,
-      home: ...,
+      home: TabsScreen(),
     );
   }
 }
