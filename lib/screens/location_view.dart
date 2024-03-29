@@ -55,7 +55,7 @@ class LocationView extends StatelessWidget {
         centerTitle: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 44.0, left: 20, right: 20),
+        padding: const EdgeInsets.only(top: 12, left: 20, right: 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
