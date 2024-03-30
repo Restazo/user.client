@@ -143,6 +143,17 @@ const menu = [
         price: '18.99\$',
         // priceCurrency: 'USD',
       ),
+      MenuItem(
+        id: '6',
+        name: 'Vegetarian Lasagna',
+        imageUrl:
+            'https://images.unsplash.com/photo-1606850246029-dd00bd5eff97?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGRpc2h8ZW58MHx8MHx8fDA%3D',
+        description:
+            'Layers of pasta, ricotta, mozzarella, spinach, and marinara sauce, baked to perfection.',
+        ingredients: 'Pasta, ricotta, mozzarella, spinach, marinara sauce',
+        price: '18.99\$',
+        // priceCurrency: 'USD',
+      ),
     ],
   ),
   MenuCategory(
@@ -205,6 +216,26 @@ const menu = [
         ingredients:
             'Tomatoes, cucumbers, red onions, olives, feta cheese, olive oil',
         price: '12.99\$',
+        // priceCurrency: 'USD',
+      ),
+      MenuItem(
+        id: '12',
+        name: 'Quinoa Salad',
+        imageUrl: '/menu_items/12121212-1212-1212-1212-121212121212.png',
+        description:
+            'Quinoa, avocado, black beans, corn, and cilantro lime dressing.',
+        ingredients: 'Quinoa, avocado, black beans, corn, cilantro, lime',
+        price: '13.99\$',
+        // priceCurrency: 'USD',
+      ),
+      MenuItem(
+        id: '12',
+        name: 'Quinoa Salad',
+        imageUrl: '/menu_items/12121212-1212-1212-1212-121212121212.png',
+        description:
+            'Quinoa, avocado, black beans, corn, and cilantro lime dressing.',
+        ingredients: 'Quinoa, avocado, black beans, corn, cilantro, lime',
+        price: '13.99\$',
         // priceCurrency: 'USD',
       ),
       MenuItem(

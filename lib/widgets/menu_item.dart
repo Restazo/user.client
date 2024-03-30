@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import 'package:restazo_user_mobile/models/menu_item.dart';
 
-class MenuItemCard extends StatelessWidget {
+class MenuItemCard extends StatefulWidget {
   const MenuItemCard({
     super.key,
     required this.itemData,
@@ -10,6 +11,11 @@ class MenuItemCard extends StatelessWidget {
 
   final MenuItem itemData;
 
+  @override
+  State<MenuItemCard> createState() => _MenuItemCardState();
+}
+
+class _MenuItemCardState extends State<MenuItemCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,7 +51,7 @@ class MenuItemCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: CachedNetworkImage(
-                    imageUrl: itemData.imageUrl,
+                    imageUrl: widget.itemData.imageUrl,
                     height: 96,
                     width: 128,
                     fit: BoxFit.cover,
@@ -71,7 +77,7 @@ class MenuItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        itemData.name,
+                        widget.itemData.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
@@ -91,7 +97,7 @@ class MenuItemCard extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 24),
                                 child: Text(
-                                  itemData.description,
+                                  widget.itemData.description,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context)
@@ -109,7 +115,7 @@ class MenuItemCard extends StatelessWidget {
                               children: [
                                 const Spacer(),
                                 Text(
-                                  itemData.price,
+                                  widget.itemData.price,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge!
