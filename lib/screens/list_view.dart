@@ -37,10 +37,7 @@ class _RestaurantsListViewScreenState
 
     final currentLocation = await widget.getCurrentLocation();
 
-    ref
-        .read(restaurantsNearYouProvider.notifier)
-        .loadRestaurantsNearYou(currentLocation)
-        .then((_) {
+    widget.reloadRestaurants(currentLocation).then((_) {
       if (mounted) {
         setState(() {
           _isLoading = false;
