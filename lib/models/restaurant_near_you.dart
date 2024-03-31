@@ -8,6 +8,7 @@ class RestaurantNearYou {
     required this.name,
     required this.latitude,
     required this.longitude,
+    required this.distanceKm,
   });
 
   final String id;
@@ -18,6 +19,7 @@ class RestaurantNearYou {
   final int affordability;
   final double longitude;
   final double latitude;
+  final double distanceKm;
 
   factory RestaurantNearYou.fromJson(Map<String, dynamic> json) {
     return RestaurantNearYou(
@@ -29,6 +31,9 @@ class RestaurantNearYou {
       affordability: json['affordability'] as int,
       longitude: double.parse(json['longitude'] as String),
       latitude: double.parse(json['latitude'] as String),
+      // TODO: uncomment this line:
+      // distanceKm: json['distanceKm'],
+      distanceKm: json['distance_km'],
     );
   }
 }

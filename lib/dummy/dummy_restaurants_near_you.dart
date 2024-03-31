@@ -14,6 +14,7 @@ final restaurants = [
         "Curry Cornersldkfjslkdfjlskfjlskdjflksjdflksjdflksjdflksjdflksjflsjdflksjdflkjslkdfjslkfjslkdfjlksjflsjflksjdfkjdkfljsdf",
     longitude: 23.98473,
     latitude: 83.92878,
+    distanceKm: 1.1,
   ),
   const RestaurantNearYou(
     id: 'd0ad3d57-a941-4d16-89ee-04f5a621daf5',
@@ -25,6 +26,7 @@ final restaurants = [
     name: "Gourmet Gala",
     longitude: 24.98473,
     latitude: 83.92878,
+    distanceKm: 1.4,
   ),
   const RestaurantNearYou(
     id: 'b819fe16-ab04-4b48-b744-e179bb545dc5',
@@ -37,6 +39,7 @@ final restaurants = [
     name: "Gourmet Gala",
     longitude: 23.98473,
     latitude: 84.92878,
+    distanceKm: 3.4,
   ),
   const RestaurantNearYou(
     id: 'd307e29e-5f77-4d26-a506-53b5e2db7ef2',
@@ -49,6 +52,7 @@ final restaurants = [
     name: "Burger Bonanza",
     longitude: 23.98473,
     latitude: 85.92878,
+    distanceKm: 9.4,
   ),
   const RestaurantNearYou(
     id: 'c71a9024-5b6c-4c7e-aabb-298f5e17cb62',
@@ -61,5 +65,6 @@ final restaurants = [
     name: "Sushi Spot",
     longitude: 25.98473,
     latitude: 83.92878,
+    distanceKm: 100.4,
   ),
 ];

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 
 class RestaurantOverviewTextInfo extends StatelessWidget {
-  const RestaurantOverviewTextInfo({super.key});
+  const RestaurantOverviewTextInfo({super.key, required this.restaurantInfo});
 
-  // TODO: make a model for this info
-  // Use it in here with variables
-  // final RestaurantOverviewInfo restaurantInfo;
+  final RestaurantNearYou restaurantInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "Restaurant Name",
+                      restaurantInfo.name,
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                             color: Colors.white,
                             fontSize: 24,
@@ -59,7 +58,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "Restaurant Street",
+                      restaurantInfo.addressLine,
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             color: Colors.white,
                             height: 1,
@@ -67,7 +66,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      "Distance",
+                      "${restaurantInfo.distanceKm.toString()} km",
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             color: Colors.white,
                             height: 1,
@@ -96,7 +95,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 vertical: 12,
               ),
               child: Text(
-                "Embark on a gastronomic journey like no other at La Maison Gastronomique, where every corner whispers tales of culinary mastery and every dish beckons with irresistible allure.",
+                restaurantInfo.description,
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Colors.white,
                       height: 1.6,

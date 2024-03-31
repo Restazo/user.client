@@ -44,11 +44,12 @@ class APIService {
     }
 
     final url = Uri(
-        scheme: protocol,
-        host: baseUrlParsed.host,
-        port: baseUrlParsed.port,
-        path: restaurantsNearMeEndpoint,
-        queryParameters: queryParameters);
+      scheme: protocol,
+      host: baseUrlParsed.host,
+      port: baseUrlParsed.port,
+      path: restaurantsNearMeEndpoint,
+      queryParameters: queryParameters,
+    );
 
     try {
       final res = await http.get(url);

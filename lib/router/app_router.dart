@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 
 class AppRouter {
@@ -20,6 +23,19 @@ class AppRouter {
         path: '/restaurants',
         name: 'restaurants',
         builder: (context, state) => const TabsScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            name: 'restaurantDetail',
+            builder: (context, state) {
+              final RestaurantNearYou restaurantInitData =
+                  state.extra as RestaurantNearYou;
+
+              return RestaurantOverviewScreen(
+                  restaurantInitData: restaurantInitData);
+            },
+          ),
+        ],
       )
     ],
   );
