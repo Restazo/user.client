@@ -9,7 +9,7 @@ class RestaurantsListViewScreen extends ConsumerStatefulWidget {
   const RestaurantsListViewScreen(
       {super.key, required this.getCurrentLocation});
 
-  final Future<LocationData> getCurrentLocation;
+  final Future<LocationData?> getCurrentLocation;
 
   @override
   ConsumerState<RestaurantsListViewScreen> createState() =>

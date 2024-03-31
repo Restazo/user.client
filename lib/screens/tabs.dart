@@ -35,7 +35,7 @@ class _TabsScreenState extends State<TabsScreen>
     );
   }
 
-  Future<LocationData> _getCurrentLocation() async {
+  Future<LocationData?> _getCurrentLocation() async {
     final Location location = Location();
     bool serviceEnabled;
     PermissionStatus permissionGranted;
@@ -45,12 +45,7 @@ class _TabsScreenState extends State<TabsScreen>
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
-        // Set to London's location
-        locationData = LocationData.fromMap({
-          "latitude": 51.5074,
-          "longitude": -0.1278,
-        });
-        return locationData;
+        return null;
       }
     }
 
@@ -58,12 +53,7 @@ class _TabsScreenState extends State<TabsScreen>
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        // Set to London's location
-        locationData = LocationData.fromMap({
-          "latitude": 51.5074,
-          "longitude": -0.1278,
-        });
-        return locationData;
+        return null;
       }
     }
 
