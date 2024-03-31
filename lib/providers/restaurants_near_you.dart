@@ -21,8 +21,6 @@ class RestaurantsNearYouNotifier
       List<RestaurantNearYou>? restaurants =
           await APIService().loadRestaurantsNearYou(locationData);
 
-      await Future.delayed(Duration(seconds: 2));
-
       if (restaurants == null) throw Exception('Failed to load restaurants');
 
       state = RestaurantsNearYouState(restaurants: restaurants, error: null);
