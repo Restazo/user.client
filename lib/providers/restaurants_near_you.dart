@@ -16,10 +16,12 @@ class RestaurantsNearYouNotifier
   RestaurantsNearYouNotifier()
       : super(RestaurantsNearYouState(restaurants: const [], error: null));
 
-  Future<void> loadRestaurantsNearYou(LocationData locationData) async {
+  Future<void> loadRestaurantsNearYou(LocationData? locationData) async {
     try {
       List<RestaurantNearYou>? restaurants =
           await APIService().loadRestaurantsNearYou(locationData);
+
+      await Future.delayed(Duration(seconds: 2));
 
       if (restaurants == null) throw Exception('Failed to load restaurants');
 

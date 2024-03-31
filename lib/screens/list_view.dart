@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:location/location.dart';
 
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurants_near_you_loader.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
-  const RestaurantsListViewScreen({
-    super.key,
-    required this.reloadRestaurants,
-  });
+  const RestaurantsListViewScreen(
+      {super.key,
+      required this.getCurrentLocation,
+      required this.reloadRestaurants});
 
-  final Future reloadRestaurants;
+  final Future<LocationData?> Function() getCurrentLocation;
+  final Future<void> Function(LocationData?) reloadRestaurants;
 
   @override
   ConsumerState<RestaurantsListViewScreen> createState() =>
@@ -25,18 +27,31 @@ class _RestaurantsListViewScreenState
   @override
   void initState() {
     super.initState();
-    _reloadRestaurants();
+    reloadRestaurants();
   }
 
-  void _reloadRestaurants() async {
+  void reloadRestaurants() async {
     setState(() {
       _isLoading = true;
     });
 
-    await widget.reloadRestaurants;
+    final currentLocation = await widget.getCurrentLocation();
 
-    setState(() {
-      _isLoading = false;
+    ref
+        .read(restaurantsNearYouProvider.notifier)
+        .loadRestaurantsNearYou(currentLocation)
+        .then((_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }).catchError((error) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
   }
 
@@ -102,7 +117,7 @@ class _RestaurantsListViewScreenState
           behavior: SnackBarBehavior.floating,
           action: SnackBarAction(
             label: "Reload",
-            onPressed: _reloadRestaurants,
+            onPressed: reloadRestaurants,
             textColor: Colors.green,
           ),
         ));

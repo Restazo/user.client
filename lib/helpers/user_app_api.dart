@@ -19,20 +19,36 @@ class APIService {
   }
 
   Future<List<RestaurantNearYou>?> loadRestaurantsNearYou(
-      LocationData locationData) async {
+      LocationData? locationData) async {
     final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
     final protocol = getProtocol();
+
+    Map<String, dynamic> queryParameters = {};
+
+    // TODO: add checking for range set by user here
+    // if (userSettingRange) {
+    //   queryParameters.addEntries(
+    //     {
+    //       rangeQueryName: userSettingRange.toString(),
+    //     }.entries,
+    //   );
+    // }
+
+    if (locationData != null) {
+      queryParameters.addEntries(
+        {
+          userLatitudeQueryName: locationData.latitude.toString(),
+          userLongitudeQueryName: locationData.longitude.toString(),
+        }.entries,
+      );
+    }
 
     final url = Uri(
         scheme: protocol,
         host: baseUrlParsed.host,
         port: baseUrlParsed.port,
         path: restaurantsNearMeEndpoint,
-        queryParameters: {
-          userLatitudeQueryName: locationData.latitude.toString(),
-          userLongitudeQueryName: locationData.longitude.toString(),
-          // Add here user range from settinggs
-        });
+        queryParameters: queryParameters);
 
     try {
       final res = await http.get(url);
