@@ -12,9 +12,10 @@ void main() async {
   // Load env variables
   await dotenv.load(fileName: ".env");
 
-// Get the device secure storage
+  // Get the device secure storage
   const storage = FlutterSecureStorage();
-  String? deviceId = await storage.read(key: "device_id");
+  // Get the device_id from the secure storage
+  String? deviceId = await storage.read(key: "deviceId");
 
   String initialRoute = deviceId != null ? '/restaurants' : '/';
 

@@ -27,7 +27,6 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
   void initState() {
     super.initState();
     // TODO: load the data from the API
-
     // final restaurantFullData = await ApiService().loadRestaurant(widget.restaurantInitData.id)
 
     setState(() {

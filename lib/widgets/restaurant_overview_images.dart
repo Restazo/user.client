@@ -40,8 +40,10 @@ class RestaurantOverviewImages extends StatelessWidget {
                     color: Color.fromARGB(50, 255, 255, 255),
                   ),
                 ),
-                errorWidget: (context, url, error) => const Center(
-                  child: Icon(
+                errorWidget: (context, url, error) => Container(
+                  decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 60, 60, 60)),
+                  child: const Icon(
                     Icons.error,
                     color: Colors.white,
                   ),
@@ -77,8 +79,10 @@ class RestaurantOverviewImages extends StatelessWidget {
                         color: Color.fromARGB(50, 255, 255, 255),
                       ),
                     ),
-                    errorWidget: (context, url, error) => const Center(
-                      child: Icon(
+                    errorWidget: (context, url, error) => Container(
+                      decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 60, 60, 60)),
+                      child: const Icon(
                         Icons.error,
                         color: Colors.white,
                       ),

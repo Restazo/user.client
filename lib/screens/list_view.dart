@@ -63,14 +63,14 @@ class _RestaurantsListViewScreenState
         key: ValueKey('loader'),
         child: RestaurantsNearYouLoader(),
       );
-    } else if (state.restaurants != null && state.restaurants!.isNotEmpty) {
+    } else if (state.data != null && state.data!.isNotEmpty) {
       // List is not null and not empty, show the list
       content = KeyedSubtree(
         key: const ValueKey('data'),
         child: ListView.builder(
-          itemCount: state.restaurants!.length,
+          itemCount: state.data!.length,
           itemBuilder: (ctx, index) {
-            final item = state.restaurants![index];
+            final item = state.data![index];
             return RestaurantNearYouCard(
               restauranInfo: item,
             );
@@ -94,13 +94,13 @@ class _RestaurantsListViewScreenState
     }
 
     // Show snackbar on error
-    if (state.error != null && !_isLoading) {
+    if (state.errorMessage != null && !_isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context)
             .clearSnackBars(); // Clear existing snackbars first
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            state.error!,
+            state.errorMessage!,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: Colors.white,
                 ),
