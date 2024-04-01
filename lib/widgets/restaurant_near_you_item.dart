@@ -11,6 +11,49 @@ class RestaurantNearYouCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Render a cover image if it is present, otherwise represent default image
+    final Widget coverImage = restauranInfo.coverImage != null
+        ? CachedNetworkImage(
+            imageUrl: restauranInfo.coverImage!,
+            height: 128,
+            width: 128,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 128,
+              width: 128,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color.fromARGB(50, 255, 255, 255)),
+            ),
+            // const RestaurantNearYouCoverLoader(),
+            errorWidget: (context, url, error) => Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : Container(
+            height: 128,
+            width: 128,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: const Color.fromARGB(50, 255, 255, 255)),
+            child: Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.food_bank_rounded,
+                color: Colors.white,
+              ),
+            ),
+          );
+
+    final String description =
+        restauranInfo.description != null ? restauranInfo.description! : "";
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: ClipRRect(
@@ -51,28 +94,7 @@ class RestaurantNearYouCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: CachedNetworkImage(
-                      imageUrl: restauranInfo.coverImage,
-                      height: 128,
-                      width: 128,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        height: 128,
-                        width: 128,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: const Color.fromARGB(50, 255, 255, 255)),
-                      ),
-                      // const RestaurantNearYouCoverLoader(),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 60, 60, 60)),
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    child: coverImage,
                   ),
                 ),
                 Expanded(
@@ -109,7 +131,7 @@ class RestaurantNearYouCard extends StatelessWidget {
                           height: 48,
                           padding: const EdgeInsets.only(right: 14),
                           child: Text(
-                            restauranInfo.description,
+                            description,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)

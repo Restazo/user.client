@@ -8,11 +8,65 @@ class RestaurantOverviewImages extends StatelessWidget {
     required this.logoImage,
   });
 
-  final String coverImage;
-  final String logoImage;
+  final String? coverImage;
+  final String? logoImage;
 
   @override
   Widget build(BuildContext context) {
+    final Widget dynamicCoverImage = coverImage != null
+        ? CachedNetworkImage(
+            imageUrl: coverImage!,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(50, 255, 255, 255),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : Container(
+            decoration:
+                const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+            child: const Icon(
+              Icons.food_bank_rounded,
+              color: Colors.white,
+            ),
+          );
+
+    final Widget dynamicLogoImage = logoImage != null
+        ? CachedNetworkImage(
+            imageUrl: logoImage!,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(50, 255, 255, 255),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : Container(
+            decoration:
+                const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+            child: const Icon(
+              Icons.food_bank_rounded,
+              color: Colors.white,
+            ),
+          );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -32,23 +86,7 @@ class RestaurantOverviewImages extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: AspectRatio(
               aspectRatio: 350 / 214,
-              child: CachedNetworkImage(
-                imageUrl: coverImage,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(50, 255, 255, 255),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 60, 60, 60)),
-                  child: const Icon(
-                    Icons.error,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              child: dynamicCoverImage,
             ),
           ),
           Positioned(
@@ -71,23 +109,7 @@ class RestaurantOverviewImages extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: CachedNetworkImage(
-                    imageUrl: logoImage,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      decoration: const BoxDecoration(
-                        color: Color.fromARGB(50, 255, 255, 255),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 60, 60, 60)),
-                      child: const Icon(
-                        Icons.error,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  child: dynamicLogoImage,
                 ),
               ),
             ),

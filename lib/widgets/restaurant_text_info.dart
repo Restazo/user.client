@@ -8,6 +8,9 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String description =
+        restaurantInfo.description != null ? restaurantInfo.description! : '';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
@@ -95,7 +98,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 vertical: 12,
               ),
               child: Text(
-                restaurantInfo.description,
+                description,
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Colors.white,
                       height: 1.6,

@@ -105,6 +105,7 @@ class APIService {
         return RestaurantsNearYouState(errorMessage: errorMessage);
       }
     } catch (e) {
+      print(e);
       // Return the state of user closest restaurants
       // with an error message and no restaurants data
       return const RestaurantsNearYouState(

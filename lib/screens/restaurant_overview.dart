@@ -22,6 +22,7 @@ class RestaurantOverviewScreen extends StatefulWidget {
 class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
   late List<MenuCategory> menuItems;
+  bool _isLoading = false;
 
   @override
   void initState() {
