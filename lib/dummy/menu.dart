@@ -8,10 +8,11 @@ const menu = [
     categoryItems: [
       MenuItem(
         id: '1',
-        name: 'Crispy Calamari',
+        name: 'Crispy Calamarilskdjflsjkdflskjdflsjdflksjdlfkjsldkfjsldkfj',
         imageUrl:
             'https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?q=80&w=2960&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        description: 'Golden-fried calamari served with tangy marinara sauce.',
+        description:
+            'Golden-fried calamari served with tangy marinara sauce.skdjhfksjdfklsjdflksjdflksjdfl',
         ingredients: 'Calamari, flour, salt, pepper, marinara sauce',
         price: '12.99\$',
         // priceCurrency: 'USD',

@@ -21,7 +21,7 @@ class RestaurantOverviewScreen extends StatefulWidget {
 
 class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
-  late List<MenuCategory> menuItems;
+  late List<MenuCategory>? menuItems;
   bool _isLoading = false;
 
   @override
@@ -88,7 +88,8 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
             ),
             RestaurantOverviewTextInfo(
                 restaurantInfo: widget.restaurantInitData),
-            RestaurantOverviewMenuSection(menu: menuItems)
+            // TODO: delete ! from menu items
+            RestaurantOverviewMenuSection(menu: menuItems!)
           ],
         ),
       ),

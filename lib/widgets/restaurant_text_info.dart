@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 
 class RestaurantOverviewTextInfo extends StatelessWidget {
@@ -39,15 +41,24 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      restaurantInfo.name,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: Colors.white,
-                            fontSize: 24,
-                            height: 1,
-                          ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 32),
+                        child: Text(
+                          // restaurantInfo.name,
+                          "sldkfjlskdjflksjdflksdjflksjdflkjsdf",
+                          maxLines: 1,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  height: 1,
+                                  overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
                     ),
-                    const Spacer(),
                     Text(
                       "\$\$\$",
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
@@ -60,14 +71,22 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Text(
-                      restaurantInfo.addressLine,
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Colors.white,
-                            height: 1,
-                          ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 32),
+                        child: Text(
+                          // restaurantInfo.addressLine,
+                          "sldjflsdjflksjflsjdflkjoioirgiewnvijen/vr",
+                          maxLines: 1,
+                          style:
+                              Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    color: Colors.white,
+                                    height: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                        ),
+                      ),
                     ),
-                    const Spacer(),
                     Text(
                       "${restaurantInfo.distanceKm.toString()} km",
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(

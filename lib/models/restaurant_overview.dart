@@ -8,5 +8,5 @@ class RestaurantOverview {
   });
 
   final RestaurantNearYou restaurantInitData;
-  final List<MenuCategory> menu;
+  final List<MenuCategory>? menu;
 }
