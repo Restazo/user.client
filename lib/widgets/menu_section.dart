@@ -39,36 +39,31 @@ class _RestaurantOverviewMenuSectionState
     });
   }
 
-  Widget buildCategoryWidget() {
-    return Stack(
-      children: List.generate(categoryWidgets.length, (index) {
-        return Visibility(
-          visible: index == activeCategoryIndex,
-          child: categoryWidgets[index],
-        );
-      }),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget activeCategoryWidget = categoryWidgets[activeCategoryIndex];
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CategoriesScroller(
-          menu: widget.menu,
-          activeCategoryIndex: activeCategoryIndex,
-          onselectCategory: onSelectCategory,
-        ),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: activeCategoryWidget,
-          ),
-        ),
+        Column(
+          children: [
+            CategoriesScroller(
+              menu: widget.menu,
+              activeCategoryIndex: activeCategoryIndex,
+              onselectCategory: onSelectCategory,
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: activeCategoryWidget,
+              ),
+            ),
+          ],
+        )
       ],
     );
   }

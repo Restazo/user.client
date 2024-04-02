@@ -60,7 +60,7 @@ class _RestaurantsListViewScreenState
 
     if (_isLoading) {
       content = const KeyedSubtree(
-        key: ValueKey('loader'),
+        key: ValueKey('restaurants_list_view_loader'),
         child: RestaurantsNearYouLoader(),
       );
     } else if (state.data != null && state.data!.isNotEmpty) {

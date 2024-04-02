@@ -41,12 +41,12 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(
+                    Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 32),
                         child: Text(
-                          // restaurantInfo.name,
-                          "sldkfjlskdjflksjdflksdjflksjdflkjsdf",
+                          restaurantInfo.name,
+                          // "lskdfjlsdjflksdjflksjdfklsjdfljsdlkfjsdlfjslkdfjlsjdflsdjflskdjflskdjflk",
                           maxLines: 1,
                           style: Theme.of(context)
                               .textTheme
@@ -59,6 +59,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // const Spacer(),
                     Text(
                       "\$\$\$",
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
@@ -71,12 +72,12 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Flexible(
+                    Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 32),
                         child: Text(
-                          // restaurantInfo.addressLine,
-                          "sldjflsdjflksjflsjdflkjoioirgiewnvijen/vr",
+                          restaurantInfo.addressLine,
+                          // "sldkfjlksdjflskdjflskdjflskdjflskdjflskjdflskdjflskjdflsjk",
                           maxLines: 1,
                           style:
                               Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -87,6 +88,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // const Spacer(),
                     Text(
                       "${restaurantInfo.distanceKm.toString()} km",
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(

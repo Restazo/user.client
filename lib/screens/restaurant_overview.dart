@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:restazo_user_mobile/dummy/menu.dart';
 import 'package:restazo_user_mobile/models/menu_category.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/widgets/loaders/menu_section_loader.dart';
 import 'package:restazo_user_mobile/widgets/menu_section.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_overview_images.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_text_info.dart';
@@ -21,8 +22,9 @@ class RestaurantOverviewScreen extends StatefulWidget {
 
 class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
-  late List<MenuCategory>? menuItems;
+  List<MenuCategory>? menuItems;
   bool _isLoading = false;
+  // String _menuSectionKey = "";
 
   @override
   void initState() {
@@ -30,13 +32,50 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     // TODO: load the data from the API
     // final restaurantFullData = await ApiService().loadRestaurant(widget.restaurantInitData.id)
 
+    _loadRestaurantData();
+  }
+
+  Future<void> _loadRestaurantData() async {
     setState(() {
-      menuItems = menu;
+      _isLoading = true;
     });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Check if the widget tree is mounted
+    // if it is not we need to omit setting new state
+    // as user might leave the screen earlier and "dispose"
+    // will be called earlier
+    if (mounted) {
+      setState(() {
+        menuItems = menu;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget menuSectionWidget;
+
+    if (_isLoading) {
+      menuSectionWidget = const KeyedSubtree(
+        key: ValueKey("restaurant_overview_menu_loader"),
+        child: MenuSectionLoader(),
+      );
+    } else if (menuItems != null && menuItems!.isNotEmpty) {
+      menuSectionWidget = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_menu_data"),
+        child: RestaurantOverviewMenuSection(menu: menuItems!),
+      );
+    } else {
+      menuSectionWidget = const Center(
+        child: Text("Empty menu"),
+      );
+    }
+
+    // Add a check if request failed and show related UI
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -88,8 +127,31 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
             ),
             RestaurantOverviewTextInfo(
                 restaurantInfo: widget.restaurantInitData),
-            // TODO: delete ! from menu items
-            RestaurantOverviewMenuSection(menu: menuItems!)
+            AnimatedSize(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                layoutBuilder:
+                    (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: menuSectionWidget,
+              ),
+            )
           ],
         ),
       ),
