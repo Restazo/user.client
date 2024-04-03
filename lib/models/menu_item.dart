@@ -5,8 +5,8 @@ class MenuItem {
     required this.imageUrl,
     required this.description,
     required this.ingredients,
-    required this.price,
-    // required this.priceCurrency,
+    required this.priceAmount,
+    required this.priceCurrency,
   });
 
   final String id;
@@ -14,6 +14,18 @@ class MenuItem {
   final String imageUrl;
   final String description;
   final String ingredients;
-  final String price;
-  // final String priceCurrency;
+  final String priceAmount;
+  final String priceCurrency;
+
+  factory MenuItem.fromJson(Map<String, dynamic> menuItemJson) {
+    return MenuItem(
+      id: menuItemJson['id']!,
+      name: menuItemJson['name']!,
+      imageUrl: menuItemJson['image']!,
+      description: menuItemJson['description']!,
+      ingredients: menuItemJson['ingredients']!,
+      priceAmount: menuItemJson['priceAmount']!,
+      priceCurrency: menuItemJson['priceCurrency']!,
+    );
+  }
 }

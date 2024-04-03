@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/widgets/affordability_row.dart';
 
 class RestaurantNearYouCard extends StatelessWidget {
   const RestaurantNearYouCard({super.key, required this.restauranInfo});
@@ -167,48 +168,12 @@ class RestaurantNearYouCard extends StatelessWidget {
                             ),
                             Expanded(
                               flex: 0,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "\$",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          color:
-                                              restauranInfo.affordability >= 1
-                                                  ? Colors.white
-                                                  : const Color.fromARGB(
-                                                      255, 144, 144, 144),
-                                        ),
-                                  ),
-                                  Text(
-                                    "\$",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          color:
-                                              restauranInfo.affordability >= 2
-                                                  ? Colors.white
-                                                  : const Color.fromARGB(
-                                                      255, 144, 144, 144),
-                                        ),
-                                  ),
-                                  Text(
-                                    "\$",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          color:
-                                              restauranInfo.affordability >= 3
-                                                  ? Colors.white
-                                                  : const Color.fromARGB(
-                                                      255, 144, 144, 144),
-                                        ),
-                                  ),
-                                ],
+                              child: AffordabilityRow(
+                                affordability: restauranInfo.affordability,
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .fontSize!,
                               ),
                             )
                           ],

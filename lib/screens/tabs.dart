@@ -39,7 +39,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    print("Init tabs");
   }
 
   Future<LocationData?> _getCurrentLocation() async {

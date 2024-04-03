@@ -22,20 +22,20 @@ class RestaurantNearYou {
   final double distanceKm;
   // final String? logoImage;
 
-  factory RestaurantNearYou.fromJson(Map<String, dynamic> json) {
+  factory RestaurantNearYou.fromJson(Map<String, dynamic> restaurantDataJson) {
     return RestaurantNearYou(
-      id: json['id'] as String,
-      coverImage: json['coverImage'] as String?,
-      name: json['name'] as String,
-      description: json['description'] as String?,
-      addressLine: json['addressLine'] as String,
-      affordability: json['affordability'] as int,
-      longitude: double.parse(json['longitude'] as String),
-      latitude: double.parse(json['latitude'] as String),
+      id: restaurantDataJson['id'] as String,
+      coverImage: restaurantDataJson['coverImage'] as String?,
+      name: restaurantDataJson['name'] as String,
+      description: restaurantDataJson['description'] as String?,
+      addressLine: restaurantDataJson['addressLine'] as String,
+      affordability: restaurantDataJson['affordability'] as int,
+      longitude: double.parse(restaurantDataJson['longitude'] as String),
+      latitude: double.parse(restaurantDataJson['latitude'] as String),
       // TODO: uncomment these lines when hotfix/image_pathing is merged into main in user.api repo:
-      // distanceKm: json['distanceKm'],
-      // logoImage: json['logoImage'] as String?,
-      distanceKm: json['distance_km'],
+      // distanceKm: restaurantDataJson['distanceKm'],
+      // logoImage: restaurantDataJson['logoImage'] as String?,
+      distanceKm: restaurantDataJson['distance_km'],
     );
   }
 }

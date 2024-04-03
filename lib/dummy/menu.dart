@@ -14,8 +14,8 @@ const menu = [
         description:
             'Golden-fried calamari served with tangy marinara sauce.skdjhfksjdfklsjdflksjdflksjdfl',
         ingredients: 'Calamari, flour, salt, pepper, marinara sauce',
-        price: '12.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '12.99',
+        priceCurrency: 'usd',
       ),
       // MenuItem(
       //   id: '2',
@@ -25,8 +25,8 @@ const menu = [
       //   description:
       //       'Toasted bread topped with fresh tomatoes, basil, garlic, and olive oil.',
       //   ingredients: 'Bread, tomatoes, basil, garlic, olive oil',
-      //   price: '9.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '9.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '3',
@@ -36,8 +36,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -47,8 +47,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -58,8 +58,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -69,8 +69,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -80,8 +80,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -91,8 +91,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
       // MenuItem(
       //   id: '4',
@@ -102,8 +102,8 @@ const menu = [
       //   description:
       //       'Mushroom caps filled with creamy cheese and herbs, baked to perfection.',
       //   ingredients: 'Mushrooms, cheese, herbs, breadcrumbs',
-      //   price: '10.99\$',
-      //   // priceCurrency: 'USD',
+      //  priceAmount: '10.99',
+      // priceCurrency: 'usd',
       // ),
     ],
   ),
@@ -119,8 +119,8 @@ const menu = [
         description:
             'Fresh Atlantic salmon, grilled to perfection, served with asparagus and lemon butter sauce.',
         ingredients: 'Salmon, asparagus, lemon, butter, herbs',
-        price: '24.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '24.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '5',
@@ -130,8 +130,8 @@ const menu = [
         description:
             '12 oz. prime ribeye steak, char-grilled, with mashed potatoes and seasonal vegetables.',
         ingredients: 'Ribeye steak, potatoes, seasonal vegetables, spices',
-        price: '29.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '29.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '6',
@@ -141,8 +141,8 @@ const menu = [
         description:
             'Layers of pasta, ricotta, mozzarella, spinach, and marinara sauce, baked to perfection.',
         ingredients: 'Pasta, ricotta, mozzarella, spinach, marinara sauce',
-        price: '18.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '18.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '6',
@@ -152,8 +152,8 @@ const menu = [
         description:
             'Layers of pasta, ricotta, mozzarella, spinach, and marinara sauce, baked to perfection.',
         ingredients: 'Pasta, ricotta, mozzarella, spinach, marinara sauce',
-        price: '18.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '18.99',
+        priceCurrency: 'usd',
       ),
     ],
   ),
@@ -168,8 +168,8 @@ const menu = [
         description:
             'Warm chocolate cake with a gooey center, served with vanilla ice cream.',
         ingredients: 'Chocolate, flour, sugar, eggs, vanilla ice cream',
-        price: '8.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '8.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '8',
@@ -178,8 +178,8 @@ const menu = [
         description:
             'Classic Italian dessert with layers of coffee-soaked ladyfingers and mascarpone cream.',
         ingredients: 'Ladyfingers, coffee, mascarpone cheese, cocoa powder',
-        price: '9.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '9.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '9',
@@ -188,8 +188,8 @@ const menu = [
         description:
             'Rich and creamy cheesecake with a graham cracker crust and strawberry topping.',
         ingredients: 'Cream cheese, sugar, eggs, graham cracker, strawberries',
-        price: '10.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '10.99',
+        priceCurrency: 'usd',
       ),
     ],
   ),
@@ -205,8 +205,8 @@ const menu = [
             'Crisp romaine lettuce with parmesan, croutons, and Caesar dressing.',
         ingredients:
             'Romaine lettuce, parmesan cheese, croutons, Caesar dressing',
-        price: '11.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '11.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '11',
@@ -216,8 +216,8 @@ const menu = [
             'Tomatoes, cucumbers, red onions, olives, and feta cheese with olive oil dressing.',
         ingredients:
             'Tomatoes, cucumbers, red onions, olives, feta cheese, olive oil',
-        price: '12.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '12.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '12',
@@ -226,8 +226,8 @@ const menu = [
         description:
             'Quinoa, avocado, black beans, corn, and cilantro lime dressing.',
         ingredients: 'Quinoa, avocado, black beans, corn, cilantro, lime',
-        price: '13.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '13.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '12',
@@ -236,8 +236,8 @@ const menu = [
         description:
             'Quinoa, avocado, black beans, corn, and cilantro lime dressing.',
         ingredients: 'Quinoa, avocado, black beans, corn, cilantro, lime',
-        price: '13.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '13.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '12',
@@ -246,8 +246,8 @@ const menu = [
         description:
             'Quinoa, avocado, black beans, corn, and cilantro lime dressing.',
         ingredients: 'Quinoa, avocado, black beans, corn, cilantro, lime',
-        price: '13.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '13.99',
+        priceCurrency: 'usd',
       ),
     ],
   ),
@@ -261,8 +261,8 @@ const menu = [
         imageUrl: '/menu_items/13131313-1313-1313-1313-131313131313.png',
         description: 'Freshly squeezed lemonade, sweetened to perfection.',
         ingredients: 'Lemon, water, sugar',
-        price: '4.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '4.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '14',
@@ -270,8 +270,8 @@ const menu = [
         imageUrl: '/menu_items/14141414-1414-1414-1414-141414141414.png',
         description: 'Classic iced tea with a hint of lemon.',
         ingredients: 'Tea, water, lemon',
-        price: '3.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '3.99',
+        priceCurrency: 'usd',
       ),
       MenuItem(
         id: '15',
@@ -280,8 +280,8 @@ const menu = [
         description:
             'Strong and rich espresso, made from freshly ground coffee beans.',
         ingredients: 'Coffee beans, water',
-        price: '2.99\$',
-        // priceCurrency: 'USD',
+        priceAmount: '2.99',
+        priceCurrency: 'usd',
       ),
     ],
   ),

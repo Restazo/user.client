@@ -10,4 +10,18 @@ class MenuCategory {
   final String categoryId;
   final String categoryLabel;
   final List<MenuItem> categoryItems;
+
+  factory MenuCategory.fromJson(Map<String, dynamic> menuCategoryJson) {
+    final List<dynamic> categoryItemsJson = menuCategoryJson['categoryItems'];
+
+    final List<MenuItem> categoryItems = categoryItemsJson
+        .map((menuItemJson) => MenuItem.fromJson(menuItemJson))
+        .toList();
+
+    return MenuCategory(
+      categoryId: menuCategoryJson['categoryId']!,
+      categoryLabel: menuCategoryJson['categoryLabel']!,
+      categoryItems: categoryItems,
+    );
+  }
 }

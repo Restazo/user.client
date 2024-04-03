@@ -2,13 +2,21 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:restazo_user_mobile/dummy/menu.dart';
+import 'package:restazo_user_mobile/helpers/api_result.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/menu_category.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/widgets/loaders/menu_section_loader.dart';
 import 'package:restazo_user_mobile/widgets/menu_section.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_overview_images.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_text_info.dart';
+import 'package:restazo_user_mobile/widgets/snack_bar.dart';
+
+class RestaurantOverviewMenuState extends APIServiceResult<List<MenuCategory>> {
+  // Constructor function that passes arguments to the
+  // APIServiceResult class
+  const RestaurantOverviewMenuState({super.data, super.errorMessage});
+}
 
 class RestaurantOverviewScreen extends StatefulWidget {
   const RestaurantOverviewScreen({super.key, required this.restaurantInitData});
@@ -22,25 +30,35 @@ class RestaurantOverviewScreen extends StatefulWidget {
 
 class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
-  List<MenuCategory>? menuItems;
+  // Initialize the menu state with an empty array
+  late RestaurantOverviewMenuState menuState =
+      const RestaurantOverviewMenuState(data: []);
   bool _isLoading = false;
-  // String _menuSectionKey = "";
 
   @override
   void initState() {
     super.initState();
-    // TODO: load the data from the API
-    // final restaurantFullData = await ApiService().loadRestaurant(widget.restaurantInitData.id)
-
-    _loadRestaurantData();
+    _loadRestaurantMenuData();
   }
 
-  Future<void> _loadRestaurantData() async {
+  Future<void> _loadRestaurantMenuData() async {
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
+    final RestaurantOverviewMenuState result =
+        await APIService().loadMenuByRestaurantId(widget.restaurantInitData.id);
+
+    if (!result.isSuccess) {
+      if (mounted) {
+        setState(() {
+          menuState = RestaurantOverviewMenuState(
+              data: [], errorMessage: result.errorMessage);
+          _isLoading = false;
+        });
+      }
+      return;
+    }
 
     // Check if the widget tree is mounted
     // if it is not we need to omit setting new state
@@ -48,7 +66,8 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     // will be called earlier
     if (mounted) {
       setState(() {
-        menuItems = menu;
+        menuState =
+            RestaurantOverviewMenuState(data: result.data, errorMessage: null);
         _isLoading = false;
       });
     }
@@ -63,18 +82,38 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
         key: ValueKey("restaurant_overview_menu_loader"),
         child: MenuSectionLoader(),
       );
-    } else if (menuItems != null && menuItems!.isNotEmpty) {
+    } else if (menuState.isSuccess && menuState.data!.isNotEmpty) {
       menuSectionWidget = KeyedSubtree(
         key: const ValueKey("restaurant_overview_menu_data"),
-        child: RestaurantOverviewMenuSection(menu: menuItems!),
+        child: RestaurantOverviewMenuSection(menu: menuState.data!),
       );
     } else {
-      menuSectionWidget = const Center(
-        child: Text("Empty menu"),
+      menuSectionWidget = Center(
+        child: Text(
+          "No menu",
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: Colors.white,
+              ),
+        ),
       );
     }
 
-    // Add a check if request failed and show related UI
+    // Show snackbar on error
+    if (menuState.errorMessage != null && !_isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context)
+            .clearSnackBars(); // Clear existing snackbars first
+        ScaffoldMessenger.of(context).showSnackBar(SnackBarWithAction.create(
+            content: Text(
+              menuState.errorMessage!,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+            actionFunction: _loadRestaurantMenuData,
+            actionLabel: "Reload"));
+      });
+    }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -97,6 +136,7 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
                   height: 28,
                 ),
                 onPressed: () {
+                  ScaffoldMessenger.of(context).clearSnackBars();
                   context.pop();
                 },
               ),
@@ -123,6 +163,7 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
             RestaurantOverviewImages(
               coverImage: widget.restaurantInitData.coverImage,
               logoImage:
+                  //  TODO: replace with the actual logo
                   'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             ),
             RestaurantOverviewTextInfo(
@@ -151,7 +192,7 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
                 },
                 child: menuSectionWidget,
               ),
-            )
+            ),
           ],
         ),
       ),

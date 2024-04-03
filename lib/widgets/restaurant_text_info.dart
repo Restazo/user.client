@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/widgets/affordability_row.dart';
 
 class RestaurantOverviewTextInfo extends StatelessWidget {
   const RestaurantOverviewTextInfo({super.key, required this.restaurantInfo});
@@ -46,7 +46,6 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 32),
                         child: Text(
                           restaurantInfo.name,
-                          // "lskdfjlsdjflksdjflksjdfklsjdfljsdlkfjsdlfjslkdfjlsjdflsdjflskdjflskdjflk",
                           maxLines: 1,
                           style: Theme.of(context)
                               .textTheme
@@ -59,13 +58,10 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // const Spacer(),
-                    Text(
-                      "\$\$\$",
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: Colors.white,
-                            height: 1,
-                          ),
+                    AffordabilityRow(
+                      affordability: restaurantInfo.affordability,
+                      fontSize:
+                          Theme.of(context).textTheme.titleLarge!.fontSize!,
                     ),
                   ],
                 ),
@@ -77,7 +73,6 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 32),
                         child: Text(
                           restaurantInfo.addressLine,
-                          // "sldkfjlksdjflskdjflskdjflskdjflskdjflskjdflskdjflskjdflsjk",
                           maxLines: 1,
                           style:
                               Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -88,7 +83,6 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // const Spacer(),
                     Text(
                       "${restaurantInfo.distanceKm.toString()} km",
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
