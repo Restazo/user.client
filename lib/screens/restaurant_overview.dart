@@ -53,10 +53,8 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     if (!result.isSuccess) {
       if (mounted) {
         setState(() {
-          // menuState = RestaurantOverviewMenuState(
-          //     data: [], errorMessage: result.errorMessage);
-          menuState =
-              RestaurantOverviewMenuState(data: menu, errorMessage: null);
+          menuState = RestaurantOverviewMenuState(
+              data: [], errorMessage: result.errorMessage);
           _isLoading = false;
         });
       }
@@ -71,7 +69,6 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
       setState(() {
         menuState =
             RestaurantOverviewMenuState(data: result.data, errorMessage: null);
-        // RestaurantOverviewMenuState(data: menu, errorMessage: null);
         _isLoading = false;
       });
     }
