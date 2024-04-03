@@ -68,9 +68,13 @@ class _MenuItemCardState extends State<MenuItemCard> {
                             color: const Color.fromARGB(50, 255, 255, 255)),
                       ),
                       // const RestaurantNearYouCoverLoader(),
-                      errorWidget: (context, url, error) => const Icon(
-                        Icons.error,
-                        color: Colors.white,
+                      errorWidget: (context, url, error) => Container(
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 60, 60, 60)),
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
