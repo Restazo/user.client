@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/dummy/menu.dart';
 
 import 'package:restazo_user_mobile/helpers/api_result.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
@@ -52,8 +53,10 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
     if (!result.isSuccess) {
       if (mounted) {
         setState(() {
-          menuState = RestaurantOverviewMenuState(
-              data: [], errorMessage: result.errorMessage);
+          // menuState = RestaurantOverviewMenuState(
+          //     data: [], errorMessage: result.errorMessage);
+          menuState =
+              RestaurantOverviewMenuState(data: menu, errorMessage: null);
           _isLoading = false;
         });
       }
@@ -68,6 +71,7 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
       setState(() {
         menuState =
             RestaurantOverviewMenuState(data: result.data, errorMessage: null);
+        // RestaurantOverviewMenuState(data: menu, errorMessage: null);
         _isLoading = false;
       });
     }

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:restazo_user_mobile/helpers/currency.dart';
 
 import 'package:restazo_user_mobile/models/menu_item.dart';
 
@@ -18,6 +19,13 @@ class MenuItemCard extends StatefulWidget {
 class _MenuItemCardState extends State<MenuItemCard> {
   @override
   Widget build(BuildContext context) {
+    final priceStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(
+          color: Colors.white,
+          fontSize: 16,
+          height: 1,
+          letterSpacing: 0,
+        );
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: ClipRRect(
@@ -124,18 +132,21 @@ class _MenuItemCardState extends State<MenuItemCard> {
                               Column(
                                 children: [
                                   const Spacer(),
-                                  Text(
-                                    widget.itemData.priceAmount,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          height: 1,
-                                          letterSpacing: 0,
-                                        ),
-                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        widget.itemData.priceAmount,
+                                        maxLines: 1,
+                                        style: priceStyle,
+                                      ),
+                                      Text(
+                                        CurrencyHelper.getSymbol(
+                                            widget.itemData.priceCurrency),
+                                        maxLines: 1,
+                                        style: priceStyle,
+                                      )
+                                    ],
+                                  )
                                 ],
                               )
                             ],
