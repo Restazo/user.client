@@ -9,6 +9,7 @@ class RestaurantNearYou {
     required this.latitude,
     required this.longitude,
     required this.distanceKm,
+    required this.logoImage,
   });
 
   final String id;
@@ -19,8 +20,8 @@ class RestaurantNearYou {
   final int affordability;
   final double longitude;
   final double latitude;
-  final double distanceKm;
-  // final String? logoImage;
+  final String distanceKm;
+  final String? logoImage;
 
   factory RestaurantNearYou.fromJson(Map<String, dynamic> restaurantDataJson) {
     return RestaurantNearYou(
@@ -32,10 +33,8 @@ class RestaurantNearYou {
       affordability: restaurantDataJson['affordability'] as int,
       longitude: double.parse(restaurantDataJson['longitude'] as String),
       latitude: double.parse(restaurantDataJson['latitude'] as String),
-      // TODO: uncomment these lines when hotfix/image_pathing is merged into main in user.api repo:
-      // distanceKm: restaurantDataJson['distanceKm'],
-      // logoImage: restaurantDataJson['logoImage'] as String?,
-      distanceKm: restaurantDataJson['distance_km'],
+      distanceKm: restaurantDataJson['distanceKm'],
+      logoImage: restaurantDataJson['logoImage'] as String?,
     );
   }
 }

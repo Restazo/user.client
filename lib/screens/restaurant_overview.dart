@@ -162,9 +162,7 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
           children: [
             RestaurantOverviewImages(
               coverImage: widget.restaurantInitData.coverImage,
-              logoImage:
-                  //  TODO: replace with the actual logo
-                  'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+              logoImage: widget.restaurantInitData.logoImage,
             ),
             RestaurantOverviewTextInfo(
                 restaurantInfo: widget.restaurantInitData),
