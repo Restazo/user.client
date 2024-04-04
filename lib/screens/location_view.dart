@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:location/location.dart';
-// import 'package:permission_handler/permission_handler.dart' as ph;
 
 class LocationView extends StatelessWidget {
   const LocationView({super.key});
@@ -126,41 +124,4 @@ class LocationView extends StatelessWidget {
       ),
     );
   }
-
-  // Future<void> _enableLocation(BuildContext context) async {
-  //   final ph.PermissionStatus permissionGrantedResult = await ph.Permission.location.request();
-  //   if (permissionGrantedResult == ph.PermissionStatus.granted) {
-  //     final Location location = Location();
-  //     bool serviceEnabled = await location.serviceEnabled();
-  //     if (!serviceEnabled) {
-  //       serviceEnabled = await location.requestService();
-  //       if (!serviceEnabled) {
-  //         _showAlert(context, "Location Service Disabled", "Please enable location services in your device settings to continue.");
-  //         return;
-  //       }
-  //     }
-  //   } else {
-  //     _showAlert(context, "Location Permission Denied", "Please grant location permission to use this feature.");
-  //   }
-  // }
-
-  // void _showAlert(BuildContext context, String title, String content) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(title),
-  //         content: Text(content),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text("OK"),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 }
