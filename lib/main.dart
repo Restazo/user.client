@@ -5,12 +5,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:restazo_user_mobile/app_block/theme.dart';
+import 'package:restazo_user_mobile/helpers/env_check.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load env variables
   await dotenv.load(fileName: ".env");
+  checkEnv();
 
   // Get the device secure storage
   const storage = FlutterSecureStorage();
