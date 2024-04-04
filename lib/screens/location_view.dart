@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LocationView extends StatelessWidget {
+class LocationView extends StatefulWidget {
   const LocationView({super.key});
+
+  @override
+  State<LocationView> createState() => _LocationViewState();
+}
+
+class _LocationViewState extends State<LocationView> {
+  final storage = const FlutterSecureStorage();
+
+  Future _continue() async {
+    String deviceId = "your_generated_device_id";
+    await storage.write(key: "device_id", value: deviceId);
+    if (mounted) {
+      context.goNamed("restaurants");
+    }
+  }
 
   Widget _buildSection(
     BuildContext context,
@@ -77,7 +94,7 @@ class LocationView extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 24),
                   _buildSection(
                       context,
                       'Location Access',
@@ -105,7 +122,7 @@ class LocationView extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _continue,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: const Color.fromARGB(255, 242, 242, 242),
