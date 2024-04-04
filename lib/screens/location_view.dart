@@ -62,7 +62,7 @@ class LocationView extends StatelessWidget {
               child: Center(
                 child: AspectRatio(
                   aspectRatio: 350 / 239,
-                  child: Image.asset('assets/document.jpg', fit: BoxFit.cover),
+                  child: Image.asset('assets/pic.jpg', fit: BoxFit.cover),
                 ),
               ),
             ),

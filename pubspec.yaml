@@ -35,8 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
-  permission_handler: ^10.2.0 # Check for the latest version on pub.dev
-
 
 dev_dependencies:
   flutter_test:
@@ -59,7 +57,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/document.jpg
+    - assets/pic.jpg
     - assets/magic-wand.png
     - assets/padlock.png
     - assets/shield.png
