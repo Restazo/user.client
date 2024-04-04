@@ -5,6 +5,7 @@ import 'package:location/location.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurants_near_you_loader.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
+import 'package:restazo_user_mobile/widgets/snack_bar.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
   const RestaurantsListViewScreen(
@@ -60,17 +61,17 @@ class _RestaurantsListViewScreenState
 
     if (_isLoading) {
       content = const KeyedSubtree(
-        key: ValueKey('loader'),
+        key: ValueKey('restaurants_list_view_loader'),
         child: RestaurantsNearYouLoader(),
       );
-    } else if (state.restaurants != null && state.restaurants!.isNotEmpty) {
+    } else if (state.data != null && state.data!.isNotEmpty) {
       // List is not null and not empty, show the list
       content = KeyedSubtree(
         key: const ValueKey('data'),
         child: ListView.builder(
-          itemCount: state.restaurants!.length,
+          itemCount: state.data!.length,
           itemBuilder: (ctx, index) {
-            final item = state.restaurants![index];
+            final item = state.data![index];
             return RestaurantNearYouCard(
               restauranInfo: item,
             );
@@ -94,30 +95,19 @@ class _RestaurantsListViewScreenState
     }
 
     // Show snackbar on error
-    if (state.error != null && !_isLoading) {
+    if (state.errorMessage != null && !_isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context)
             .clearSnackBars(); // Clear existing snackbars first
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            state.error!,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: Colors.white,
-                ),
-          ),
-          duration: const Duration(minutes: 10),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
-          backgroundColor: const Color.fromARGB(255, 22, 32, 35),
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: "Reload",
-            onPressed: reloadRestaurants,
-            textColor: Colors.green,
-          ),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBarWithAction.create(
+            content: Text(
+              state.errorMessage!,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+            actionFunction: reloadRestaurants,
+            actionLabel: "Reload"));
       });
     }
 

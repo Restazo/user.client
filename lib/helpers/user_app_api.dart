@@ -1,29 +1,66 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
 
+import 'package:restazo_user_mobile/models/menu_category.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 
+// Class to interact with user API, all the functions to call an API must
+// be defined here
 class APIService {
+  // Get all the needed environment variables
   final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
   final String env = dotenv.env['ENV']!;
-  final String restaurantsNearMeEndpoint = dotenv.env['RESTAURANTS_NEAR_ME']!;
+  final String restaurantsEndpointsRoot =
+      dotenv.env['RESTAURANTS_ENDPOINTS_ROOT']!;
   final String userLatitudeQueryName = dotenv.env["USER_LATITUDE_QUERY_NAME"]!;
   final String userLongitudeQueryName =
       dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
   final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
+  final String protocol = dotenv.env['HTTP_PROTOCOL']!;
 
-  String getProtocol() {
-    return env == 'prod' ? 'https' : 'http';
+  Uri getUrl({
+    Map<String, dynamic>? queryParameters,
+    String? path,
+  }) {
+    // Parse the base URL into its components
+    final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
+
+    // Construct the URL with passed query parameters
+    // and path
+    final url = Uri(
+      scheme: protocol,
+      host: baseUrlParsed.host,
+      port: baseUrlParsed.port,
+      path: path,
+      queryParameters: queryParameters,
+    );
+
+    return url;
   }
 
-  Future<List<RestaurantNearYou>?> loadRestaurantsNearYou(
-      LocationData? locationData) async {
-    final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
-    final protocol = getProtocol();
+  String _decodeError(Response response) {
+    // Decode the response body
+    final resJson = json.decode(response.body);
+    // Extract the message property from the response body,
+    // assing default error message if no "message" property
+    // present in the response body
+    final String errorMessage =
+        resJson['message'] ?? "Sorry, but unknown error occured";
 
+    return errorMessage;
+  }
+
+  Future<RestaurantsNearYouState> loadRestaurantsNearYou(
+      LocationData? locationData) async {
+    // Define query parameters and path
+    // where request will be sent
     Map<String, dynamic> queryParameters = {};
+    final String path = restaurantsEndpointsRoot;
 
     // TODO: add checking for range set by user here
     // if (userSettingRange) {
@@ -34,6 +71,9 @@ class APIService {
     //   );
     // }
 
+    // Check if location passed
+    // append query parameters if location is passed
+    // from the user
     if (locationData != null) {
       queryParameters.addEntries(
         {
@@ -43,12 +83,8 @@ class APIService {
       );
     }
 
-    final url = Uri(
-        scheme: protocol,
-        host: baseUrlParsed.host,
-        port: baseUrlParsed.port,
-        path: restaurantsNearMeEndpoint,
-        queryParameters: queryParameters);
+    // Generate final URL where request will be sent
+    final url = getUrl(queryParameters: queryParameters, path: path);
 
     try {
       final res = await http.get(url);
@@ -57,16 +93,61 @@ class APIService {
         final resJson = json.decode(res.body);
         final List<dynamic> jsonData = resJson['data'];
 
-        List<RestaurantNearYou> data = jsonData
+        final List<RestaurantNearYou> data = jsonData
             .map((restaurantJson) => RestaurantNearYou.fromJson(restaurantJson))
             .toList();
 
-        return data;
+        // Return the state of user closest restaurants
+        // with the actual restaurants data
+        return RestaurantsNearYouState(data: data);
       } else {
-        return null;
+        // Decode an error if response code is not 200
+        final errorMessage = _decodeError(res);
+        // Return the state of user closest restaurants
+        // with an error message and no restaurants data
+        return RestaurantsNearYouState(errorMessage: errorMessage);
       }
     } catch (e) {
-      return null;
+      // Return the state of user closest restaurants
+      // with an error message and no restaurants data
+      return const RestaurantsNearYouState(
+          errorMessage: "Failed to fetch restaurants");
+    }
+  }
+
+  Future<RestaurantOverviewMenuState> loadMenuByRestaurantId(String id) async {
+    final url = getUrl(path: "$restaurantsEndpointsRoot/$id");
+
+    try {
+      final res = await http.get(url);
+
+      if (res.statusCode == 200) {
+        // Decode the response body
+        final resJson = json.decode(res.body);
+        final dynamic menuJson = resJson['data']['restaurant']['menu'];
+
+        // Transform JSON data into code understandable types
+        final List<MenuCategory> menuData = menuJson
+            .map<MenuCategory>(
+                (menuCategoryJson) => MenuCategory.fromJson(menuCategoryJson))
+            .toList();
+
+        // Return the state of restaurant menu
+        // with menu data
+        return RestaurantOverviewMenuState(data: menuData);
+      } else {
+        // Decode an error if response code is not 200
+        final errorMessage = _decodeError(res);
+
+        // Return the state of restaurant menu
+        // with an error message and no menu data
+        return RestaurantOverviewMenuState(errorMessage: errorMessage);
+      }
+    } catch (e) {
+      // Return the state of restaurant menu
+      // with an error message and no menu data
+      return const RestaurantOverviewMenuState(
+          errorMessage: 'Failed to fetch restaurant info');
     }
   }
 }
