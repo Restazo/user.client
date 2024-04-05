@@ -177,7 +177,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
 
                   // TODO: delete these lines, they are only for testing purposes
                   final storage = const FlutterSecureStorage();
-                  await storage.delete(key: "device_id");
+                  await storage.delete(key: "deviceId");
                 },
                 icon: Image.asset(
                   'assets/setting.png',

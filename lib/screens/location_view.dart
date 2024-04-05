@@ -15,7 +15,7 @@ class _LocationViewState extends State<LocationView> {
 
   Future _continue() async {
     String deviceId = "your_generated_device_id";
-    await storage.write(key: "device_id", value: deviceId);
+    await storage.write(key: "deviceId", value: deviceId);
     if (mounted) {
       context.goNamed("restaurants");
     }
