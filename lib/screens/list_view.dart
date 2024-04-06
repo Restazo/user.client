@@ -8,10 +8,11 @@ import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
 import 'package:restazo_user_mobile/widgets/snack_bar.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
-  const RestaurantsListViewScreen(
-      {super.key,
-      required this.getCurrentLocation,
-      required this.reloadRestaurants});
+  const RestaurantsListViewScreen({
+    super.key,
+    required this.getCurrentLocation,
+    required this.reloadRestaurants,
+  });
 
   final Future<LocationData?> Function() getCurrentLocation;
   final Future<void> Function(LocationData?) reloadRestaurants;
@@ -96,19 +97,24 @@ class _RestaurantsListViewScreenState
 
     // Show snackbar on error
     if (state.errorMessage != null && !_isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context)
-            .clearSnackBars(); // Clear existing snackbars first
-        ScaffoldMessenger.of(context).showSnackBar(SnackBarWithAction.create(
-            content: Text(
-              state.errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.white,
-                  ),
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          ScaffoldMessenger.of(context)
+              .clearSnackBars(); // Clear existing snackbars first
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBarWithAction.create(
+              content: Text(
+                state.errorMessage!,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              actionFunction: reloadRestaurants,
+              actionLabel: "Reload",
             ),
-            actionFunction: reloadRestaurants,
-            actionLabel: "Reload"));
-      });
+          );
+        },
+      );
     }
 
     return Padding(

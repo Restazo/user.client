@@ -23,21 +23,13 @@ class RestaurantsNearYouNotifier
 
   Future<void> loadRestaurantsNearYou(LocationData? locationData) async {
     try {
-      RestaurantsNearYouState result =
+      final RestaurantsNearYouState result =
           await APIService().loadRestaurantsNearYou(locationData);
 
-      // Directly checking the isSuccess flag and setting state without throwing an exception
-      if (!result.isSuccess) {
-        // Directly use the errorMessage
-        state = RestaurantsNearYouState(
-            data: const [], errorMessage: result.errorMessage);
-        return;
-      }
-
-      state = RestaurantsNearYouState(data: result.data, errorMessage: null);
+      state = result;
     } catch (e) {
-      state =
-          RestaurantsNearYouState(data: const [], errorMessage: e.toString());
+      state = const RestaurantsNearYouState(
+          data: [], errorMessage: "Something unexpected happened");
     }
   }
 }

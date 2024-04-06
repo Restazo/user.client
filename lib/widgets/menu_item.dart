@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
 
 import 'package:restazo_user_mobile/models/menu_item.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 
 class MenuItemCard extends StatefulWidget {
   const MenuItemCard({
@@ -45,7 +47,17 @@ class _MenuItemCardState extends State<MenuItemCard> {
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onTap: () {
-              // TODO: navigate to menu item page
+              // final Map<String, String> existingParametersMap =
+              //     GoRouterState.of(context).pathParameters;
+
+              // context.goNamed(
+              //   ScreenNames.menuItemDetail.name,
+              //   pathParameters: {
+              //     'item_id': widget.itemData.id,
+              //     ...existingParametersMap,
+              //   },
+              //   // extra: widget.itemData,
+              // );
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +134,8 @@ class _MenuItemCardState extends State<MenuItemCard> {
                                         .textTheme
                                         .bodySmall!
                                         .copyWith(
-                                          color: Colors.white,
+                                          color: const Color.fromARGB(
+                                              255, 222, 222, 222),
                                           fontSize: 10,
                                           height: 1.6,
                                         ),
