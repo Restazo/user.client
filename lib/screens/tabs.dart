@@ -25,10 +25,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
 
   List<Widget> get _pages {
     return [
-      RestaurantsListViewScreen(
-        getCurrentLocation: _getCurrentLocation,
-        reloadRestaurants: reloadRestaurants,
-      ),
+      RestaurantsListViewScreen(reloadRestaurants: reloadRestaurants),
       const MapScreen(),
     ];
   }
@@ -41,32 +38,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-  }
-
-  Future<LocationData?> _getCurrentLocation() async {
-    final Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return null;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
-    }
-
-    locationData = await location.getLocation();
-    return locationData;
   }
 
   Future<void> reloadRestaurants(LocationData? currentLocation) async {

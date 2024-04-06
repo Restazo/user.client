@@ -115,8 +115,23 @@ class APIService {
     }
   }
 
-  Future<RestaurantOverviewState> loadRestaurantOverviewById(String id) async {
-    final url = getUrl(path: "$restaurantsEndpointsRoot/$id");
+  Future<RestaurantOverviewState> loadRestaurantOverviewById(
+      String id, LocationData? currentLocation) async {
+    Map<String, dynamic> queryParameters = {};
+
+    if (currentLocation != null) {
+      queryParameters.addEntries(
+        {
+          userLatitudeQueryName: currentLocation.latitude.toString(),
+          userLongitudeQueryName: currentLocation.longitude.toString(),
+        }.entries,
+      );
+    }
+
+    final url = getUrl(
+      path: "$restaurantsEndpointsRoot/$id",
+      queryParameters: queryParameters,
+    );
 
     try {
       final res = await http.get(url);
@@ -127,14 +142,8 @@ class APIService {
         final dynamic restaurantOverviewDataJson =
             resJson['data']['restaurant'];
 
-        // Transform JSON data into code understandable types
-        // final List<MenuCategory> menuData = menuJson
-        //     .map<MenuCategory>(
-        //         (menuCategoryJson) => MenuCategory.fromJson(menuCategoryJson))
-        //     .toList();
         final restaurantOverviewData =
             RestaurantOverview.fromJson(restaurantOverviewDataJson);
-
         // Return the state of restaurant menu
         // with menu data
         return RestaurantOverviewState(

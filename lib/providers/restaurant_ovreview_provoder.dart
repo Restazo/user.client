@@ -1,14 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:location/location.dart';
 import 'package:restazo_user_mobile/helpers/api_result.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
-
-// class RestaurantOverviewMenuState extends APIServiceResult<List<MenuCategory>> {
-//   // Constructor function that passes arguments to the
-//   // APIServiceResult class
-//   const RestaurantOverviewMenuState({super.data, super.errorMessage});
-// }
 
 class RestaurantOverviewState extends APIServiceResult<RestaurantOverview> {
   const RestaurantOverviewState(
@@ -20,12 +15,17 @@ class RestaurantOverviewState extends APIServiceResult<RestaurantOverview> {
 class RestaurantOverviewNotifier
     extends StateNotifier<RestaurantOverviewState> {
   RestaurantOverviewNotifier()
-      : super(const RestaurantOverviewState(data: null, errorMessage: null));
+      : super(const RestaurantOverviewState(
+          data: null,
+          errorMessage: null,
+          initialRestaurantData: null,
+        ));
 
-  Future<void> loadRestaurantOverviewById(String restaurantId) async {
+  Future<void> loadRestaurantOverviewById(
+      String restaurantId, LocationData? currentLocation) async {
     try {
-      final RestaurantOverviewState result =
-          await APIService().loadRestaurantOverviewById(restaurantId);
+      final RestaurantOverviewState result = await APIService()
+          .loadRestaurantOverviewById(restaurantId, currentLocation);
 
       state = RestaurantOverviewState(
         initialRestaurantData: state.initialRestaurantData,
@@ -34,6 +34,7 @@ class RestaurantOverviewNotifier
       );
     } catch (e) {
       state = const RestaurantOverviewState(
+        initialRestaurantData: null,
         data: null,
         errorMessage: 'Something unexpected happened',
       );

@@ -3,7 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 
-import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 
@@ -37,7 +36,7 @@ class AppRouter {
           GoRoute(
             path: 'restaurants/:restaurant_id',
             name: ScreenNames.restaurantDetail.name,
-            builder: (context, state) => RestaurantOverviewScreen(),
+            builder: (context, state) => const RestaurantOverviewScreen(),
             routes: [
               GoRoute(
                 path: 'menu-item/:item_id',

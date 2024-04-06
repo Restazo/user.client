@@ -15,10 +15,10 @@ class RestaurantOverview {
 
   final String id;
   final String name;
-  final String description;
+  final String? description;
   final int affordability;
-  final String logoImage;
-  final String coverImage;
+  final String? logoImage;
+  final String? coverImage;
   final RestaurantAddress address;
   final List<MenuCategory> menu;
 
@@ -32,18 +32,16 @@ class RestaurantOverview {
             (menuCategoryJson) => MenuCategory.fromJson(menuCategoryJson))
         .toList();
 
-    // call address from json
-
     final RestaurantAddress addressData =
         RestaurantAddress.fromJson(addressJson);
 
     return RestaurantOverview(
       id: restaurantOverviewDataJson['id']!,
       name: restaurantOverviewDataJson['name']!,
-      description: restaurantOverviewDataJson['description']!,
+      description: restaurantOverviewDataJson['description'],
       affordability: restaurantOverviewDataJson['affordability']!,
-      logoImage: restaurantOverviewDataJson['logoImage']!,
-      coverImage: restaurantOverviewDataJson['coverImage']!,
+      logoImage: restaurantOverviewDataJson['logoImage'],
+      coverImage: restaurantOverviewDataJson['coverImage'],
       address: addressData,
       menu: menuData,
     );

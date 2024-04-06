@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:restazo_user_mobile/helpers/currency.dart';
 
+import 'package:restazo_user_mobile/helpers/currency.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
+import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
-class MenuItemCard extends StatefulWidget {
+class MenuItemCard extends ConsumerWidget {
   const MenuItemCard({
     super.key,
     required this.itemData,
@@ -14,13 +16,22 @@ class MenuItemCard extends StatefulWidget {
 
   final MenuItem itemData;
 
-  @override
-  State<MenuItemCard> createState() => _MenuItemCardState();
-}
+  void _goToItemScreen(BuildContext context, WidgetRef ref) {
+    ref.read(menuItemProvider.notifier).enterRestaurantOverviewScreen(itemData);
+    final Map<String, String> existingParametersMap =
+        GoRouterState.of(context).pathParameters;
 
-class _MenuItemCardState extends State<MenuItemCard> {
+    context.goNamed(
+      ScreenNames.menuItemDetail.name,
+      pathParameters: {
+        'item_id': itemData.id,
+        ...existingParametersMap,
+      },
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final priceStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(
           color: Colors.white,
           fontSize: 16,
@@ -47,17 +58,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onTap: () {
-              // final Map<String, String> existingParametersMap =
-              //     GoRouterState.of(context).pathParameters;
-
-              // context.goNamed(
-              //   ScreenNames.menuItemDetail.name,
-              //   pathParameters: {
-              //     'item_id': widget.itemData.id,
-              //     ...existingParametersMap,
-              //   },
-              //   // extra: widget.itemData,
-              // );
+              _goToItemScreen(context, ref);
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +77,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: CachedNetworkImage(
-                      imageUrl: widget.itemData.imageUrl,
+                      imageUrl: itemData.imageUrl,
                       height: 96,
                       width: 128,
                       fit: BoxFit.cover,
@@ -106,7 +107,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.itemData.name,
+                          itemData.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
@@ -127,7 +128,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 24),
                                   child: Text(
-                                    widget.itemData.description,
+                                    itemData.description,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context)
@@ -148,13 +149,13 @@ class _MenuItemCardState extends State<MenuItemCard> {
                                   Row(
                                     children: [
                                       Text(
-                                        widget.itemData.priceAmount,
+                                        itemData.priceAmount,
                                         maxLines: 1,
                                         style: priceStyle,
                                       ),
                                       Text(
                                         CurrencyHelper.getSymbol(
-                                            widget.itemData.priceCurrency),
+                                            itemData.priceCurrency),
                                         maxLines: 1,
                                         style: priceStyle,
                                       )

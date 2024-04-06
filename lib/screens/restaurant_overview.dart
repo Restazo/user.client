@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:location/location.dart';
 
+import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
-import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
-import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
+import 'package:restazo_user_mobile/widgets/error_widgets/error_screen.dart';
 import 'package:restazo_user_mobile/widgets/loaders/menu_section_loader.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurant_overview_images_loader.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurant_overview_text_data_loader.dart';
 import 'package:restazo_user_mobile/widgets/menu_section.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_overview_images.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_text_info.dart';
-import 'package:restazo_user_mobile/widgets/snack_bar.dart';
-
-// class RestaurantOverviewMenuState extends APIServiceResult<List<MenuCategory>> {
-//   // Constructor function that passes arguments to the
-//   // APIServiceResult class
-//   const RestaurantOverviewMenuState({super.data, super.errorMessage});
-// }
 
 class RestaurantOverviewScreen extends ConsumerStatefulWidget {
   const RestaurantOverviewScreen({super.key});
@@ -33,11 +26,9 @@ class RestaurantOverviewScreen extends ConsumerStatefulWidget {
 class _RestaurantOverviewScreenState
     extends ConsumerState<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
-  // Initialize the menu state with an empty array
-  // late RestaurantOverviewMenuState menuState =
-  //     const RestaurantOverviewMenuState(data: [], errorMessage: null);
   bool _isLoading = false;
   bool _screenInitialised = false;
+  late Future<void> _loadRestaurantOverviewFuture;
 
   @override
   void initState() {
@@ -48,9 +39,15 @@ class _RestaurantOverviewScreenState
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_screenInitialised) {
-      _loadRestaurantOverview();
+      _loadRestaurantOverviewFuture = _loadRestaurantOverview();
       _screenInitialised = true;
     }
+  }
+
+  @override
+  void dispose() {
+    _loadRestaurantOverviewFuture.ignore();
+    super.dispose();
   }
 
   Future<void> _loadRestaurantOverview() async {
@@ -65,11 +62,18 @@ class _RestaurantOverviewScreenState
     Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
     var restaurantId = arguments['restaurant_id'];
 
-    await Future.delayed(const Duration(seconds: 2));
+    LocationData? currentLocation;
+
+    final restaurantOverviewState = ref.watch(restaurantOverviewProvider);
+
+    if (restaurantOverviewState.initialRestaurantData == null) {
+      currentLocation = await getCurrentLocation();
+    }
+
     // load the restaurant data into the provider
     await ref
         .read(restaurantOverviewProvider.notifier)
-        .loadRestaurantOverviewById(restaurantId);
+        .loadRestaurantOverviewById(restaurantId, currentLocation);
 
     if (mounted) {
       setState(() {
@@ -78,11 +82,20 @@ class _RestaurantOverviewScreenState
     }
   }
 
+  void _clearRestaurantOverviewProvider() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ref
+        .read(restaurantOverviewProvider.notifier)
+        .leaveRestaurantOverviewScreen();
+  }
+
   void _navigateBack() {
+    _clearRestaurantOverviewProvider();
     navigateBack(context);
   }
 
   void _openQrScanner() {
+    _clearRestaurantOverviewProvider();
     openQrScanner(context);
   }
 
@@ -90,30 +103,89 @@ class _RestaurantOverviewScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantOverviewProvider);
 
-    List<Widget> restaurantOverviewWidgets;
+    Widget? menuSectionWidget;
+    Widget? textSectionWidget;
+    Widget? imagesSectionWidget;
+    Widget content;
 
-    if (state.initialRestaurantData != null && _isLoading) {
-      restaurantOverviewWidgets = [
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_images_data'),
-          child: RestaurantOverviewImages(
-            coverImage: state.initialRestaurantData!.coverImage,
-            logoImage: state.initialRestaurantData!.logoImage,
-          ),
+    Widget noRestaurantFound = Center(
+      child: Text(
+        "No restaurant found",
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Colors.white),
+      ),
+    );
+    Widget noMenuFound = Center(
+      child: Text(
+        "No menu found",
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Colors.white),
+      ),
+    );
+    Widget imagesLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_images_loader"),
+      child: RestaurntOverViewImagesLoader(),
+    );
+    Widget textContentLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_text_loader"),
+      child: RestaurantOverviewTextDataLoader(),
+    );
+    Widget menuSectionLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_menu_loader"),
+      child: MenuSectionLoader(),
+    );
+
+    if (_isLoading &&
+        state.initialRestaurantData == null &&
+        state.data == null) {
+      // Show all the loaders if no data is present and it is loading
+      imagesSectionWidget = imagesLoader;
+      textSectionWidget = textContentLoader;
+      menuSectionWidget = menuSectionLoader;
+    } else if (state.initialRestaurantData != null &&
+        _isLoading &&
+        state.data == null) {
+      // If Inital data is present, it is loading and to full data available
+      // Represent Images and text from the initail data and show the loader for the menu
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
         ),
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_text_data'),
-          child: RestaurantOverviewTextInfo(
-              restaurantInfo: state.initialRestaurantData!),
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = menuSectionLoader;
+    } else if (state.initialRestaurantData != null &&
+        !_isLoading &&
+        state.data == null) {
+      // Hadle case when inital data is present but bad response from the server
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
         ),
-        const KeyedSubtree(
-          key: ValueKey("restaurant_overview_menu_loader"),
-          child: MenuSectionLoader(),
-        )
-      ];
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = noMenuFound;
     } else if (state.initialRestaurantData == null &&
         !_isLoading &&
         state.data != null) {
+      // If it is not loading, no initial data passed to the screen and
+      // full data is not null, represent all the data from the full loaded data
       final initialData = RestaurantNearYou(
         id: state.data!.id,
         addressLine: state.data!.address.addressLine,
@@ -123,126 +195,122 @@ class _RestaurantOverviewScreenState
         name: state.data!.name,
         latitude: state.data!.address.latitude,
         longitude: state.data!.address.longitude,
-        distanceKm: "5.0",
+        distanceKm: state.data!.address.distanceKm,
         logoImage: state.data!.logoImage,
       );
 
-      restaurantOverviewWidgets = [
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_images_data'),
-          child: RestaurantOverviewImages(
-            coverImage: state.data!.coverImage,
-            logoImage: state.data!.logoImage,
-          ),
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.data!.coverImage,
+          logoImage: state.data!.logoImage,
         ),
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_text_data'),
-          child: RestaurantOverviewTextInfo(restaurantInfo: initialData),
-        ),
-        KeyedSubtree(
-          key: const ValueKey("restaurant_overview_menu_data"),
-          child: RestaurantOverviewMenuSection(menu: state.data!.menu),
-        )
-      ];
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(restaurantInfo: initialData),
+      );
+      menuSectionWidget = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_menu_data"),
+        child: RestaurantOverviewMenuSection(menu: state.data!.menu),
+      );
     } else if (state.initialRestaurantData != null &&
         !_isLoading &&
         state.data != null) {
-      restaurantOverviewWidgets = [
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_images_data'),
-          child: RestaurantOverviewImages(
-            coverImage: state.initialRestaurantData!.coverImage,
-            logoImage: state.initialRestaurantData!.logoImage,
-          ),
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
         ),
-        KeyedSubtree(
-          key: const ValueKey('restaurant_overview_text_data'),
-          child: RestaurantOverviewTextInfo(
-              restaurantInfo: state.initialRestaurantData!),
-        ),
-        KeyedSubtree(
-          key: const ValueKey("restaurant_overview_menu_data"),
-          child: RestaurantOverviewMenuSection(menu: state.data!.menu),
-        )
-      ];
-    } else if (_isLoading &&
-        state.initialRestaurantData == null &&
-        state.data == null) {
-      restaurantOverviewWidgets = [
-        const KeyedSubtree(
-          key: ValueKey("restaurant_overview_images_loader"),
-          child: RestaurntOverViewImagesLoader(),
-        ),
-        const KeyedSubtree(
-          key: ValueKey("restaurant_overview_text_loader"),
-          child: RestaurantOverviewTextDataLoader(),
-        ),
-        const KeyedSubtree(
-          key: ValueKey("restaurant_overview_menu_loader"),
-          child: MenuSectionLoader(),
-        )
-      ];
-    } else {
-      restaurantOverviewWidgets = [
-        Center(
-          child: Text(
-            "No restaurant found",
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge!
-                .copyWith(color: Colors.white),
-          ),
-        )
-      ];
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_menu_data"),
+        child: RestaurantOverviewMenuSection(menu: state.data!.menu),
+      );
     }
 
-    // If initialData exists, render top part as always
-    // otherwise render loaders on loading
-    // If loaded, overviewData is not null and initialData is not null, represent menu only from overviewData
-    // if loaded, overviewData is not null and no initialData, repersent everything from overviewData
+    if (imagesSectionWidget != null &&
+        textSectionWidget != null &&
+        menuSectionWidget != null) {
+      // Show full content if all the widgets are set
 
-    // Widget menuSectionWidget;
-
-    // if (_isLoading) {
-    //   menuSectionWidget = const KeyedSubtree(
-    //     key: ValueKey("restaurant_overview_menu_loader"),
-    //     child: MenuSectionLoader(),
-    //   );
-    // } else if (menuState.isSuccess && menuState.data!.isNotEmpty) {
-    //   menuSectionWidget = KeyedSubtree(
-    //     key: const ValueKey("restaurant_overview_menu_data"),
-    //     child: RestaurantOverviewMenuSection(menu: menuState.data!),
-    //   );
-    // } else {
-    //   menuSectionWidget = Center(
-    //     child: Text(
-    //       "No menu found",
-    //       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-    //             color: Colors.white,
-    //           ),
-    //     ),
-    //   );
-    // }
-
-    // Show snackbar on error
-    if (state.errorMessage != null && !_isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) {
-          ScaffoldMessenger.of(context)
-              .clearSnackBars(); // Clear existing snackbars first
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBarWithAction.create(
-              content: Text(
-                state.errorMessage!,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
-              actionFunction: _loadRestaurantOverview,
-              actionLabel: "Reload",
+      content = Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 12),
+        child: ListView(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: imagesSectionWidget,
             ),
-          );
-        },
+            AnimatedSize(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                layoutBuilder:
+                    (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: textSectionWidget,
+              ),
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                layoutBuilder:
+                    (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: menuSectionWidget,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Show restaurant not found if at least one widget is not set
+      content = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_not_found"),
+        child: ErrorScreenWithAction(
+          baseMessageWidget: noRestaurantFound,
+          buttonLabel: 'Reload restaurant',
+          buttonAction: _loadRestaurantOverview,
+          errorMessage: state.errorMessage,
+        ),
       );
     }
 
@@ -254,70 +322,10 @@ class _RestaurantOverviewScreenState
         rightNavigationIconAsset: 'assets/qr-code-scan.png',
         rightNavigationIconAction: _openQrScanner,
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 12),
-        child: ListView(
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: restaurantOverviewWidgets[0],
-            ),
-            if (restaurantOverviewWidgets.isNotEmpty)
-              AnimatedSize(
-                duration: const Duration(milliseconds: 600),
-                curve: Curves.easeOut,
-                alignment: Alignment.topCenter,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  layoutBuilder:
-                      (Widget? currentChild, List<Widget> previousChildren) {
-                    return Stack(
-                      alignment: Alignment.topCenter,
-                      children: <Widget>[
-                        ...previousChildren,
-                        if (currentChild != null) currentChild,
-                      ],
-                    );
-                  },
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                  child: restaurantOverviewWidgets[1],
-                ),
-              ),
-            if (restaurantOverviewWidgets.length >= 2)
-              AnimatedSize(
-                duration: const Duration(milliseconds: 600),
-                curve: Curves.easeOut,
-                alignment: Alignment.topCenter,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  layoutBuilder:
-                      (Widget? currentChild, List<Widget> previousChildren) {
-                    return Stack(
-                      alignment: Alignment.topCenter,
-                      children: <Widget>[
-                        ...previousChildren,
-                        if (currentChild != null) currentChild,
-                      ],
-                    );
-                  },
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                  child: restaurantOverviewWidgets[2],
-                ),
-              ),
-          ],
-        ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: content,
+        // child: Text('hello'),
       ),
     );
   }

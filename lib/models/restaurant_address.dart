@@ -6,6 +6,7 @@ class RestaurantAddress {
     required this.latitude,
     required this.longitude,
     required this.postalCode,
+    required this.distanceKm,
   });
 
   final String addressLine;
@@ -14,6 +15,7 @@ class RestaurantAddress {
   final String countryCode;
   final double latitude;
   final double longitude;
+  final String distanceKm;
 
   factory RestaurantAddress.fromJson(Map<String, dynamic> addressJson) {
     return RestaurantAddress(
@@ -23,6 +25,7 @@ class RestaurantAddress {
       latitude: double.parse(addressJson['latitude'] as String),
       longitude: double.parse(addressJson['longitude'] as String),
       postalCode: addressJson['postalCode'],
+      distanceKm: addressJson['distanceKm'],
     );
   }
 }
