@@ -8,27 +8,33 @@ class RestaurantNearYou {
     required this.name,
     required this.latitude,
     required this.longitude,
+    required this.distanceKm,
+    required this.logoImage,
   });
 
   final String id;
-  final String coverImage;
+  final String? coverImage;
   final String name;
-  final String description;
+  final String? description;
   final String addressLine;
   final int affordability;
   final double longitude;
   final double latitude;
+  final String distanceKm;
+  final String? logoImage;
 
-  factory RestaurantNearYou.fromJson(Map<String, dynamic> json) {
+  factory RestaurantNearYou.fromJson(Map<String, dynamic> restaurantDataJson) {
     return RestaurantNearYou(
-      id: json['id'] as String,
-      coverImage: json['coverImage'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      addressLine: json['addressLine'] as String,
-      affordability: json['affordability'] as int,
-      longitude: double.parse(json['longitude'] as String),
-      latitude: double.parse(json['latitude'] as String),
+      id: restaurantDataJson['id'] as String,
+      coverImage: restaurantDataJson['coverImage'] as String?,
+      name: restaurantDataJson['name'] as String,
+      description: restaurantDataJson['description'] as String?,
+      addressLine: restaurantDataJson['addressLine'] as String,
+      affordability: restaurantDataJson['affordability'] as int,
+      longitude: double.parse(restaurantDataJson['longitude'] as String),
+      latitude: double.parse(restaurantDataJson['latitude'] as String),
+      distanceKm: restaurantDataJson['distanceKm'],
+      logoImage: restaurantDataJson['logoImage'] as String?,
     );
   }
 }
