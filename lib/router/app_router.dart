@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 
 class AppRouter {
@@ -20,6 +21,11 @@ class AppRouter {
         path: '/restaurants',
         name: 'restaurants',
         builder: (context, state) => const TabsScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => SettingsScreen(),
       )
     ],
   );

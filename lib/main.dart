@@ -16,7 +16,7 @@ void main() async {
   const storage = FlutterSecureStorage();
   String? deviceId = await storage.read(key: "device_id");
 
-  String initialRoute = deviceId != null ? '/restaurants' : '/';
+  String initialRoute = deviceId != null ? '/settings' : '/';
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((fn) {
