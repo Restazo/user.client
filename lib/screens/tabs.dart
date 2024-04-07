@@ -1,13 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
-import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 
+import 'package:restazo_user_mobile/helpers/renavigations.dart';
+import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
+import 'package:restazo_user_mobile/widgets/app_bar.dart';
 
 class TabsScreen extends ConsumerStatefulWidget {
   const TabsScreen({super.key});
@@ -23,10 +25,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
 
   List<Widget> get _pages {
     return [
-      RestaurantsListViewScreen(
-        getCurrentLocation: _getCurrentLocation,
-        reloadRestaurants: reloadRestaurants,
-      ),
+      RestaurantsListViewScreen(reloadRestaurants: reloadRestaurants),
       const MapScreen(),
     ];
   }
@@ -39,37 +38,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-  }
-
-  Future<LocationData?> _getCurrentLocation() async {
-    final Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return null;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
-    }
-
-    locationData = await location.getLocation();
-    // TODO: delete this, use for testing only
-    // locationData = LocationData.fromMap({
-    //   "latitude": 65.5074,
-    //   "longitude": 25.1278,
-    // });
-    return locationData;
   }
 
   Future<void> reloadRestaurants(LocationData? currentLocation) async {
@@ -142,6 +110,14 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
     HapticFeedback.lightImpact();
   }
 
+  void _openSettingsScreen() {
+    context.goNamed(ScreenNames.settings.name);
+  }
+
+  void _openQrScanner() {
+    openQrScanner(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     String activePageTitle = "Near You";
@@ -152,53 +128,12 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: ClipRect(
-          // Clip the widget to only apply effects within its bounds
-          child: BackdropFilter(
-            // Apply a filter to the background content
-            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0), // Blur effect
-            child: AppBar(
-              scrolledUnderElevation: 0.0,
-              title: Text(
-                activePageTitle,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                    ),
-              ),
-              backgroundColor:
-                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.0),
-              centerTitle: true,
-              leading: IconButton(
-                highlightColor: Theme.of(context).highlightColor,
-                onPressed: () async {
-                  HapticFeedback.mediumImpact();
-
-                  // TODO: delete these lines, they are only for testing purposes
-                  final storage = const FlutterSecureStorage();
-                  await storage.delete(key: "device_id");
-                },
-                icon: Image.asset(
-                  'assets/setting.png',
-                  width: 28,
-                  height: 28,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  highlightColor: Theme.of(context).highlightColor,
-                  onPressed: () {},
-                  icon: Image.asset(
-                    'assets/qr-code-scan.png',
-                    width: 28,
-                    height: 28,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      appBar: DefaultAppBar(
+        title: activePageTitle,
+        leftNavigationIconAsset: 'assets/setting.png',
+        leftNavigationIconAction: _openSettingsScreen,
+        rightNavigationIconAsset: 'assets/qr-code-scan.png',
+        rightNavigationIconAction: _openQrScanner,
       ),
       body: IndexedStack(
         index: _selectedPageIndex,
