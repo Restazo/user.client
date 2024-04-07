@@ -56,7 +56,6 @@ class MenuCategoryButton extends StatelessWidget {
         child: TextButton(
           onPressed: () {
             _selectCategory(index);
-            HapticFeedback.lightImpact();
           },
           style: TextButton.styleFrom(
             backgroundColor: Colors.transparent,
