@@ -1,17 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/widgets/affordability_row.dart';
 
-class RestaurantNearYouCard extends StatelessWidget {
+class RestaurantNearYouCard extends ConsumerWidget {
   const RestaurantNearYouCard({super.key, required this.restauranInfo});
 
   final RestaurantNearYou restauranInfo;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Render a cover image if it is present, otherwise represent default image
     final Widget coverImage = restauranInfo.coverImage != null
         ? CachedNetworkImage(
@@ -74,9 +77,13 @@ class RestaurantNearYouCard extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
-              context.go(
-                '/restaurants/${restauranInfo.id}',
-                extra: restauranInfo,
+              ref
+                  .read(restaurantOverviewProvider.notifier)
+                  .enterRestaurantOverviewScreen(restauranInfo);
+
+              context.goNamed(
+                ScreenNames.restaurantDetail.name,
+                pathParameters: {'restaurant_id': restauranInfo.id},
               );
             },
             child: Row(
