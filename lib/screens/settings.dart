@@ -229,7 +229,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onPressed: () {
               pickingCanceled = true;
 
-              context.pop();
+              _goBack();
             },
           ),
         );
