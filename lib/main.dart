@@ -19,7 +19,9 @@ void main() async {
   // Get the device_id from the secure storage
   String? deviceId = await storage.read(key: "deviceId");
 
-  String initialRoute = deviceId != null ? '/' : '/init';
+  String initialRoute = deviceId != null
+      ? '/restaurants/11111111-1111-1111-1111-111111111111/menu-item/11111111-1111-1111-1111-111111111111'
+      : '/init';
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((fn) {

@@ -19,16 +19,15 @@ class MenuItemNotifier extends StateNotifier<MenuItemState> {
           data: null,
           errorMessage: null,
         ));
-  // If we develop the endpoint to fetch menu item data, make a method to load it here
 
-  void enterRestaurantOverviewScreen(MenuItem initailMenuItemData) {
+  void enterMenuItemScreen(MenuItem initailMenuItemData) {
     state = MenuItemState(
         initailMenuItemData: initailMenuItemData,
         data: null,
         errorMessage: null);
   }
 
-  void leaveRestaurantOverviewScreen() {
+  void leaveMenuItemScreen() {
     state = const MenuItemState(
       data: null,
       errorMessage: null,
