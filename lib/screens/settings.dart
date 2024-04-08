@@ -206,15 +206,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           actions: [_buildCupertinoPicker()],
           cancelButton: TextButton(
             style: ButtonStyle(
+              overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.pressed)) {
+                    return const Color.fromARGB(255, 200, 200, 200);
+                  }
+                  return null;
+                },
+              ),
               backgroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromARGB(255, 29, 39, 42)),
+                  // const Color.fromARGB(255, 29, 39, 42)),
+                  const Color.fromARGB(255, 255, 255, 255)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               padding: MaterialStateProperty.all<EdgeInsets>(
                   const EdgeInsets.all(12)),
             ),
-            child: Text("Cancel", style: _getMainInfotextstyle()),
+            child: Text("Cancel",
+                style: _getMainInfotextstyle().copyWith(
+                  color: Colors.black,
+                )),
             onPressed: () {
               pickingCanceled = true;
 
@@ -239,7 +251,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       height: 256,
       child: CupertinoPicker(
         scrollController: rangeSetterScrollController,
-        backgroundColor: const Color.fromARGB(255, 29, 39, 42),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        // backgroundColor: const Color.fromARGB(255, 29, 39, 42),
         itemExtent: 48,
         onSelectedItemChanged: (index) {
           selectedRangeIndex = index;
@@ -248,7 +261,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .map((item) => Center(
                     child: Text(
                   '${item}km',
-                  style: _getMainInfotextstyle().copyWith(fontSize: 20),
+                  style: _getMainInfotextstyle().copyWith(
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
                 )))
             .toList(),
       ),
