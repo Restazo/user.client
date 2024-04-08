@@ -5,8 +5,10 @@ import 'package:location/location.dart';
 import 'dart:convert';
 
 import 'package:restazo_user_mobile/models/menu_category.dart';
+import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 
 // Class to interact with user API, all the functions to call an API must
@@ -22,6 +24,8 @@ class APIService {
       dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
   final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
   final String protocol = dotenv.env['HTTP_PROTOCOL']!;
+  final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
+
 
   Uri getUrl({
     Map<String, dynamic>? queryParameters,

@@ -1,0 +1,4 @@
+- call getDeviceId in continue function
+- save returned device id to the secure storage
+- ask for the location permission from the user
+- navigate to restaurants screen

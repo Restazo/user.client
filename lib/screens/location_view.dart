@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:restazo_user_mobile/models/device_id.dart';
+import 'package:restazo_user_mobile/helpers/api_result.dart';
 
+class DeviceIdState extends APIServiceResult<DeviceId> {
+  const DeviceIdState({super.data, super.errorMessage});
+}
 class LocationView extends StatefulWidget {
   const LocationView({super.key});
 
