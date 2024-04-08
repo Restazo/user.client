@@ -40,7 +40,7 @@ class AppRouter {
             builder: (context, state) => const RestaurantOverviewScreen(),
             routes: [
               GoRoute(
-                path: 'menu-item/:item_id',
+                path: 'menu/:item_id',
                 name: ScreenNames.menuItemDetail.name,
                 builder: (context, state) => const MenuItemScreen(),
               )

@@ -84,7 +84,7 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "${restaurantInfo.distanceKm.toString()} km",
+                      "${restaurantInfo.distanceKm} km",
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             color: Colors.white,
                             height: 1,
