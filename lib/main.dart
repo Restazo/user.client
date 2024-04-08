@@ -17,7 +17,7 @@ void main() async {
   // Get the device secure storage
   const storage = FlutterSecureStorage();
   // Get the device_id from the secure storage
-  String? deviceId = await storage.read(key: "deviceId");
+  String? deviceId = await storage.read(key: dotenv.env['DEVICE_ID_KEY_NAME']!);
 
   String initialRoute = deviceId != null ? '/' : '/init';
 

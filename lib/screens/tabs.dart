@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:location/location.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
-import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
@@ -25,7 +23,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
 
   List<Widget> get _pages {
     return [
-      RestaurantsListViewScreen(reloadRestaurants: reloadRestaurants),
+      const RestaurantsListViewScreen(),
       const MapScreen(),
     ];
   }
@@ -38,12 +36,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-  }
-
-  Future<void> reloadRestaurants(LocationData? currentLocation) async {
-    await ref
-        .read(restaurantsNearYouProvider.notifier)
-        .loadRestaurantsNearYou(currentLocation);
   }
 
   @override

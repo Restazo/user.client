@@ -44,7 +44,10 @@ class ErrorScreenWithAction extends StatelessWidget {
                       Colors.white), // Change background color
                   overlayColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                      return const Color.fromARGB(255, 200, 200, 200);
+                      if (states.contains(MaterialState.pressed)) {
+                        return const Color.fromARGB(255, 200, 200, 200);
+                      }
+                      return null;
                     },
                   ),
                 ),

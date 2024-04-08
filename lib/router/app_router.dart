@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 
+import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
@@ -14,6 +15,7 @@ enum ScreenNames {
   menuItemDetail,
   settings,
   qrScanner,
+  waiterModeLogin
 }
 
 class AppRouter {
@@ -47,10 +49,16 @@ class AppRouter {
             ],
           ),
           GoRoute(
-            path: 'settings',
-            name: ScreenNames.settings.name,
-            builder: (context, state) => const NotExistingScreen(),
-          ),
+              path: 'settings',
+              name: ScreenNames.settings.name,
+              builder: (context, state) => const SettingsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'waiter_mode_login',
+                  name: ScreenNames.waiterModeLogin.name,
+                  builder: (context, state) => const NotExistingScreen(),
+                )
+              ]),
           GoRoute(
             path: 'qr_scanner',
             name: ScreenNames.qrScanner.name,
@@ -75,7 +83,8 @@ class _InitScreenState extends State<InitScreen> {
 
   Future _continue() async {
     String deviceId = "your_generated_device_id";
-    await storage.write(key: "deviceId", value: deviceId);
+    await storage.write(
+        key: dotenv.env['DEVICE_ID_KEY_NAME']!, value: deviceId);
     if (mounted) {
       context.goNamed("restaurants");
     }
