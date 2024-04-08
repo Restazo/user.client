@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Setting {
   const Setting({

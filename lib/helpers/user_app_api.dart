@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
 final String env = dotenv.env['ENV']!;
