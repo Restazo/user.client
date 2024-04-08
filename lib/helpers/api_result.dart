@@ -6,5 +6,5 @@ class APIServiceResult<T> {
   final T? data;
   final String? errorMessage;
 
-  bool get isSuccess => data != null;
+  bool get isSuccess => errorMessage == null;
 }
