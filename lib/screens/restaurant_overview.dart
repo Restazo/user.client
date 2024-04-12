@@ -1,171 +1,278 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:location/location.dart';
 
-import 'package:restazo_user_mobile/helpers/api_result.dart';
-import 'package:restazo_user_mobile/helpers/user_app_api.dart';
-import 'package:restazo_user_mobile/models/menu_category.dart';
+import 'package:restazo_user_mobile/helpers/get_current_location.dart';
+import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
+import 'package:restazo_user_mobile/widgets/app_bar.dart';
+import 'package:restazo_user_mobile/widgets/error_widgets/error_screen.dart';
 import 'package:restazo_user_mobile/widgets/loaders/menu_section_loader.dart';
+import 'package:restazo_user_mobile/widgets/loaders/restaurant_overview_images_loader.dart';
+import 'package:restazo_user_mobile/widgets/loaders/restaurant_overview_text_data_loader.dart';
 import 'package:restazo_user_mobile/widgets/menu_section.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_overview_images.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_text_info.dart';
-import 'package:restazo_user_mobile/widgets/snack_bar.dart';
 
-class RestaurantOverviewMenuState extends APIServiceResult<List<MenuCategory>> {
-  // Constructor function that passes arguments to the
-  // APIServiceResult class
-  const RestaurantOverviewMenuState({super.data, super.errorMessage});
-}
-
-class RestaurantOverviewScreen extends StatefulWidget {
-  const RestaurantOverviewScreen({super.key, required this.restaurantInitData});
-
-  final RestaurantNearYou restaurantInitData;
+class RestaurantOverviewScreen extends ConsumerStatefulWidget {
+  const RestaurantOverviewScreen({super.key});
 
   @override
-  State<RestaurantOverviewScreen> createState() =>
+  ConsumerState<RestaurantOverviewScreen> createState() =>
       _RestaurantOverviewScreenState();
 }
 
-class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
+class _RestaurantOverviewScreenState
+    extends ConsumerState<RestaurantOverviewScreen>
     with TickerProviderStateMixin {
-  // Initialize the menu state with an empty array
-  late RestaurantOverviewMenuState menuState =
-      const RestaurantOverviewMenuState(data: []);
   bool _isLoading = false;
+  bool _screenInitialised = false;
+  late Future<void> _loadRestaurantOverviewFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadRestaurantMenuData();
   }
 
-  Future<void> _loadRestaurantMenuData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final RestaurantOverviewMenuState result =
-        await APIService().loadMenuByRestaurantId(widget.restaurantInitData.id);
-
-    if (!result.isSuccess) {
-      if (mounted) {
-        setState(() {
-          menuState = RestaurantOverviewMenuState(
-              data: [], errorMessage: result.errorMessage);
-          _isLoading = false;
-        });
-      }
-      return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_screenInitialised) {
+      _loadRestaurantOverviewFuture = _loadRestaurantOverview();
+      _screenInitialised = true;
     }
+  }
 
-    // Check if the widget tree is mounted
-    // if it is not we need to omit setting new state
-    // as user might leave the screen earlier and "dispose"
-    // will be called earlier
+  @override
+  void dispose() {
+    _loadRestaurantOverviewFuture.ignore();
+    super.dispose();
+  }
+
+  Future<void> _loadRestaurantOverview() async {
     if (mounted) {
       setState(() {
-        menuState =
-            RestaurantOverviewMenuState(data: result.data, errorMessage: null);
+        _isLoading = true;
+      });
+    }
+
+    // Get the current route restaurant_id parameter
+    RouteSettings settings = ModalRoute.of(context)!.settings;
+    Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
+    var restaurantId = arguments['restaurant_id'];
+
+    LocationData? currentLocation;
+
+    final restaurantOverviewState = ref.watch(restaurantOverviewProvider);
+
+    if (restaurantOverviewState.initialRestaurantData == null) {
+      currentLocation = await getCurrentLocation();
+    }
+
+    // load the restaurant data into the provider
+    await ref
+        .read(restaurantOverviewProvider.notifier)
+        .loadRestaurantOverviewById(restaurantId, currentLocation);
+
+    if (mounted) {
+      setState(() {
         _isLoading = false;
       });
     }
   }
 
+  void _clearRestaurantOverviewProvider() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ref
+        .read(restaurantOverviewProvider.notifier)
+        .leaveRestaurantOverviewScreen();
+  }
+
+  void _navigateBack() {
+    _clearRestaurantOverviewProvider();
+    navigateBack(context);
+  }
+
+  void _openQrScanner() {
+    _clearRestaurantOverviewProvider();
+    openQrScanner(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget menuSectionWidget;
+    final state = ref.watch(restaurantOverviewProvider);
 
-    if (_isLoading) {
-      menuSectionWidget = const KeyedSubtree(
-        key: ValueKey("restaurant_overview_menu_loader"),
-        child: MenuSectionLoader(),
+    Widget? menuSectionWidget;
+    Widget? textSectionWidget;
+    Widget? imagesSectionWidget;
+    Widget content;
+
+    Widget noRestaurantFound = Center(
+      child: Text(
+        "No restaurant found",
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Colors.white),
+      ),
+    );
+    Widget noMenuFound = Center(
+      child: Text(
+        "No menu found",
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge!
+            .copyWith(color: Colors.white),
+      ),
+    );
+    Widget imagesLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_images_loader"),
+      child: RestaurntOverViewImagesLoader(),
+    );
+    Widget textContentLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_text_loader"),
+      child: RestaurantOverviewTextDataLoader(),
+    );
+    Widget menuSectionLoader = const KeyedSubtree(
+      key: ValueKey("restaurant_overview_menu_loader"),
+      child: MenuSectionLoader(),
+    );
+
+    if (_isLoading &&
+        state.initialRestaurantData == null &&
+        state.data == null) {
+      // Show all the loaders if no data is present and it is loading
+      imagesSectionWidget = imagesLoader;
+      textSectionWidget = textContentLoader;
+      menuSectionWidget = menuSectionLoader;
+    } else if (state.initialRestaurantData != null &&
+        _isLoading &&
+        state.data == null) {
+      // If Inital data is present, it is loading and to full data available
+      // Represent Images and text from the initail data and show the loader for the menu
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
+        ),
       );
-    } else if (menuState.isSuccess && menuState.data!.isNotEmpty) {
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = menuSectionLoader;
+    } else if (state.initialRestaurantData != null &&
+        !_isLoading &&
+        state.data == null) {
+      // Hadle case when inital data is present but bad response from the server
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
+        ),
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = noMenuFound;
+    } else if (state.initialRestaurantData == null &&
+        !_isLoading &&
+        state.data != null) {
+      // If it is not loading, no initial data passed to the screen and
+      // full data is not null, represent all the data from the full loaded data
+      final initialData = RestaurantNearYou(
+        id: state.data!.id,
+        addressLine: state.data!.address.addressLine,
+        affordability: state.data!.affordability,
+        coverImage: state.data!.coverImage,
+        description: state.data!.description,
+        name: state.data!.name,
+        latitude: state.data!.address.latitude,
+        longitude: state.data!.address.longitude,
+        distanceKm: state.data!.address.distanceKm,
+        logoImage: state.data!.logoImage,
+      );
+
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.data!.coverImage,
+          logoImage: state.data!.logoImage,
+        ),
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(restaurantInfo: initialData),
+      );
       menuSectionWidget = KeyedSubtree(
         key: const ValueKey("restaurant_overview_menu_data"),
-        child: RestaurantOverviewMenuSection(menu: menuState.data!),
+        child: RestaurantOverviewMenuSection(menu: state.data!.menu),
       );
-    } else {
-      menuSectionWidget = Center(
-        child: Text(
-          "No menu",
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: Colors.white,
-              ),
+    } else if (state.initialRestaurantData != null &&
+        !_isLoading &&
+        state.data != null) {
+      imagesSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_images_data'),
+        child: RestaurantOverviewImages(
+          coverImage: state.initialRestaurantData!.coverImage,
+          logoImage: state.initialRestaurantData!.logoImage,
         ),
+      );
+      textSectionWidget = KeyedSubtree(
+        key: const ValueKey('restaurant_overview_text_data'),
+        child: RestaurantOverviewTextInfo(
+            restaurantInfo: state.initialRestaurantData!),
+      );
+      menuSectionWidget = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_menu_data"),
+        child: RestaurantOverviewMenuSection(menu: state.data!.menu),
       );
     }
 
-    // Show snackbar on error
-    if (menuState.errorMessage != null && !_isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context)
-            .clearSnackBars(); // Clear existing snackbars first
-        ScaffoldMessenger.of(context).showSnackBar(SnackBarWithAction.create(
-            content: Text(
-              menuState.errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.white,
-                  ),
-            ),
-            actionFunction: _loadRestaurantMenuData,
-            actionLabel: "Reload"));
-      });
-    }
+    if (imagesSectionWidget != null &&
+        textSectionWidget != null &&
+        menuSectionWidget != null) {
+      // Show full content if all the widgets are set
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-            child: AppBar(
-              scrolledUnderElevation: 0.0,
-              backgroundColor:
-                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.0),
-              leading: IconButton(
-                splashColor: Theme.of(context).splashColor,
-                highlightColor: Theme.of(context).highlightColor,
-                // iconSize: 28,
-                icon: Image.asset(
-                  'assets/left.png',
-                  width: 28,
-                  height: 28,
-                ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).clearSnackBars();
-                  context.pop();
-                },
-              ),
-              actions: [
-                IconButton(
-                  splashColor: Theme.of(context).splashColor,
-                  highlightColor: Theme.of(context).highlightColor,
-                  onPressed: () {},
-                  icon: Image.asset(
-                    'assets/qr-code-scan.png',
-                    width: 28,
-                    height: 28,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: Padding(
+      content = Padding(
         padding: const EdgeInsets.only(left: 20, right: 20, top: 12),
         child: ListView(
           children: [
-            RestaurantOverviewImages(
-              coverImage: widget.restaurantInitData.coverImage,
-              logoImage: widget.restaurantInitData.logoImage,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: imagesSectionWidget,
             ),
-            RestaurantOverviewTextInfo(
-                restaurantInfo: widget.restaurantInitData),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                layoutBuilder:
+                    (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: textSectionWidget,
+              ),
+            ),
             AnimatedSize(
               duration: const Duration(milliseconds: 600),
               curve: Curves.easeOut,
@@ -193,6 +300,32 @@ class _RestaurantOverviewScreenState extends State<RestaurantOverviewScreen>
             ),
           ],
         ),
+      );
+    } else {
+      // Show restaurant not found if at least one widget is not set
+      content = KeyedSubtree(
+        key: const ValueKey("restaurant_overview_not_found"),
+        child: ErrorScreenWithAction(
+          baseMessageWidget: noRestaurantFound,
+          buttonLabel: 'Reload restaurant',
+          buttonAction: _loadRestaurantOverview,
+          errorMessage: state.errorMessage,
+        ),
+      );
+    }
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: DefaultAppBar(
+        leftNavigationIconAsset: 'assets/left.png',
+        leftNavigationIconAction: _navigateBack,
+        rightNavigationIconAsset: 'assets/qr-code-scan.png',
+        rightNavigationIconAction: _openQrScanner,
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: content,
+        // child: Text('hello'),
       ),
     );
   }

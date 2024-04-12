@@ -4,10 +4,10 @@ import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
 
-import 'package:restazo_user_mobile/models/menu_category.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
+import 'package:restazo_user_mobile/models/restaurant_overview.dart';
+import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
-import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
@@ -99,24 +99,39 @@ class APIService {
 
         // Return the state of user closest restaurants
         // with the actual restaurants data
-        return RestaurantsNearYouState(data: data);
+        return RestaurantsNearYouState(data: data, errorMessage: null);
       } else {
         // Decode an error if response code is not 200
         final errorMessage = _decodeError(res);
         // Return the state of user closest restaurants
         // with an error message and no restaurants data
-        return RestaurantsNearYouState(errorMessage: errorMessage);
+        return RestaurantsNearYouState(data: [], errorMessage: errorMessage);
       }
     } catch (e) {
       // Return the state of user closest restaurants
       // with an error message and no restaurants data
       return const RestaurantsNearYouState(
-          errorMessage: "Failed to fetch restaurants");
+          data: [], errorMessage: "Failed to fetch restaurants");
     }
   }
 
-  Future<RestaurantOverviewMenuState> loadMenuByRestaurantId(String id) async {
-    final url = getUrl(path: "$restaurantsEndpointsRoot/$id");
+  Future<RestaurantOverviewState> loadRestaurantOverviewById(
+      String id, LocationData? currentLocation) async {
+    Map<String, dynamic> queryParameters = {};
+
+    if (currentLocation != null) {
+      queryParameters.addEntries(
+        {
+          userLatitudeQueryName: currentLocation.latitude.toString(),
+          userLongitudeQueryName: currentLocation.longitude.toString(),
+        }.entries,
+      );
+    }
+
+    final url = getUrl(
+      path: "$restaurantsEndpointsRoot/$id",
+      queryParameters: queryParameters,
+    );
 
     try {
       final res = await http.get(url);
@@ -124,30 +139,28 @@ class APIService {
       if (res.statusCode == 200) {
         // Decode the response body
         final resJson = json.decode(res.body);
-        final dynamic menuJson = resJson['data']['restaurant']['menu'];
+        final dynamic restaurantOverviewDataJson =
+            resJson['data']['restaurant'];
 
-        // Transform JSON data into code understandable types
-        final List<MenuCategory> menuData = menuJson
-            .map<MenuCategory>(
-                (menuCategoryJson) => MenuCategory.fromJson(menuCategoryJson))
-            .toList();
-
+        final restaurantOverviewData =
+            RestaurantOverview.fromJson(restaurantOverviewDataJson);
         // Return the state of restaurant menu
         // with menu data
-        return RestaurantOverviewMenuState(data: menuData);
+        return RestaurantOverviewState(
+            data: restaurantOverviewData, errorMessage: null);
       } else {
         // Decode an error if response code is not 200
         final errorMessage = _decodeError(res);
 
         // Return the state of restaurant menu
         // with an error message and no menu data
-        return RestaurantOverviewMenuState(errorMessage: errorMessage);
+        return RestaurantOverviewState(data: null, errorMessage: errorMessage);
       }
     } catch (e) {
       // Return the state of restaurant menu
       // with an error message and no menu data
-      return const RestaurantOverviewMenuState(
-          errorMessage: 'Failed to fetch restaurant info');
+      return const RestaurantOverviewState(
+          data: null, errorMessage: 'Failed to fetch restaurant info');
     }
   }
 }
