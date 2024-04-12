@@ -10,6 +10,7 @@ void checkEnv() {
     'USER_LATITUDE_QUERY_NAME',
     'USER_LONGITUDE_QUERY_NAME',
     'RANGE_QUERY_NAME',
+    'NEW_DEVICE_ID_ENDPOINT',
   ];
 
   // Check for missing environment variables

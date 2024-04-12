@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:restazo_user_mobile/helpers/api_result.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/models/device_id.dart';
+
+class DeviceIdState extends APIServiceResult<DeviceId> {
+  const DeviceIdState({super.data, super.errorMessage});
+}
 
 class LocationView extends StatefulWidget {
   const LocationView({super.key});
@@ -14,10 +24,32 @@ class _LocationViewState extends State<LocationView> {
   final storage = const FlutterSecureStorage();
 
   Future _continue() async {
-    String deviceId = "your_generated_device_id";
-    await storage.write(key: "deviceId", value: deviceId);
+    final deviceIdState = await APIService().getDeviceId(); // Call getDeviceId
+    if (deviceIdState.data != null) {
+      await storage.write(
+          key: "deviceId",
+          value: deviceIdState.data!.deviceId); // Save device ID
+    }
+
+    Location location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('interacted', true);
+
     if (mounted) {
-      context.goNamed("restaurants");
+      context.goNamed("home");
     }
   }
 
