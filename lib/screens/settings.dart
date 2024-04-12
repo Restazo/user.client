@@ -224,7 +224,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             child: Text("Cancel",
                 style: _getMainInfotextstyle().copyWith(
-                  color: Colors.black,
+                  color: const Color.fromARGB(255, 255, 59, 47),
                 )),
             onPressed: () {
               pickingCanceled = true;
