@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart';
 
+import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/widgets/error_widgets/error_screen.dart';
 import 'package:restazo_user_mobile/widgets/loaders/restaurants_near_you_loader.dart';
 import 'package:restazo_user_mobile/widgets/restaurant_near_you_item.dart';
-import 'package:restazo_user_mobile/widgets/snack_bar.dart';
 
 class RestaurantsListViewScreen extends ConsumerStatefulWidget {
-  const RestaurantsListViewScreen(
-      {super.key,
-      required this.getCurrentLocation,
-      required this.reloadRestaurants});
+  const RestaurantsListViewScreen({
+    super.key,
+    required this.reloadRestaurants,
+  });
 
-  final Future<LocationData?> Function() getCurrentLocation;
   final Future<void> Function(LocationData?) reloadRestaurants;
 
   @override
@@ -36,7 +36,7 @@ class _RestaurantsListViewScreenState
       _isLoading = true;
     });
 
-    final currentLocation = await widget.getCurrentLocation();
+    final currentLocation = await getCurrentLocation();
 
     widget.reloadRestaurants(currentLocation).then((_) {
       if (mounted) {
@@ -58,6 +58,15 @@ class _RestaurantsListViewScreenState
     final state = ref.watch(restaurantsNearYouProvider);
 
     Widget content;
+    Widget noRestaurantsFound = Center(
+      child: Text(
+        "No restaurants found",
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              color: Colors.white,
+            ),
+      ),
+    );
 
     if (_isLoading) {
       content = const KeyedSubtree(
@@ -78,37 +87,20 @@ class _RestaurantsListViewScreenState
           },
         ),
       );
-    } else {
-      // List is empty or an error occurred, show the message
+    } else if (state.errorMessage != null && !_isLoading) {
+      // Show the error message if error is present in the state
       content = KeyedSubtree(
-        key: const ValueKey('message'),
-        child: Center(
-          child: Text(
-            "No restaurants found",
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: Colors.white,
-                ),
-          ),
+        key: const ValueKey('restaurants_not_found_message'),
+        child: ErrorScreenWithAction(
+          baseMessageWidget: noRestaurantsFound,
+          errorMessage: state.errorMessage!,
+          buttonAction: reloadRestaurants,
+          buttonLabel: 'Reload restaurants',
         ),
       );
-    }
-
-    // Show snackbar on error
-    if (state.errorMessage != null && !_isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context)
-            .clearSnackBars(); // Clear existing snackbars first
-        ScaffoldMessenger.of(context).showSnackBar(SnackBarWithAction.create(
-            content: Text(
-              state.errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.white,
-                  ),
-            ),
-            actionFunction: reloadRestaurants,
-            actionLabel: "Reload"));
-      });
+    } else {
+      // List is empty show the message
+      content = noRestaurantsFound;
     }
 
     return Padding(

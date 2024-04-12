@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class MenuCategoryButton extends StatelessWidget {
   const MenuCategoryButton({
@@ -56,7 +55,6 @@ class MenuCategoryButton extends StatelessWidget {
         child: TextButton(
           onPressed: () {
             _selectCategory(index);
-            HapticFeedback.lightImpact();
           },
           style: TextButton.styleFrom(
             backgroundColor: Colors.transparent,
