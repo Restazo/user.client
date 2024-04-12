@@ -4,14 +4,12 @@ import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
 
-import 'package:restazo_user_mobile/models/menu_category.dart';
 import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
 import 'package:restazo_user_mobile/screens/location_view.dart';
-import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
@@ -28,6 +26,30 @@ class APIService {
   final String protocol = dotenv.env['HTTP_PROTOCOL']!;
   final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
 
+  Future<DeviceIdState> getDeviceId() async {
+    final url = getUrl(path: newdDeviceIdEndpoint);
+
+    try {
+      final res = await http.get(url);
+
+      if (res.statusCode == 201) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> jsonData = resJson['data'];
+        final deviceId = DeviceId.fromJson(jsonData);
+
+        return DeviceIdState(data: deviceId, errorMessage: null);
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return DeviceIdState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const DeviceIdState(
+        data: null,
+        errorMessage: 'Failed to fetch device id',
+      );
+    }
+  }
 
   Uri getUrl({
     Map<String, dynamic>? queryParameters,

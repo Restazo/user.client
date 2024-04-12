@@ -2,7 +2,6 @@ import 'package:go_router/go_router.dart';
 import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 
 import 'package:restazo_user_mobile/screens/location_view.dart';
-import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 
