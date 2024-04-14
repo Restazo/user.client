@@ -4,9 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pinput/pinput.dart';
 import 'package:restazo_user_mobile/helpers/cancel_button.dart';
 import 'package:restazo_user_mobile/widgets/waiter_log_in.dart';
+import 'package:restazo_user_mobile/widgets/waiter_log_in_confirmation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
@@ -59,6 +59,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     (index) => '${25 + index * 25}',
   );
   final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
+  String waiterEmail = '';
+  bool waiterLogInSubmitted = false;
 
   @override
   void initState() {
@@ -256,25 +258,94 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showWaiterLogIn() {
     showCupertinoModalPopup(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
-        return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: CupertinoActionSheet(
-            actions: [_buildWaiterModeLogIn()],
-            cancelButton: buildCancelButton(
-              context: context,
-              onPressed: _goBack,
-            ),
-          ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            Widget action = waiterLogInSubmitted
+                ? KeyedSubtree(
+                    key: const ValueKey(
+                        'waiter_login_confirmation_modal_contents'),
+                    child: _buildWaiterModeConfirmation(),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('waiter_login_modal_contents'),
+                    child: _buildWaiterModeLogIn(setModalState),
+                  );
+
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: CupertinoActionSheet(
+                actions: [
+                  Container(
+                    color: const Color.fromARGB(255, 29, 39, 42),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: AnimatedSize(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                        alignment: Alignment.bottomCenter,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          layoutBuilder: (Widget? currentChild,
+                              List<Widget> previousChildren) {
+                            return Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: action,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                cancelButton: buildCancelButton(
+                  context: context,
+                  onPressed: () {
+                    _goBack();
+                  },
+                ),
+              ),
+            );
+          },
         );
+      },
+    ).then((_) {
+      waiterLogInSubmitted = false;
+      waiterEmail = '';
+    });
+  }
+
+  Widget _buildWaiterModeLogIn(void Function(void Function()) setModalState) {
+    return WaiterLogInPopUp(
+      submitWaiterLogIn: (String submitedWaiterEmail, String pinCode) async {
+        // call an API to log in here
+        await Future.delayed(const Duration(seconds: 2));
+
+        // Save only if submission is successful
+        waiterEmail = submitedWaiterEmail;
+        setModalState(() {
+          waiterLogInSubmitted = true;
+        });
       },
     );
   }
 
-  Widget _buildWaiterModeLogIn() {
-    return const WaiterLogInPopUp();
+  Widget _buildWaiterModeConfirmation() {
+    return WaiterLogInConfirmation(waiterEmail: waiterEmail);
   }
 
   void _goBack() {

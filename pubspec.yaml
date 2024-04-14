@@ -45,6 +45,8 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
   pinput: ^4.0.0
+  email_validator: ^2.1.17
+  loading_animation_widget: ^1.2.1
 
 flutter_launcher_icons:
   image_path: "assets/app_icon/icon.png"

@@ -1,45 +1,42 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
-
 import 'package:restazo_user_mobile/app_block/pinput_themes.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 
-class WaiterLogInPopUp extends StatefulWidget {
-  const WaiterLogInPopUp({
+class WaiterLogInConfirmation extends StatefulWidget {
+  const WaiterLogInConfirmation({
     super.key,
-    required this.submitWaiterLogIn,
+    required this.waiterEmail,
   });
 
-  final Future<void> Function(String, String) submitWaiterLogIn;
+  final String waiterEmail;
 
   @override
-  State<WaiterLogInPopUp> createState() => _WaiterLogInPopUpState();
+  State<WaiterLogInConfirmation> createState() =>
+      _WaiterLogInConfirmationState();
 }
 
-class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
-  late String waiterEmail = '';
-  String waiterPin = '';
-  bool forcePinErrorState = false;
-  bool emailInvalid = false;
+class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
   bool _isLoading = false;
+  bool forcePinErrorState = false;
+  String waiterPin = '';
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> _submitWaiterLogIn() async {
+  Future<void> _confirmWaiterLogIn() async {
     setState(() {
       _isLoading = true;
     });
 
-    await widget.submitWaiterLogIn(waiterEmail, waiterPin);
+    await Future.delayed(const Duration(seconds: 2));
 
     setState(() {
       _isLoading = false;
     });
+
+    if (mounted) {
+      context.goNamed(ScreenNames.waiterHome.name);
+    }
   }
 
   @override
@@ -84,66 +81,23 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
             child: Column(
               children: [
                 Text(
-                  'Waiter mode log in',
+                  'Please enter pin code sent to:',
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        height: 1,
                         color: Colors.white,
                         letterSpacing: 0,
                       ),
                 ),
-                const SizedBox(height: 24),
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 200),
-                  alignment: Alignment.topCenter,
-                  curve: Curves.easeIn,
-                  child: TextField(
-                    onTapOutside: (_) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        emailInvalid = false;
-                      });
-                      waiterEmail = value;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    cursorColor: Colors.white,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                    decoration: InputDecoration(
-                      helperMaxLines: 1,
-                      helperStyle:
-                          Theme.of(context).textTheme.bodySmall!.copyWith(
-                                color: const Color.fromARGB(255, 255, 59, 47),
-                              ),
-                      helperText: emailInvalid ? 'Invalid email' : null,
-                      labelText: "Email",
-                      labelStyle: const TextStyle(color: Colors.white),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: emailInvalid
-                              ? const Color.fromARGB(255, 255, 59, 47)
-                              : const Color.fromARGB(255, 107, 114, 116),
-                          width: 1,
-                        ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.waiterEmail,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        height: 1,
+                        color: const Color.fromARGB(255, 189, 189, 189),
+                        letterSpacing: 0,
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.only(
-                        top: 12,
-                        bottom: 12,
-                        left: 24,
-                        right: 8,
-                      ),
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.deny(RegExp('[\\s]')),
-                    ],
-                  ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Pinput(
                   length: 5,
                   defaultPinTheme: defaultPinTheme,
@@ -184,9 +138,7 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
                     FocusScope.of(context).unfocus();
                   },
                   separatorBuilder: (index) {
-                    return const SizedBox(
-                      width: 16,
-                    );
+                    return const SizedBox(width: 16);
                   },
                 ),
               ],
@@ -221,16 +173,9 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
                           forcePinErrorState = true;
                         });
                       }
-                      if (waiterEmail.isEmpty ||
-                          !EmailValidator.validate(waiterEmail)) {
-                        setState(() {
-                          emailInvalid = true;
-                        });
-                      }
+                      if (forcePinErrorState) return;
 
-                      if (emailInvalid || forcePinErrorState) return;
-
-                      _submitWaiterLogIn();
+                      _confirmWaiterLogIn();
                     }
                   : null,
               child: AnimatedSwitcher(

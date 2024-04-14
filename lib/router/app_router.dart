@@ -15,7 +15,7 @@ enum ScreenNames {
   menuItemDetail,
   settings,
   qrScanner,
-  // waiterModeLogin
+  waiterHome,
 }
 
 class AppRouter {
@@ -52,17 +52,15 @@ class AppRouter {
             path: 'settings',
             name: ScreenNames.settings.name,
             builder: (context, state) => const SettingsScreen(),
-            routes: [
-              // GoRoute(
-              //   path: 'waiter_mode_login',
-              //   name: ScreenNames.waiterModeLogin.name,
-              //   builder: (context, state) => const NotExistingScreen(),
-              // )
-            ],
           ),
           GoRoute(
             path: 'qr_scanner',
             name: ScreenNames.qrScanner.name,
+            builder: (context, state) => const NotExistingScreen(),
+          ),
+          GoRoute(
+            path: 'waiter',
+            name: ScreenNames.waiterHome.name,
             builder: (context, state) => const NotExistingScreen(),
           )
         ],
