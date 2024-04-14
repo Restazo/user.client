@@ -5,10 +5,12 @@ import 'package:location/location.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/screens/location_view.dart';
 
 final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
 final String env = dotenv.env['ENV']!;
@@ -19,11 +21,37 @@ final String userLongitudeQueryName = dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
 final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
 final String protocol = dotenv.env['HTTP_PROTOCOL']!;
 final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
+final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
 class APIService {
   // Get all the needed environment variables
+
+  Future<DeviceIdState> getDeviceId() async {
+    final url = getUrl(path: newdDeviceIdEndpoint);
+
+    try {
+      final res = await http.get(url);
+
+      if (res.statusCode == 201) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> jsonData = resJson['data'];
+        final deviceId = DeviceId.fromJson(jsonData);
+
+        return DeviceIdState(data: deviceId, errorMessage: null);
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return DeviceIdState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const DeviceIdState(
+        data: null,
+        errorMessage: 'Failed to fetch device id',
+      );
+    }
+  }
 
   Uri getUrl({
     Map<String, dynamic>? queryParameters,
