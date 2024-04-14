@@ -4,27 +4,57 @@ import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/screens/location_view.dart';
+
+final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
+final String env = dotenv.env['ENV']!;
+final String restaurantsEndpointsRoot =
+    dotenv.env['RESTAURANTS_ENDPOINTS_ROOT']!;
+final String userLatitudeQueryName = dotenv.env["USER_LATITUDE_QUERY_NAME"]!;
+final String userLongitudeQueryName = dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
+final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
+final String protocol = dotenv.env['HTTP_PROTOCOL']!;
+final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
+final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
+final String menuEndpoint = dotenv.env['MENU_ENDPOINT']!;
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
 class APIService {
   // Get all the needed environment variables
-  final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
-  final String env = dotenv.env['ENV']!;
-  final String restaurantsEndpointsRoot =
-      dotenv.env['RESTAURANTS_ENDPOINTS_ROOT']!;
-  final String userLatitudeQueryName = dotenv.env["USER_LATITUDE_QUERY_NAME"]!;
-  final String userLongitudeQueryName =
-      dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
-  final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
-  final String protocol = dotenv.env['HTTP_PROTOCOL']!;
-  final String menuEndpoint = dotenv.env['MENU_ENDPOINT']!;
+
+  Future<DeviceIdState> getDeviceId() async {
+    final url = getUrl(path: newdDeviceIdEndpoint);
+
+    try {
+      final res = await http.get(url);
+
+      if (res.statusCode == 201) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> jsonData = resJson['data'];
+        final deviceId = DeviceId.fromJson(jsonData);
+
+        return DeviceIdState(data: deviceId, errorMessage: null);
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return DeviceIdState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const DeviceIdState(
+        data: null,
+        errorMessage: 'Failed to fetch device id',
+      );
+    }
+  }
 
   Uri getUrl({
     Map<String, dynamic>? queryParameters,
@@ -64,15 +94,17 @@ class APIService {
     // where request will be sent
     Map<String, dynamic> queryParameters = {};
     final String path = restaurantsEndpointsRoot;
+    final preferences = await SharedPreferences.getInstance();
 
-    // TODO: add checking for range set by user here
-    // if (userSettingRange) {
-    //   queryParameters.addEntries(
-    //     {
-    //       rangeQueryName: userSettingRange.toString(),
-    //     }.entries,
-    //   );
-    // }
+    final String? userRange = preferences.getString(searchRangeKeyName);
+
+    if (userRange != null) {
+      queryParameters.addEntries(
+        {
+          rangeQueryName: userRange,
+        }.entries,
+      );
+    }
 
     // Check if location passed
     // append query parameters if location is passed
