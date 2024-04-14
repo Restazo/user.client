@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/app_block/theme.dart';
 import 'package:restazo_user_mobile/helpers/env_check.dart';
@@ -10,19 +10,16 @@ import 'package:restazo_user_mobile/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Load env variables
   await dotenv.load(fileName: ".env");
   checkEnv();
 
-  // Get the device secure storage
-  const storage = FlutterSecureStorage();
-  // Get the device_id from the secure storage
-  String? deviceId = await storage.read(key: "deviceId");
+  final prefs = await SharedPreferences.getInstance();
+  bool interacted = prefs.getBool('interacted') ?? false;
 
-  String initialRoute = deviceId != null ? '/' : '/init';
+  String initialRoute = interacted ? '/' : '/init';
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((fn) {
+      .then((_) {
     runApp(ProviderScope(
       child: App(initialRoute: initialRoute),
     ));
