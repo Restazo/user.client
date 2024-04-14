@@ -1,8 +1,10 @@
 import 'package:go_router/go_router.dart';
+
 import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 
 import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
+import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 
 enum ScreenNames {
@@ -12,6 +14,7 @@ enum ScreenNames {
   menuItemDetail,
   settings,
   qrScanner,
+  waiterModeLogin
 }
 
 class AppRouter {
@@ -45,10 +48,16 @@ class AppRouter {
             ],
           ),
           GoRoute(
-            path: 'settings',
-            name: ScreenNames.settings.name,
-            builder: (context, state) => const NotExistingScreen(),
-          ),
+              path: 'settings',
+              name: ScreenNames.settings.name,
+              builder: (context, state) => const SettingsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'waiter_mode_login',
+                  name: ScreenNames.waiterModeLogin.name,
+                  builder: (context, state) => const NotExistingScreen(),
+                )
+              ]),
           GoRoute(
             path: 'qr_scanner',
             name: ScreenNames.qrScanner.name,
