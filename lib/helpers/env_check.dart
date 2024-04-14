@@ -12,6 +12,7 @@ void checkEnv() {
     'RANGE_QUERY_NAME',
     'NEW_DEVICE_ID_ENDPOINT',
     'USER_SEARCH_RANGE_KEY_NAME',
+    'MENU_ENDPOINT',
   ];
 
   // Check for missing environment variables

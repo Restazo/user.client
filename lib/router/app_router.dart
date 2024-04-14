@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
-
+import 'package:restazo_user_mobile/screens/menu_item.dart';
 import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
@@ -41,9 +41,9 @@ class AppRouter {
             builder: (context, state) => const RestaurantOverviewScreen(),
             routes: [
               GoRoute(
-                path: 'menu-item/:item_id',
+                path: 'menu/:item_id',
                 name: ScreenNames.menuItemDetail.name,
-                builder: (context, state) => const NotExistingScreen(),
+                builder: (context, state) => const MenuItemScreen(),
               )
             ],
           ),
