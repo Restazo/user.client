@@ -11,6 +11,7 @@ void checkEnv() {
     'USER_LONGITUDE_QUERY_NAME',
     'RANGE_QUERY_NAME',
     'NEW_DEVICE_ID_ENDPOINT',
+    'USER_SEARCH_RANGE_KEY_NAME',
   ];
 
   // Check for missing environment variables

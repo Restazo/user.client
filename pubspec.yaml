@@ -83,6 +83,7 @@ flutter:
     - assets/serving-dish.png
     - assets/map.png
     - assets/left.png
+    - assets/right.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
