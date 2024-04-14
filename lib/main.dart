@@ -19,7 +19,8 @@ void main() async {
   // Get the device_id from the secure storage
   String? deviceId = await storage.read(key: dotenv.env['DEVICE_ID_KEY_NAME']!);
 
-  String initialRoute = deviceId != null ? '/' : '/init';
+  String initialRoute = '/settings';
+  // String initialRoute = deviceId != null ? '/' : '/init';
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((fn) {

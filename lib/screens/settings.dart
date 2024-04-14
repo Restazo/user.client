@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pinput/pinput.dart';
+import 'package:restazo_user_mobile/helpers/cancel_button.dart';
+import 'package:restazo_user_mobile/widgets/waiter_log_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
@@ -61,7 +65,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
 
     settingsList = [
-      Setting(label: 'Waiter mode', action: _goToWaterModeLoginScreen)
+      Setting(
+        label: 'Waiter mode',
+        action: _showWaiterLogIn,
+      )
     ];
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _initPreferences());
@@ -204,28 +211,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (context) {
         return CupertinoActionSheet(
           actions: [_buildCupertinoPicker()],
-          cancelButton: TextButton(
-            style: ButtonStyle(
-              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.pressed)) {
-                    return const Color.fromARGB(255, 200, 200, 200);
-                  }
-                  return null;
-                },
-              ),
-              backgroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromARGB(255, 255, 255, 255)),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              padding: MaterialStateProperty.all<EdgeInsets>(
-                  const EdgeInsets.all(12)),
-            ),
-            child: Text("Cancel",
-                style: _getMainInfotextstyle().copyWith(
-                  color: const Color.fromARGB(255, 255, 59, 47),
-                )),
+          cancelButton: buildCancelButton(
+            context: context,
             onPressed: () {
               pickingCanceled = true;
 
@@ -267,12 +254,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _goBack() {
-    navigateBack(context);
+  void _showWaiterLogIn() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: CupertinoActionSheet(
+            actions: [_buildWaiterModeLogIn()],
+            cancelButton: buildCancelButton(
+              context: context,
+              onPressed: _goBack,
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  void _goToWaterModeLoginScreen() {
-    context.goNamed(ScreenNames.waiterModeLogin.name);
+  Widget _buildWaiterModeLogIn() {
+    return const WaiterLogInPopUp();
+  }
+
+  void _goBack() {
+    navigateBack(context);
   }
 
   Color _getSecondaryInfoColor() {
