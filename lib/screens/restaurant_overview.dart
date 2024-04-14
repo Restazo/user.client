@@ -83,7 +83,6 @@ class _RestaurantOverviewScreenState
   }
 
   void _clearRestaurantOverviewProvider() {
-    ScaffoldMessenger.of(context).clearSnackBars();
     ref
         .read(restaurantOverviewProvider.notifier)
         .leaveRestaurantOverviewScreen();

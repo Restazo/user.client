@@ -17,7 +17,7 @@ class MenuItemCard extends ConsumerWidget {
   final MenuItem itemData;
 
   void _goToItemScreen(BuildContext context, WidgetRef ref) {
-    ref.read(menuItemProvider.notifier).enterRestaurantOverviewScreen(itemData);
+    ref.read(menuItemProvider.notifier).enterMenuItemScreen(itemData);
     final Map<String, String> existingParametersMap =
         GoRouterState.of(context).pathParameters;
 

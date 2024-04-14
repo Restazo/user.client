@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restazo_user_mobile/helpers/api_result.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
 
 class MenuItemState extends APIServiceResult<MenuItem> {
@@ -19,16 +20,31 @@ class MenuItemNotifier extends StateNotifier<MenuItemState> {
           data: null,
           errorMessage: null,
         ));
-  // If we develop the endpoint to fetch menu item data, make a method to load it here
 
-  void enterRestaurantOverviewScreen(MenuItem initailMenuItemData) {
+  Future<void> loadMenuItemData(String itemId, String restaurantId) async {
+    try {
+      final result = await APIService().loadMenuItemById(restaurantId, itemId);
+
+      state = MenuItemState(
+          initailMenuItemData: state.initailMenuItemData,
+          data: result.data,
+          errorMessage: result.errorMessage);
+    } catch (e) {
+      state = const MenuItemState(
+          initailMenuItemData: null,
+          data: null,
+          errorMessage: 'Something unexpected happened');
+    }
+  }
+
+  void enterMenuItemScreen(MenuItem initailMenuItemData) {
     state = MenuItemState(
         initailMenuItemData: initailMenuItemData,
         data: null,
         errorMessage: null);
   }
 
-  void leaveRestaurantOverviewScreen() {
+  void leaveMenuItemScreen() {
     state = const MenuItemState(
       data: null,
       errorMessage: null,
