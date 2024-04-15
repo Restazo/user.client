@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
@@ -31,6 +33,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
   @override
   void initState() {
     super.initState();
+    _ensureDeviceIdPresent();
 
     _tabSwitchButtonAnimationController = AnimationController(
       vsync: this,
@@ -86,6 +89,21 @@ class _TabsScreenState extends ConsumerState<TabsScreen>
       ),
       label: label,
     );
+  }
+
+  Future<void> _ensureDeviceIdPresent() async {
+    const storage = FlutterSecureStorage();
+    final deviceId = await storage.read(key: 'deviceId');
+
+    if (deviceId == null) {
+      final deviceIdState = await APIService().getDeviceId();
+      if (deviceIdState.data != null) {
+        await storage.write(
+          key: 'deviceId',
+          value: deviceIdState.data!.deviceId,
+        );
+      }
+    }
   }
 
   void _selectScreen(int index) {
