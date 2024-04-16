@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
 
 import 'package:restazo_user_mobile/app_block/pinput_themes.dart';
+import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
@@ -24,15 +24,22 @@ class WaiterLogInConfirmation extends StatefulWidget {
 class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
   bool _isLoading = false;
   bool forcePinErrorState = false;
-  String waiterPin = '';
+  final TextEditingController _pinController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+
+    super.dispose();
+  }
 
   Future<void> _confirmWaiterLogIn() async {
     setState(() {
       _isLoading = true;
     });
 
-    final result =
-        await APIService().confirmLogInWaiter(widget.waiterEmail, waiterPin);
+    final result = await APIService()
+        .confirmLogInWaiter(widget.waiterEmail, _pinController.value.text);
     setState(() {
       _isLoading = false;
     });
@@ -48,69 +55,80 @@ class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
     }
 
     if (mounted) {
-      showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: Text(
-              "Fail",
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            content: Text(
-              result.errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Colors.black,
-                  ),
-            ),
-            actions: [
-              CupertinoDialogAction(
-                child: Text(
-                  "OK",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(color: Colors.black),
-                ),
-                onPressed: () {
-                  context.pop();
-                },
-              )
-            ],
-          );
-        },
-      );
+      _pinController.clear();
+      showCupertinoDialogWithOneAction(
+          context, "Fail", result.errorMessage!, "OK", () {
+        context.pop();
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color continueChildColor = Color.fromARGB(255, 0, 122, 255);
+    const Color bodyChildColor = Color.fromARGB(255, 255, 255, 255);
 
-    const double buttonContentHeight = 16;
+    final double bodyContentHeight = defaultPinTheme.height!;
 
-    Widget loadingButttonChild = KeyedSubtree(
+    Widget loadingBodyChild = KeyedSubtree(
       key: const ValueKey('loading_button_animation'),
       child: LoadingAnimationWidget.dotsTriangle(
-          color: continueChildColor, size: buttonContentHeight),
+          color: bodyChildColor, size: bodyContentHeight),
     );
-    Widget defaultButtonChild = KeyedSubtree(
+    Widget defaultBodyChild = KeyedSubtree(
       key: const ValueKey('default_button_content'),
-      child: Text(
-        'Continue',
-        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontSize: buttonContentHeight,
-              height: 1,
-              color: continueChildColor,
-              letterSpacing: 0,
+      child: Pinput(
+        controller: _pinController,
+        length: 5,
+        defaultPinTheme: defaultPinTheme,
+        errorPinTheme: errorPinTheme,
+        focusedPinTheme: focusedPinTheme,
+        submittedPinTheme: submittedPinTheme,
+        pinAnimationType: PinAnimationType.fade,
+        showCursor: false,
+        errorText: 'Invalid pin code',
+        forceErrorState: forcePinErrorState,
+        onCompleted: (value) {
+          if (_pinController.value.text.length != 5 ||
+              !RegExp(r'^[0-9]+$').hasMatch(_pinController.value.text)) {
+            setState(() {
+              forcePinErrorState = true;
+            });
+          }
+          if (forcePinErrorState) return;
+
+          _confirmWaiterLogIn();
+        },
+        onChanged: (value) {
+          if (forcePinErrorState) {
+            setState(() {
+              forcePinErrorState = false;
+            });
+          }
+        },
+        errorBuilder: (errorText, pin) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Center(
+              child: Text(
+                errorText!,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: const Color.fromARGB(255, 255, 59, 47)),
+              ),
             ),
+          );
+        },
+        onTapOutside: (_) {
+          FocusScope.of(context).unfocus();
+        },
+        separatorBuilder: (index) {
+          return const SizedBox(width: 16);
+        },
       ),
     );
 
-    Widget buttonContent =
-        _isLoading ? loadingButttonChild : defaultButtonChild;
+    Widget bodyContent = _isLoading ? loadingBodyChild : defaultBodyChild;
 
     return Material(
       color: const Color.fromARGB(255, 29, 39, 42),
@@ -144,90 +162,11 @@ class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
                       ),
                 ),
                 const SizedBox(height: 24),
-                Pinput(
-                  length: 5,
-                  defaultPinTheme: defaultPinTheme,
-                  errorPinTheme: errorPinTheme,
-                  focusedPinTheme: focusedPinTheme,
-                  submittedPinTheme: submittedPinTheme,
-                  pinAnimationType: PinAnimationType.fade,
-                  obscureText: true,
-                  obscuringCharacter: '●',
-                  showCursor: false,
-                  errorText: 'Invalid pin code',
-                  forceErrorState: forcePinErrorState,
-                  onChanged: (value) {
-                    waiterPin = value;
-                    if (forcePinErrorState) {
-                      setState(() {
-                        forcePinErrorState = false;
-                      });
-                    }
-                  },
-                  errorBuilder: (errorText, pin) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Center(
-                        child: Text(
-                          errorText!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                  color:
-                                      const Color.fromARGB(255, 255, 59, 47)),
-                        ),
-                      ),
-                    );
-                  },
-                  onTapOutside: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  separatorBuilder: (index) {
-                    return const SizedBox(width: 16);
-                  },
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: bodyContent,
                 ),
               ],
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed)) {
-                      return const Color.fromARGB(255, 200, 200, 200);
-                    }
-                    return null;
-                  },
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
-                  ),
-                ),
-                padding: MaterialStateProperty.all<EdgeInsets>(
-                    const EdgeInsets.all(16)),
-              ),
-              onPressed: !_isLoading
-                  ? () {
-                      if (waiterPin.length != 5 ||
-                          !RegExp(r'^[0-9]+$').hasMatch(waiterPin)) {
-                        setState(() {
-                          forcePinErrorState = true;
-                        });
-                      }
-                      if (forcePinErrorState) return;
-
-                      _confirmWaiterLogIn();
-                    }
-                  : null,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: buttonContent,
-              ),
             ),
           ),
         ],

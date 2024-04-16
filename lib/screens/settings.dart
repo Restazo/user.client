@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
@@ -248,39 +249,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           setModalState(() {
             waiterLogInSubmitted = true;
           });
-          return;
+          return true;
         }
 
         if (mounted) {
-          showCupertinoDialog(
-            context: context,
-            builder: (context) {
-              return CupertinoAlertDialog(
-                title: Text(
-                  "Fail",
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                content: Text(
-                  result.errorMessage!,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: Colors.black,
-                      ),
-                ),
-                actions: [
-                  CupertinoDialogAction(
-                    child: const Text("Ok"),
-                    onPressed: () {
-                      _goBack();
-                    },
-                  )
-                ],
-              );
-            },
-          );
+          showCupertinoDialogWithOneAction(
+              context, "Fail", result.errorMessage!, "OK", _goBack);
         }
+        return false;
       },
     );
   }

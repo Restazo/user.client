@@ -12,22 +12,25 @@ class WaiterLogInPopUp extends StatefulWidget {
     required this.submitWaiterLogIn,
   });
 
-  final Future<void> Function(String, String) submitWaiterLogIn;
+  final Future<bool> Function(String, String) submitWaiterLogIn;
 
   @override
   State<WaiterLogInPopUp> createState() => _WaiterLogInPopUpState();
 }
 
 class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
-  late String waiterEmail = '';
-  String waiterPin = '';
   bool forcePinErrorState = false;
   bool emailInvalid = false;
   bool _isLoading = false;
+  final TextEditingController _pinController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    _pinController.dispose();
+    _emailController.dispose();
+
+    super.dispose();
   }
 
   Future<void> _submitWaiterLogIn() async {
@@ -35,7 +38,14 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
       _isLoading = true;
     });
 
-    await widget.submitWaiterLogIn(waiterEmail, waiterPin);
+    final succedded = await widget.submitWaiterLogIn(
+      _emailController.value.text,
+      _pinController.value.text,
+    );
+
+    if (!succedded) {
+      _pinController.clear();
+    }
 
     setState(() {
       _isLoading = false;
@@ -96,14 +106,16 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
                   alignment: Alignment.topCenter,
                   curve: Curves.easeIn,
                   child: TextField(
+                    controller: _emailController,
                     onTapOutside: (_) {
                       FocusScope.of(context).unfocus();
                     },
-                    onChanged: (value) {
-                      setState(() {
-                        emailInvalid = false;
-                      });
-                      waiterEmail = value;
+                    onChanged: (_) {
+                      if (emailInvalid) {
+                        setState(() {
+                          emailInvalid = false;
+                        });
+                      }
                     },
                     keyboardType: TextInputType.emailAddress,
                     cursorColor: Colors.white,
@@ -145,6 +157,7 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
                 ),
                 const SizedBox(height: 20),
                 Pinput(
+                  controller: _pinController,
                   length: 5,
                   defaultPinTheme: defaultPinTheme,
                   errorPinTheme: errorPinTheme,
@@ -156,8 +169,7 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
                   showCursor: false,
                   errorText: 'Invalid pin code',
                   forceErrorState: forcePinErrorState,
-                  onChanged: (value) {
-                    waiterPin = value;
+                  onChanged: (_) {
                     if (forcePinErrorState) {
                       setState(() {
                         forcePinErrorState = false;
@@ -215,14 +227,16 @@ class _WaiterLogInPopUpState extends State<WaiterLogInPopUp> {
               ),
               onPressed: !_isLoading
                   ? () {
-                      if (waiterPin.length != 5 ||
-                          !RegExp(r'^[0-9]+$').hasMatch(waiterPin)) {
+                      if (_pinController.value.text.length != 5 ||
+                          !RegExp(r'^[0-9]+$')
+                              .hasMatch(_pinController.value.text)) {
                         setState(() {
                           forcePinErrorState = true;
                         });
                       }
-                      if (waiterEmail.isEmpty ||
-                          !EmailValidator.validate(waiterEmail)) {
+                      if (_emailController.value.text.isEmpty ||
+                          !EmailValidator.validate(
+                              _emailController.value.text)) {
                         setState(() {
                           emailInvalid = true;
                         });
