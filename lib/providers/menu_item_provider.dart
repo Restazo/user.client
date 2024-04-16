@@ -1,18 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:restazo_user_mobile/helpers/api_result.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/models/api_result_states/menu_item_state.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
-
-class MenuItemState extends APIServiceResult<MenuItem> {
-  const MenuItemState({
-    super.data,
-    super.errorMessage,
-    this.initailMenuItemData,
-  });
-
-  final MenuItem? initailMenuItemData;
-}
 
 class MenuItemNotifier extends StateNotifier<MenuItemState> {
   MenuItemNotifier()

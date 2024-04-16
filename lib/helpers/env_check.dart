@@ -13,6 +13,12 @@ void checkEnv() {
     'NEW_DEVICE_ID_ENDPOINT',
     'USER_SEARCH_RANGE_KEY_NAME',
     'MENU_ENDPOINT',
+    'WAITER_ENDPOINT',
+    'LOG_IN_ENDPOINT',
+    'CONFIRM_ENDPOINT',
+    'LOG_OUT_ENDPOINT',
+    'ACCESS_TOKEN_KEY_NAME',
+    'RENEW_ENDPOINT'
   ];
 
   // Check for missing environment variables

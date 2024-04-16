@@ -5,13 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:restazo_user_mobile/helpers/api_result.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
-import 'package:restazo_user_mobile/models/device_id.dart';
-
-class DeviceIdState extends APIServiceResult<DeviceId> {
-  const DeviceIdState({super.data, super.errorMessage});
-}
 
 class LocationView extends StatefulWidget {
   const LocationView({super.key});

@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
+
 import 'package:restazo_user_mobile/app_block/pinput_themes.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
 class WaiterLogInConfirmation extends StatefulWidget {
@@ -28,14 +31,57 @@ class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
+    final result =
+        await APIService().confirmLogInWaiter(widget.waiterEmail, waiterPin);
     setState(() {
       _isLoading = false;
     });
 
+    if (result.isSuccess) {
+      if (mounted) {
+        context.goNamed(
+          ScreenNames.waiterHome.name,
+          extra: {"fromConfirmed": true},
+        );
+      }
+      return;
+    }
+
     if (mounted) {
-      context.goNamed(ScreenNames.waiterHome.name);
+      showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: Text(
+              "Fail",
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            content: Text(
+              result.errorMessage!,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Colors.black,
+                  ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: Text(
+                  "OK",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: Colors.black),
+                ),
+                onPressed: () {
+                  context.pop();
+                },
+              )
+            ],
+          );
+        },
+      );
     }
   }
 

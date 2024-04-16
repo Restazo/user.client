@@ -315,7 +315,7 @@ class _RestaurantOverviewScreenState
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: DefaultAppBar(
+      appBar: RestazoAppBar(
         leftNavigationIconAsset: 'assets/left.png',
         leftNavigationIconAction: _navigateBack,
         rightNavigationIconAsset: 'assets/qr-code-scan.png',

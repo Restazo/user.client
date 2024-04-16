@@ -6,6 +6,8 @@ import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
+import 'package:restazo_user_mobile/screens/waiter_mode/settings.dart';
+import 'package:restazo_user_mobile/screens/waiter_mode/tabs.dart';
 
 enum ScreenNames {
   init,
@@ -15,6 +17,7 @@ enum ScreenNames {
   settings,
   qrScanner,
   waiterHome,
+  waiterSettings,
 }
 
 class AppRouter {
@@ -60,8 +63,25 @@ class AppRouter {
           GoRoute(
             path: 'waiter',
             name: ScreenNames.waiterHome.name,
-            builder: (context, state) => const NotExistingScreen(),
-          )
+            builder: (context, state) {
+              final Map<String, bool>? extra =
+                  state.extra as Map<String, bool>?;
+
+              bool fromConfirmed = false;
+              if (extra != null && extra['fromConfirmed'] != null) {
+                fromConfirmed = true;
+              }
+
+              return WaiterModeTabsScreen(fromConfirmed: fromConfirmed);
+            },
+            routes: [
+              GoRoute(
+                path: 'settings',
+                name: ScreenNames.waiterSettings.name,
+                builder: (context, state) => const WaiterModeSettingsScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
