@@ -44,6 +44,10 @@ dependencies:
   go_router: ^13.2.1
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
+  pinput: ^4.0.0
+  email_validator: ^2.1.17
+  loading_animation_widget: ^1.2.1
+  share: ^2.0.4
 
 flutter_launcher_icons:
   image_path: "assets/app_icon/icon.png"
@@ -84,6 +88,9 @@ flutter:
     - assets/map.png
     - assets/left.png
     - assets/right.png
+    - assets/message.png
+    - assets/menu.png
+    - assets/external-link.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
