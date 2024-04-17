@@ -21,7 +21,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   );
   bool _isLoading = false;
   bool _isScanned = false;
-  late Future<void> _handleScanningFuture;
+  Future<void>? _handleScanningFuture;
 
   @override
   void initState() {
@@ -71,7 +71,9 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   @override
   void dispose() {
     scannerController.dispose();
-    _handleScanningFuture.ignore();
+    if (_handleScanningFuture != null) {
+      _handleScanningFuture!.ignore();
+    }
 
     super.dispose();
   }
