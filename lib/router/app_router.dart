@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 
-import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/screens/menu_item.dart';
 import 'package:restazo_user_mobile/screens/location_view.dart';
+import 'package:restazo_user_mobile/screens/qr_scanner.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
@@ -71,7 +71,7 @@ class AppRouter {
           GoRoute(
             path: 'qr_scanner',
             name: ScreenNames.qrScanner.name,
-            builder: (context, state) => const NotExistingScreen(),
+            builder: (context, state) => const QrScannerScreen(),
           ),
           GoRoute(
             path: waiterEndpoint,
