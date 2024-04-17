@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const DefaultAppBar({
+class RestazoAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const RestazoAppBar({
     super.key,
     this.leftNavigationIconAsset,
     this.leftNavigationIconAction,

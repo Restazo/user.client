@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
@@ -83,7 +84,7 @@ class RestaurantNearYouCard extends ConsumerWidget {
 
               context.goNamed(
                 ScreenNames.restaurantDetail.name,
-                pathParameters: {'restaurant_id': restauranInfo.id},
+                pathParameters: {restaurantIdParamName: restauranInfo.id},
               );
             },
             child: Row(
