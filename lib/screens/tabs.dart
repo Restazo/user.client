@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/env.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
@@ -36,13 +37,13 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   Future<void> _ensureDeviceIdPresent() async {
     const storage = FlutterSecureStorage();
-    final deviceId = await storage.read(key: 'deviceId');
+    final deviceId = await storage.read(key: deviceIdKeyName);
 
     if (deviceId == null) {
       final deviceIdState = await APIService().getDeviceId();
       if (deviceIdState.data != null) {
         await storage.write(
-          key: 'deviceId',
+          key: deviceIdKeyName,
           value: deviceIdState.data!.deviceId,
         );
       }

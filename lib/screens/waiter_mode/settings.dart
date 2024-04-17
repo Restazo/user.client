@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/setting.dart';
@@ -112,8 +112,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
     setDialogState(() {
       _isLoading = true;
     });
-    final accessToken =
-        await storage.read(key: dotenv.env["ACCESS_TOKEN_KEY_NAME"]!);
+    final accessToken = await storage.read(key: accessTokenKeyName);
 
     if (accessToken == null) {
       setDialogState(() {
@@ -125,7 +124,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
       return;
     }
 
-    await storage.delete(key: dotenv.env["ACCESS_TOKEN_KEY_NAME"]!);
+    await storage.delete(key: accessTokenKeyName);
     await APIService().logOutWaiter(accessToken);
 
     setDialogState(() {

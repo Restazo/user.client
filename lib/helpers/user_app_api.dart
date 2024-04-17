@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -6,6 +5,7 @@ import 'package:location/location.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/models/api_result_states/waiter_session_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/waiter_log_out_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/device_id_state.dart';
@@ -19,34 +19,13 @@ import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 
-// URL related variables
-final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
-final String env = dotenv.env['ENV']!;
-final String restaurantsEndpointsRoot =
-    dotenv.env['RESTAURANTS_ENDPOINTS_ROOT']!;
-final String userLatitudeQueryName = dotenv.env["USER_LATITUDE_QUERY_NAME"]!;
-final String userLongitudeQueryName = dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
-final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
-final String protocol = dotenv.env['HTTP_PROTOCOL']!;
-final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
-final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
-final String menuEndpoint = dotenv.env['MENU_ENDPOINT']!;
-final String waiterEndpoint = dotenv.env['WAITER_ENDPOINT']!;
-final String logInEndpoint = dotenv.env['LOG_IN_ENDPOINT']!;
-final String confirmEndpoint = dotenv.env['CONFIRM_ENDPOINT']!;
-final String logOutEndpoint = dotenv.env['LOG_OUT_ENDPOINT']!;
-final String renewEndpoint = dotenv.env['RENEW_ENDPOINT']!;
-
-// Storage variables
-final String accessTokenKeyName = dotenv.env['ACCESS_TOKEN_KEY_NAME']!;
-
 // Class to interact with user API, all the functions to call an API must
 // be defined here
 class APIService {
   // Get all the needed environment variables
 
   Future<DeviceIdState> getDeviceId() async {
-    final url = getUrl(path: newdDeviceIdEndpoint);
+    final url = getUrl(path: "/$newdDeviceIdEndpoint");
 
     try {
       final res = await http.get(url);
@@ -75,7 +54,7 @@ class APIService {
     String? path,
   }) {
     // Parse the base URL into its components
-    final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
+    final baseUrlParsed = Uri.parse(userAppApiUrl);
 
     // Construct the URL with passed query parameters
     // and path
@@ -107,7 +86,6 @@ class APIService {
     // Define query parameters and path
     // where request will be sent
     Map<String, dynamic> queryParameters = {};
-    final String path = restaurantsEndpointsRoot;
     final preferences = await SharedPreferences.getInstance();
 
     final String? userRange = preferences.getString(searchRangeKeyName);
@@ -133,7 +111,8 @@ class APIService {
     }
 
     // Generate final URL where request will be sent
-    final url = getUrl(queryParameters: queryParameters, path: path);
+    final url =
+        getUrl(queryParameters: queryParameters, path: "/$restaurantsEndpoint");
 
     try {
       final res = await http.get(url);
@@ -178,7 +157,7 @@ class APIService {
     }
 
     final url = getUrl(
-      path: "$restaurantsEndpointsRoot/$id",
+      path: "/$restaurantsEndpoint/$id",
       queryParameters: queryParameters,
     );
 
@@ -215,7 +194,7 @@ class APIService {
 
   Future<MenuItemState> loadMenuItemById(
       String restaurantId, String itemId) async {
-    final path = '$restaurantsEndpointsRoot/$restaurantId$menuEndpoint/$itemId';
+    final path = '/$restaurantsEndpoint/$restaurantId/$menuEndpoint/$itemId';
 
     final url = getUrl(path: path);
 
@@ -240,7 +219,7 @@ class APIService {
   }
 
   Future<WaiterLogInState> logInWaiter(String email, String pin) async {
-    final path = '$waiterEndpoint$logInEndpoint';
+    final path = '/$waiterEndpoint/$logInEndpoint';
     final Object body = json.encode({'email': email, 'pin': pin});
     final Map<String, String> headers = {'Content-type': 'application/json'};
 
@@ -267,7 +246,7 @@ class APIService {
 
   Future<WaiterLogInConfirmationState> confirmLogInWaiter(
       String email, String pin) async {
-    final path = '$waiterEndpoint$confirmEndpoint';
+    final path = '/$waiterEndpoint/$confirmEndpoint';
     final Object body = json.encode({'email': email, 'pin': pin});
     final Map<String, String> headers = {'Content-type': 'application/json'};
 
@@ -305,7 +284,7 @@ class APIService {
   }
 
   Future<WaiterLogOutState> logOutWaiter(String accessToken) async {
-    final path = '$waiterEndpoint$logOutEndpoint';
+    final path = '/$waiterEndpoint/$logOutEndpoint';
     final Map<String, String> headers = {
       'Content-type': 'application/json',
       'Authorization': "Bearer $accessToken",
@@ -333,7 +312,7 @@ class APIService {
   }
 
   Future<WaiterSessionState> renewWaiterSession(String accessToken) async {
-    final path = '$waiterEndpoint$renewEndpoint';
+    final path = '/$waiterEndpoint/$renewEndpoint';
     final Map<String, String> headers = {
       'Content-type': 'application/json',
       'Authorization': "Bearer $accessToken",

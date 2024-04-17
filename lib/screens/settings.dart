@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/env.dart';
+import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/setting.dart';
 import 'package:restazo_user_mobile/widgets/setting_tile.dart';
@@ -31,7 +31,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     (500 - 25) ~/ 25 + 1,
     (index) => '${25 + index * 25}',
   );
-  final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
   String waiterEmail = '';
   bool waiterLogInSubmitted = false;
 

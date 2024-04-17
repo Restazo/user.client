@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
@@ -40,8 +40,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
   }
 
   Future<void> _checkWaiterSession() async {
-    final accessToken =
-        await storage.read(key: dotenv.env['ACCESS_TOKEN_KEY_NAME']!);
+    final accessToken = await storage.read(key: accessTokenKeyName);
 
     if (accessToken == null) {
       if (mounted) {
@@ -72,7 +71,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
     }
 
     if (result.sessionMessage != null) {
-      await storage.delete(key: dotenv.env["ACCESS_TOKEN_KEY_NAME"]!);
+      await storage.delete(key: accessTokenKeyName);
 
       if (mounted) {
         showCupertinoDialogWithOneAction(
@@ -87,8 +86,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
     }
 
     if (result.data != null) {
-      await storage.write(
-          key: dotenv.env["ACCESS_TOKEN_KEY_NAME"]!, value: result.data);
+      await storage.write(key: accessTokenKeyName, value: result.data);
     }
   }
 

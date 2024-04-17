@@ -6,7 +6,7 @@ void checkEnv() {
     'ENV',
     'HTTP_PROTOCOL',
     'USER_APP_API_URL',
-    'RESTAURANTS_ENDPOINTS_ROOT',
+    'RESTAURANTS_ENDPOINT',
     'USER_LATITUDE_QUERY_NAME',
     'USER_LONGITUDE_QUERY_NAME',
     'RANGE_QUERY_NAME',
@@ -18,7 +18,11 @@ void checkEnv() {
     'CONFIRM_ENDPOINT',
     'LOG_OUT_ENDPOINT',
     'ACCESS_TOKEN_KEY_NAME',
-    'RENEW_ENDPOINT'
+    'RENEW_ENDPOINT',
+    'USER_WEB_APP_URL',
+    'RESTAURANT_ID_PARAM_NAME',
+    'MENU_ITEM_ID_PARAM_NAME',
+    'DEVICE_ID_KEY_NAME',
   ];
 
   // Check for missing environment variables

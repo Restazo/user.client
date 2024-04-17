@@ -47,6 +47,7 @@ dependencies:
   pinput: ^4.0.0
   email_validator: ^2.1.17
   loading_animation_widget: ^1.2.1
+  share: ^2.0.4
 
 flutter_launcher_icons:
   image_path: "assets/app_icon/icon.png"
@@ -89,6 +90,7 @@ flutter:
     - assets/right.png
     - assets/message.png
     - assets/menu.png
+    - assets/external-link.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

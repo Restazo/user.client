@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/app_block/theme.dart';
 import 'package:restazo_user_mobile/helpers/env_check.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
@@ -20,7 +21,7 @@ void main() async {
 
   String initialRoute = interacted ? '/' : '/init';
 
-  if (await storage.read(key: dotenv.env["ACCESS_TOKEN_KEY_NAME"]!) != null) {
+  if (await storage.read(key: accessTokenKeyName) != null) {
     initialRoute = '/waiter';
   }
 

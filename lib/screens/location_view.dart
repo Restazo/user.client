@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 
 class LocationView extends StatefulWidget {
@@ -21,7 +22,7 @@ class _LocationViewState extends State<LocationView> {
     final deviceIdState = await APIService().getDeviceId(); // Call getDeviceId
     if (deviceIdState.data != null) {
       await storage.write(
-          key: "deviceId",
+          key: deviceIdKeyName,
           value: deviceIdState.data!.deviceId); // Save device ID
     }
 

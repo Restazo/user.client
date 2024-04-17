@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/screens/menu_item.dart';
 import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
@@ -39,14 +40,26 @@ class AppRouter {
         builder: (context, state) => const TabsScreen(),
         routes: [
           GoRoute(
-            path: 'restaurants/:restaurant_id',
+            path: '$restaurantsEndpoint/:$restaurantIdParamName',
             name: ScreenNames.restaurantDetail.name,
             builder: (context, state) => const RestaurantOverviewScreen(),
             routes: [
               GoRoute(
-                path: 'menu/:item_id',
+                path: '$menuEndpoint/:$itemIdParamName',
                 name: ScreenNames.menuItemDetail.name,
-                builder: (context, state) => const MenuItemScreen(),
+                builder: (context, state) {
+                  final Map<String, bool>? extra =
+                      state.extra as Map<String, bool>?;
+
+                  bool fromRestaurantOverview = false;
+                  if (extra != null &&
+                      extra['fromRestaurantOverview'] != null) {
+                    fromRestaurantOverview = true;
+                  }
+
+                  return MenuItemScreen(
+                      fromRestaurantOverview: fromRestaurantOverview);
+                },
               )
             ],
           ),
@@ -61,7 +74,7 @@ class AppRouter {
             builder: (context, state) => const NotExistingScreen(),
           ),
           GoRoute(
-            path: 'waiter',
+            path: waiterEndpoint,
             name: ScreenNames.waiterHome.name,
             builder: (context, state) {
               final Map<String, bool>? extra =
