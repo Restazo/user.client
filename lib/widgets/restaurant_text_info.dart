@@ -10,8 +10,8 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String description =
-        restaurantInfo.description != null ? restaurantInfo.description! : '';
+    // final String description =
+    //     restaurantInfo.description != null ? restaurantInfo.description! : '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
@@ -95,32 +95,34 @@ class RestaurantOverviewTextInfo extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white.withOpacity(0.1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  blurRadius: 8,
-                  offset: const Offset(0, -4),
-                )
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+          if (restaurantInfo.description != null &&
+              restaurantInfo.description!.isNotEmpty)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, -4),
+                  )
+                ],
               ),
-              child: Text(
-                description,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Colors.white,
-                      height: 1.6,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Text(
+                  restaurantInfo.description!,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Colors.white,
+                        height: 1.6,
+                      ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

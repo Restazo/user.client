@@ -17,7 +17,7 @@ class _NotExistingScreenState extends State<NotExistingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DefaultAppBar(
+      appBar: RestazoAppBar(
         leftNavigationIconAsset: 'assets/left.png',
         leftNavigationIconAction: _navigateBack,
       ),

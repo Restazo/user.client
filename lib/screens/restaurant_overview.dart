@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
+import 'package:share/share.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
@@ -57,10 +60,10 @@ class _RestaurantOverviewScreenState
       });
     }
 
-    // Get the current route restaurant_id parameter
-    RouteSettings settings = ModalRoute.of(context)!.settings;
-    Map<String, dynamic> arguments = settings.arguments as Map<String, dynamic>;
-    var restaurantId = arguments['restaurant_id'];
+    // Get the current route restaurantId parameter
+    final Map<String, String> parametersMap =
+        GoRouterState.of(context).pathParameters;
+    final restaurantId = parametersMap[restaurantIdParamName]!;
 
     LocationData? currentLocation;
 
@@ -93,9 +96,12 @@ class _RestaurantOverviewScreenState
     navigateBack(context);
   }
 
-  void _openQrScanner() {
-    _clearRestaurantOverviewProvider();
-    openQrScanner(context);
+  void _shareItem() {
+    final Map<String, String> parametersMap =
+        GoRouterState.of(context).pathParameters;
+
+    Share.share(
+        "$userWebAppUrl/$restaurantsEndpoint/${parametersMap[restaurantIdParamName]}");
   }
 
   @override
@@ -106,6 +112,7 @@ class _RestaurantOverviewScreenState
     Widget? textSectionWidget;
     Widget? imagesSectionWidget;
     Widget content;
+    bool restaurantFound = false;
 
     Widget noRestaurantFound = Center(
       child: Text(
@@ -238,6 +245,10 @@ class _RestaurantOverviewScreenState
         textSectionWidget != null &&
         menuSectionWidget != null) {
       // Show full content if all the widgets are set
+      if (imagesSectionWidget != imagesLoader &&
+          textSectionWidget != textContentLoader) {
+        restaurantFound = true;
+      }
 
       content = Padding(
         padding: const EdgeInsets.only(left: 20, right: 20, top: 12),
@@ -315,11 +326,12 @@ class _RestaurantOverviewScreenState
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: DefaultAppBar(
+      appBar: RestazoAppBar(
         leftNavigationIconAsset: 'assets/left.png',
         leftNavigationIconAction: _navigateBack,
-        rightNavigationIconAsset: 'assets/qr-code-scan.png',
-        rightNavigationIconAction: _openQrScanner,
+        rightNavigationIconAsset:
+            restaurantFound ? 'assets/external-link.png' : null,
+        rightNavigationIconAction: restaurantFound ? _shareItem : null,
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),

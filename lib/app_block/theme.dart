@@ -12,4 +12,11 @@ final appTheme = ThemeData(
     unselectedItemColor: Color.fromARGB(255, 144, 144, 144),
     backgroundColor: Colors.transparent,
   ),
+  textSelectionTheme: const TextSelectionThemeData(
+    selectionColor:
+        Color.fromARGB(65, 255, 255, 255), // Color used for text selection
+    selectionHandleColor:
+        Colors.black, // Color of the handles at the edges of selection
+    cursorColor: Colors.white, // Color of the cursor
+  ),
 );
