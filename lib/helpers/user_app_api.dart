@@ -28,6 +28,7 @@ final String menuEndpoint = dotenv.env['MENU_ENDPOINT']!;
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
+
 class APIService {
   // Get all the needed environment variables
 

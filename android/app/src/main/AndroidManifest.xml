@@ -2,10 +2,12 @@
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+
     <application
         android:label="Restazo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
         <activity
             android:enableOnBackInvokedCallback="true"
             android:name=".MainActivity"
@@ -32,7 +34,13 @@
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
+            android:value="2"/>
+
+            <meta-data 
+                        android:name="com.google.android.geo.AIzaSyCY0B5pnjH57UEb2b4oS7spwjBIg5kB4J8" 
+            android:value="AIzaSyCY0B5pnjH57UEb2b4oS7spwjBIg5kB4J8"
+            />
+            
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and
