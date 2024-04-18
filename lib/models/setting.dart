@@ -1,14 +1,14 @@
 class Setting {
   const Setting({
     required this.label,
-    required this.action,
+    this.action,
     this.value,
     this.valueExtension,
   });
 
   final String label;
   final String? value;
-  final void Function() action;
+  final void Function()? action;
   final String? valueExtension;
 
   Setting copyWith({

@@ -47,7 +47,7 @@ dependencies:
   pinput: ^4.0.0
   email_validator: ^2.1.17
   loading_animation_widget: ^1.2.1
-  share: ^2.0.4
+  share_plus: ^8.0.3
   mobile_scanner: ^4.0.1
 
 flutter_launcher_icons:

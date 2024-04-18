@@ -16,7 +16,7 @@ final waiterEndpoint = dotenv.env['WAITER_ENDPOINT']!;
 final logInEndpoint = dotenv.env['LOG_IN_ENDPOINT']!;
 final confirmEndpoint = dotenv.env['CONFIRM_ENDPOINT']!;
 final logOutEndpoint = dotenv.env['LOG_OUT_ENDPOINT']!;
-final renewEndpoint = dotenv.env['RENEW_ENDPOINT']!;
+final sessionEndpoint = dotenv.env['SESSION_ENDPOINT']!;
 
 // URL query names
 final rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
@@ -31,3 +31,5 @@ final itemIdParamName = dotenv.env['MENU_ITEM_ID_PARAM_NAME']!;
 final searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
 final accessTokenKeyName = dotenv.env['ACCESS_TOKEN_KEY_NAME']!;
 final deviceIdKeyName = dotenv.env['DEVICE_ID_KEY_NAME']!;
+final waiterNameKeyName = dotenv.env['WAITER_NAME_KEY_NAME']!;
+final waiterEmailKeyName = dotenv.env['WAITER_EMAIL_KEY_NAME']!;
