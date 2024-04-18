@@ -8,6 +8,7 @@ import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/ongoing_orders.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/requests.dart';
+import 'package:restazo_user_mobile/strings.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
 import 'package:restazo_user_mobile/widgets/bottom_navigation_bar.dart';
 
@@ -48,14 +49,14 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
           context,
           "Invalid session",
           "Seems like you are logged out, please log in again",
-          "OK",
+          Strings.ok,
           _goHome,
         );
       }
       return;
     }
 
-    final result = await APIService().renewWaiterSession(accessToken);
+    final result = await APIService().getWaiterSession(accessToken);
 
     if (!result.isSuccess) {
       if (mounted) {
@@ -63,7 +64,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
           context,
           "Error",
           result.errorMessage!,
-          "OK",
+          Strings.ok,
           _goHome,
         );
       }
@@ -76,9 +77,9 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
       if (mounted) {
         showCupertinoDialogWithOneAction(
           context,
-          "Fail",
+          Strings.failTitle,
           result.sessionMessage!,
-          "Ok",
+          Strings.ok,
           _goHome,
         );
       }
@@ -86,7 +87,11 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
     }
 
     if (result.data != null) {
-      await storage.write(key: accessTokenKeyName, value: result.data);
+      await Future.wait([
+        storage.write(key: accessTokenKeyName, value: result.data!.accessToken),
+        storage.write(key: waiterNameKeyName, value: result.data!.name),
+        storage.write(key: waiterEmailKeyName, value: result.data!.email),
+      ]);
     }
   }
 
