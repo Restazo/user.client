@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/strings.dart';
+import 'package:restazo_user_mobile/models/settings_section.dart';
 import 'package:restazo_user_mobile/env.dart';
+import 'package:restazo_user_mobile/widgets/settings_section.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/setting.dart';
-import 'package:restazo_user_mobile/widgets/setting_tile.dart';
 import 'package:restazo_user_mobile/helpers/cancel_button.dart';
 import 'package:restazo_user_mobile/widgets/waiter_log_in.dart';
 import 'package:restazo_user_mobile/widgets/waiter_log_in_confirmation.dart';
@@ -25,7 +27,11 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late SharedPreferences preferences;
   int selectedRangeIndex = 0;
-  List<Setting> settingsList = [];
+  List<SettingsSection> settingsSections = [];
+
+  // Settings sections indexes
+  static const int generalSectionIndex = 0;
+
   late FixedExtentScrollController rangeSetterScrollController;
   List<String> rangePickerItems = List.generate(
     (500 - 25) ~/ 25 + 1,
@@ -38,12 +44,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void initState() {
     super.initState();
 
-    settingsList = [
+    List<Setting> generalSettings = [
       Setting(
-        label: 'Waiter mode',
+        label: Strings.waiterModeSettingTitle,
         action: _showWaiterLogIn,
       )
     ];
+
+    settingsSections.insert(generalSectionIndex,
+        SettingsSection(label: Strings.general, settings: generalSettings));
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _initPreferences());
   }
@@ -61,15 +70,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         FixedExtentScrollController(initialItem: selectedRangeIndex);
 
     Future.microtask(() => setState(() {
-          settingsList.insert(
-            0,
-            Setting(
-              label: 'Search range',
-              action: _showRangePicker,
-              value: range,
-              valueExtension: 'km',
-            ),
-          );
+          settingsSections[generalSectionIndex].settings.insert(
+                0,
+                Setting(
+                  label: Strings.searchRangeSettingTitle,
+                  action: _showRangePicker,
+                  value: range,
+                  valueExtension: Strings.kilometersExtension,
+                ),
+              );
         }));
   }
 
@@ -84,16 +93,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _selectRange(int pickerItemIndex) async {
-    final int settingIndex =
-        settingsList.indexWhere((setting) => setting.label == 'Search range');
+    final int settingIndex = settingsSections[0].settings.indexWhere(
+        (setting) => setting.label == Strings.searchRangeSettingTitle);
 
-    Setting updatedSetting = settingsList[settingIndex]
+    Setting updatedSetting = settingsSections[0]
+        .settings[settingIndex]
         .copyWith(value: rangePickerItems[pickerItemIndex]);
 
     selectedRangeIndex = pickerItemIndex;
 
     setState(() {
-      settingsList[settingIndex] = updatedSetting;
+      settingsSections[0].settings[settingIndex] = updatedSetting;
       rangeSetterScrollController.jumpToItem(pickerItemIndex);
     });
 
@@ -151,7 +161,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .map(
               (item) => Center(
                 child: Text(
-                  '${item}km',
+                  '$item${Strings.kilometersExtension}',
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       color: const Color.fromARGB(255, 255, 255, 255),
                       letterSpacing: 0,
@@ -252,8 +262,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         }
 
         if (mounted) {
-          showCupertinoDialogWithOneAction(
-              context, "Fail", result.errorMessage!, "OK", _goBack);
+          showCupertinoDialogWithOneAction(context, Strings.failTitle,
+              result.errorMessage!, Strings.ok, _goBack);
         }
         return false;
       },
@@ -281,7 +291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: RestazoAppBar(
-        title: 'Settings',
+        title: Strings.settings,
         leftNavigationIconAction: _goBack,
         leftNavigationIconAsset: 'assets/left.png',
       ),
@@ -292,27 +302,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         child: ListView(
           children: [
-            Material(
-              borderRadius: BorderRadius.circular(10),
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 29, 39, 42),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final settingInfo in settingsList)
-                      SettingTile(
-                        settingInfo: settingInfo,
-                        isFirst: settingsList.indexOf(settingInfo) == 0,
-                        isLast: settingsList.indexOf(settingInfo) ==
-                            settingsList.length - 1,
-                      )
-                  ],
-                ),
-              ),
-            )
+            for (final settingsSectionInfo in settingsSections) ...[
+              SettingsSectionUI(settingsSectionInfo: settingsSectionInfo),
+              const SizedBox(height: 16)
+            ]
           ],
         ),
       ),

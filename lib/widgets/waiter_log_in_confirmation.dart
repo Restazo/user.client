@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
 
 import 'package:restazo_user_mobile/app_block/pinput_themes.dart';
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
@@ -25,6 +27,7 @@ class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
   bool _isLoading = false;
   bool forcePinErrorState = false;
   final TextEditingController _pinController = TextEditingController();
+  final storage = const FlutterSecureStorage();
 
   @override
   void dispose() {
@@ -45,6 +48,12 @@ class _WaiterLogInConfirmationState extends State<WaiterLogInConfirmation> {
     });
 
     if (result.isSuccess) {
+      await Future.wait([
+        storage.write(key: accessTokenKeyName, value: result.data!.accessToken),
+        storage.write(key: waiterEmailKeyName, value: result.data!.email),
+        storage.write(key: waiterNameKeyName, value: result.data!.name),
+      ]);
+
       if (mounted) {
         context.goNamed(
           ScreenNames.waiterHome.name,

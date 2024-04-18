@@ -1,16 +1,15 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/models/waiter_session.dart';
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/models/api_result_states/waiter_session_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/waiter_log_out_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/device_id_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/waiter_log_in_state.dart';
-import 'package:restazo_user_mobile/models/api_result_states/waiter_log_in_confirmation_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/menu_item_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/restaurant_overview_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/restaurants_near_you_state.dart';
@@ -202,7 +201,7 @@ class APIService {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final resJson = json.decode(res.body);
-        final dynamic menuItemDataJson = resJson['data'];
+        final Map<String, dynamic> menuItemDataJson = resJson['data'];
 
         final menuItemData = MenuItem.fromJson(menuItemDataJson);
 
@@ -244,7 +243,7 @@ class APIService {
     }
   }
 
-  Future<WaiterLogInConfirmationState> confirmLogInWaiter(
+  Future<WaiterSessionState> confirmLogInWaiter(
       String email, String pin) async {
     final path = '/$waiterEndpoint/$confirmEndpoint';
     final Object body = json.encode({'email': email, 'pin': pin});
@@ -257,28 +256,29 @@ class APIService {
 
       if (res.statusCode == 200) {
         if (res.headers['authorization'] == null) {
-          return const WaiterLogInConfirmationState(
-              data: null, errorMessage: "Bad response from the server");
+          return const WaiterSessionState(
+            data: null,
+            errorMessage: "Bad response from the server",
+            sessionMessage: null,
+          );
         }
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
 
-        final accessToken = res.headers['authorization']!.split(' ')[1];
+        final waiterSessionData = WaiterSession.fromJson(data, res.headers);
 
-        const storage = FlutterSecureStorage();
-        await storage.write(
-          key: accessTokenKeyName,
-          value: accessToken,
+        return WaiterSessionState(
+          data: waiterSessionData,
+          errorMessage: null,
+          sessionMessage: null,
         );
-
-        return WaiterLogInConfirmationState(
-            data: accessToken, errorMessage: null);
       } else {
         final errorMessage = _decodeError(res);
 
-        return WaiterLogInConfirmationState(
-            data: null, errorMessage: errorMessage);
+        return WaiterSessionState(data: null, errorMessage: errorMessage);
       }
     } catch (e) {
-      return const WaiterLogInConfirmationState(
+      return const WaiterSessionState(
           data: null, errorMessage: 'Failed to confirm your logging in');
     }
   }
@@ -311,8 +311,8 @@ class APIService {
     }
   }
 
-  Future<WaiterSessionState> renewWaiterSession(String accessToken) async {
-    final path = '/$waiterEndpoint/$renewEndpoint';
+  Future<WaiterSessionState> getWaiterSession(String accessToken) async {
+    final path = '/$waiterEndpoint/$sessionEndpoint';
     final Map<String, String> headers = {
       'Content-type': 'application/json',
       'Authorization': "Bearer $accessToken",
@@ -321,7 +321,7 @@ class APIService {
     final url = getUrl(path: path);
 
     try {
-      final res = await http.post(url, headers: headers);
+      final res = await http.get(url, headers: headers);
 
       if (res.statusCode == 200) {
         if (res.headers['authorization'] == null) {
@@ -331,17 +331,13 @@ class APIService {
             sessionMessage: null,
           );
         }
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
 
-        final accessToken = res.headers['authorization']!.split(' ')[1];
-
-        const storage = FlutterSecureStorage();
-        await storage.write(
-          key: accessTokenKeyName,
-          value: accessToken,
-        );
+        final waiterSessionData = WaiterSession.fromJson(data, res.headers);
 
         return WaiterSessionState(
-          data: accessToken,
+          data: waiterSessionData,
           errorMessage: null,
           sessionMessage: null,
         );
@@ -365,7 +361,7 @@ class APIService {
     } catch (e) {
       return const WaiterSessionState(
         data: null,
-        errorMessage: 'Failed renew your session',
+        errorMessage: 'Failed get your session',
         sessionMessage: null,
       );
     }

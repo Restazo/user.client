@@ -8,9 +8,11 @@ import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/setting.dart';
+import 'package:restazo_user_mobile/models/settings_section.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
+import 'package:restazo_user_mobile/strings.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
-import 'package:restazo_user_mobile/widgets/setting_tile.dart';
+import 'package:restazo_user_mobile/widgets/settings_section.dart';
 
 class WaiterModeSettingsScreen extends StatefulWidget {
   const WaiterModeSettingsScreen({super.key});
@@ -22,19 +24,64 @@ class WaiterModeSettingsScreen extends StatefulWidget {
 
 class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
   final storage = const FlutterSecureStorage();
-  List<Setting> settingsList = [];
+
+  // Settings sections indexes
+  static const int accountSectionIndex = 0;
+  static const int signOutSectionIndex = 1;
+
+  List<SettingsSection> settingsSections = [];
+  late String waiterName;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    settingsList = [
+    _initAllSettings();
+  }
+
+  Future<void> _initAllSettings() async {
+    await _initAccountSettings();
+    _initSignOutSettings();
+  }
+
+  Future<void> _initAccountSettings() async {
+    final name =
+        await storage.read(key: waiterNameKeyName) ?? Strings.noNameFound;
+    final email =
+        await storage.read(key: waiterEmailKeyName) ?? Strings.noEmailFound;
+
+    List<Setting> accountSettings = [
       Setting(
-        label: 'Log out',
+        label: name,
+      ),
+      Setting(
+        label: email,
+      ),
+    ];
+
+    setState(() {
+      settingsSections.insert(
+          accountSectionIndex,
+          SettingsSection(
+              label: Strings.accountInfoTitle, settings: accountSettings));
+    });
+  }
+
+  void _initSignOutSettings() {
+    List<Setting> signOutSettings = [
+      Setting(
+        label: Strings.logOut,
         action: _confrimLogOut,
       )
     ];
+
+    setState(() {
+      settingsSections.insert(
+          signOutSectionIndex,
+          SettingsSection(
+              label: Strings.actionsTitle, settings: signOutSettings));
+    });
   }
 
   void _confrimLogOut() {
@@ -47,7 +94,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
                 ? KeyedSubtree(
                     key: const ValueKey('warning_title_text'),
                     child: Text(
-                      "Warning",
+                      Strings.warningTitle,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -66,7 +113,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
                 child: dialogTitle,
               ),
               content: Text(
-                "You will get logged out by this action",
+                Strings.logOutWarningMessage,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Colors.black,
                     ),
@@ -79,7 +126,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
                         }
                       : null,
                   child: Text(
-                    "Cancel",
+                    Strings.cancel,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
@@ -93,7 +140,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
                         }
                       : null,
                   child: Text(
-                    "OK",
+                    Strings.ok,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
@@ -124,8 +171,12 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
       return;
     }
 
-    await storage.delete(key: accessTokenKeyName);
-    await APIService().logOutWaiter(accessToken);
+    await Future.wait([
+      storage.delete(key: accessTokenKeyName),
+      storage.delete(key: waiterNameKeyName),
+      storage.delete(key: waiterEmailKeyName),
+      APIService().logOutWaiter(accessToken)
+    ]);
 
     setDialogState(() {
       _isLoading = false;
@@ -145,6 +196,7 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: RestazoAppBar(
+        title: Strings.settings,
         leftNavigationIconAsset: "assets/left.png",
         leftNavigationIconAction: _goBack,
       ),
@@ -155,27 +207,10 @@ class _WaiterModeSettingsScreenState extends State<WaiterModeSettingsScreen> {
         ),
         child: ListView(
           children: [
-            Material(
-              borderRadius: BorderRadius.circular(10),
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 29, 39, 42),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final settingInfo in settingsList)
-                      SettingTile(
-                        settingInfo: settingInfo,
-                        isFirst: settingsList.indexOf(settingInfo) == 0,
-                        isLast: settingsList.indexOf(settingInfo) ==
-                            settingsList.length - 1,
-                      ),
-                  ],
-                ),
-              ),
-            ),
+            for (final settingsSectionInfo in settingsSections) ...[
+              SettingsSectionUI(settingsSectionInfo: settingsSectionInfo),
+              const SizedBox(height: 16)
+            ]
           ],
         ),
       ),
