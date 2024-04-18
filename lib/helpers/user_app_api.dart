@@ -321,7 +321,7 @@ class APIService {
     final url = getUrl(path: path);
 
     try {
-      final res = await http.post(url, headers: headers);
+      final res = await http.get(url, headers: headers);
 
       if (res.statusCode == 200) {
         if (res.headers['authorization'] == null) {
