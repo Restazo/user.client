@@ -7,7 +7,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name="com.restazo.user_mobile_app.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -25,6 +25,28 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <!-- Match deep links for /tables/:tableId -->
+                <data android:scheme="https"
+                        android:host="restazo.com"
+                        android:pathPattern="/tables/.*" />
+
+                <!-- Match deep links for /restaurants/:restaurantId -->
+                <data android:scheme="https"
+                        android:host="restazo.com"
+                        android:pathPattern="/restaurants/.*" />
+
+                <!-- Match deep links for /restaurants/:restaurantId/menu/:itemId -->
+                <data android:scheme="https"
+                        android:host="restazo.com"
+                        android:pathPattern="/restaurants/.*/menu/.*" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
