@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/helpers/check_location_permissions.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
+import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
 
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_two_actions.dart';
 import 'package:restazo_user_mobile/strings.dart';
@@ -19,6 +21,7 @@ class _TableActionsScreenState extends State<TableActionsScreen> {
   @override
   void initState() {
     super.initState();
+    _ensureLocationPermissions();
   }
 
   @override
@@ -28,6 +31,23 @@ class _TableActionsScreenState extends State<TableActionsScreen> {
     if (!_isInitialised) {
       _isInitialised = true;
       _validateTableHash();
+    }
+  }
+
+  Future<void> _ensureLocationPermissions() async {
+    final granted = await checkLocationPermissions();
+
+    if (!granted) {
+      if (mounted) {
+        return showCupertinoDialogWithOneAction(
+            context,
+            Strings.lackOfPermissionsTitle,
+            Strings.enableLocationMessage,
+            Strings.ok, () {
+          navigateBack(context);
+          navigateBack(context);
+        });
+      }
     }
   }
 

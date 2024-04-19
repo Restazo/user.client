@@ -33,7 +33,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     final String? barcodeValue = capture.rawValue;
     if (barcodeValue != null &&
         barcodeValue.contains('$userWebAppUrl/$tableEndpoint/')) {
-      final tableHash = barcodeValue.split('/')[4];
+      final tableHash = barcodeValue.split('/$tableEndpoint/')[1];
 
       context.goNamed(ScreenNames.tableActions.name,
           pathParameters: {tableHashParamName: tableHash});

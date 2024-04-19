@@ -297,7 +297,7 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   }
 
   void _openQrScanner() {
-    openQrScanner(context);
+    openQrScanner(context, mounted);
   }
 
   void _shareItem() {

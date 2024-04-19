@@ -69,4 +69,9 @@ class Strings {
   //
   static const String confirmToLeaveTableActions =
       "Would you like to end the session?";
+  //
+  static const String lackOfPermissionsTitle = "Lack of permissions";
+  //
+  static const String enableLocationMessage =
+      "Let restaurant know that you are present in the area by enabling location permissions";
 }
