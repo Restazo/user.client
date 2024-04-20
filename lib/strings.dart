@@ -74,4 +74,16 @@ class Strings {
   //
   static const String enableLocationMessage =
       "Let restaurant know that you are present in the area by enabling location permissions";
+  //
+  static const String requestTheBillTitle = "Request the bill";
+  //
+  static const String callWaitertitle = "Call waiter";
+  //
+  static const String placeAnOrderTitle = "Place an order";
+  //
+  static const String confirmationMessageOnRequestBill =
+      "Confirm that you would like to request the bill";
+  //
+  static const String confirmationMessageOnCallWaiter =
+      "Confirm that you would like to call a waiter";
 }
