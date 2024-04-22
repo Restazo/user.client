@@ -37,7 +37,7 @@
             android:value="2"/>
 
             <meta-data 
-                        android:name="com.google.android.geo.AIzaSyCY0B5pnjH57UEb2b4oS7spwjBIg5kB4J8" 
+            android:name="com.google.android.geo.AIzaSyCY0B5pnjH57UEb2b4oS7spwjBIg5kB4J8" 
             android:value="AIzaSyCY0B5pnjH57UEb2b4oS7spwjBIg5kB4J8"
             />
             
