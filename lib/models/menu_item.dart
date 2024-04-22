@@ -11,8 +11,8 @@ class MenuItem {
 
   final String id;
   final String name;
-  final String imageUrl;
-  final String description;
+  final String? imageUrl;
+  final String? description;
   final String ingredients;
   final String priceAmount;
   final String priceCurrency;
@@ -21,8 +21,8 @@ class MenuItem {
     return MenuItem(
       id: menuItemJson['id']!,
       name: menuItemJson['name']!,
-      imageUrl: menuItemJson['image']!,
-      description: menuItemJson['description']!,
+      imageUrl: menuItemJson['image'],
+      description: menuItemJson['description'],
       ingredients: menuItemJson['ingredients']!,
       priceAmount: menuItemJson['priceAmount']!,
       priceCurrency: menuItemJson['priceCurrency']!,

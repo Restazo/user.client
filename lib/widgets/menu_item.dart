@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
@@ -21,13 +22,12 @@ class MenuItemCard extends ConsumerWidget {
     final Map<String, String> existingParametersMap =
         GoRouterState.of(context).pathParameters;
 
-    context.goNamed(
-      ScreenNames.menuItemDetail.name,
-      pathParameters: {
-        'item_id': itemData.id,
-        ...existingParametersMap,
-      },
-    );
+    context.goNamed(ScreenNames.menuItemDetail.name, pathParameters: {
+      itemIdParamName: itemData.id,
+      ...existingParametersMap,
+    }, extra: {
+      'fromRestaurantOverview': true,
+    });
   }
 
   @override
@@ -38,6 +38,40 @@ class MenuItemCard extends ConsumerWidget {
           height: 1,
           letterSpacing: 0,
         );
+
+    Widget itemCover = itemData.imageUrl != null
+        ? CachedNetworkImage(
+            imageUrl: itemData.imageUrl!,
+            height: 96,
+            width: 128,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              height: 96,
+              width: 128,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color.fromARGB(50, 255, 255, 255)),
+            ),
+            // const RestaurantNearYouCoverLoader(),
+            errorWidget: (context, url, error) => Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : Container(
+            height: 96,
+            width: 128,
+            decoration:
+                const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+            child: const Icon(
+              Icons.food_bank_rounded,
+              color: Colors.white,
+            ),
+          );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -76,28 +110,7 @@ class MenuItemCard extends ConsumerWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: itemData.imageUrl,
-                      height: 96,
-                      width: 128,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        height: 96,
-                        width: 128,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: const Color.fromARGB(50, 255, 255, 255)),
-                      ),
-                      // const RestaurantNearYouCoverLoader(),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 60, 60, 60)),
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    child: itemCover,
                   ),
                 ),
                 Expanded(
@@ -124,25 +137,28 @@ class MenuItemCard extends ConsumerWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Flexible(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 24),
-                                  child: Text(
-                                    itemData.description,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
-                                          color: const Color.fromARGB(
-                                              255, 222, 222, 222),
-                                          fontSize: 10,
-                                          height: 1.6,
+                              itemData.description != null
+                                  ? Flexible(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 24),
+                                        child: Text(
+                                          itemData.description!,
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                color: const Color.fromARGB(
+                                                    255, 222, 222, 222),
+                                                fontSize: 10,
+                                                height: 1.6,
+                                              ),
                                         ),
-                                  ),
-                                ),
-                              ),
+                                      ),
+                                    )
+                                  : const Spacer(),
                               Column(
                                 children: [
                                   const Spacer(),

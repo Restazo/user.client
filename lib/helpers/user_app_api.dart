@@ -1,30 +1,22 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:location/location.dart';
-import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/models/waiter_session.dart';
+import 'package:restazo_user_mobile/env.dart';
+import 'package:restazo_user_mobile/models/api_result_states/waiter_session_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/waiter_log_out_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/device_id_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/waiter_log_in_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/menu_item_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/restaurant_overview_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/restaurants_near_you_state.dart';
+import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'package:restazo_user_mobile/models/device_id.dart';
 import 'package:restazo_user_mobile/models/restaurant_near_you.dart';
 import 'package:restazo_user_mobile/models/restaurant_overview.dart';
-import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
-import 'package:restazo_user_mobile/providers/restaurant_ovreview_provoder.dart';
-import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
-import 'package:restazo_user_mobile/screens/location_view.dart';
-
-final String baseUrl = dotenv.env["USER_APP_API_URL"]!;
-final String env = dotenv.env['ENV']!;
-final String restaurantsEndpointsRoot =
-    dotenv.env['RESTAURANTS_ENDPOINTS_ROOT']!;
-final String userLatitudeQueryName = dotenv.env["USER_LATITUDE_QUERY_NAME"]!;
-final String userLongitudeQueryName = dotenv.env["USER_LONGITUDE_QUERY_NAME"]!;
-final String rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
-final String protocol = dotenv.env['HTTP_PROTOCOL']!;
-final String searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
-final String newdDeviceIdEndpoint = dotenv.env['NEW_DEVICE_ID_ENDPOINT']!;
-final String menuEndpoint = dotenv.env['MENU_ENDPOINT']!;
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
@@ -33,7 +25,7 @@ class APIService {
   // Get all the needed environment variables
 
   Future<DeviceIdState> getDeviceId() async {
-    final url = getUrl(path: newdDeviceIdEndpoint);
+    final url = getUrl(path: "/$newdDeviceIdEndpoint");
 
     try {
       final res = await http.get(url);
@@ -62,7 +54,7 @@ class APIService {
     String? path,
   }) {
     // Parse the base URL into its components
-    final baseUrlParsed = Uri.parse(dotenv.env["USER_APP_API_URL"]!);
+    final baseUrlParsed = Uri.parse(userAppApiUrl);
 
     // Construct the URL with passed query parameters
     // and path
@@ -94,7 +86,6 @@ class APIService {
     // Define query parameters and path
     // where request will be sent
     Map<String, dynamic> queryParameters = {};
-    final String path = restaurantsEndpointsRoot;
     final preferences = await SharedPreferences.getInstance();
 
     final String? userRange = preferences.getString(searchRangeKeyName);
@@ -120,7 +111,8 @@ class APIService {
     }
 
     // Generate final URL where request will be sent
-    final url = getUrl(queryParameters: queryParameters, path: path);
+    final url =
+        getUrl(queryParameters: queryParameters, path: "/$restaurantsEndpoint");
 
     try {
       final res = await http.get(url);
@@ -165,7 +157,7 @@ class APIService {
     }
 
     final url = getUrl(
-      path: "$restaurantsEndpointsRoot/$id",
+      path: "/$restaurantsEndpoint/$id",
       queryParameters: queryParameters,
     );
 
@@ -202,7 +194,7 @@ class APIService {
 
   Future<MenuItemState> loadMenuItemById(
       String restaurantId, String itemId) async {
-    final path = '$restaurantsEndpointsRoot/$restaurantId$menuEndpoint/$itemId';
+    final path = '/$restaurantsEndpoint/$restaurantId/$menuEndpoint/$itemId';
 
     final url = getUrl(path: path);
 
@@ -210,7 +202,7 @@ class APIService {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final resJson = json.decode(res.body);
-        final dynamic menuItemDataJson = resJson['data'];
+        final Map<String, dynamic> menuItemDataJson = resJson['data'];
 
         final menuItemData = MenuItem.fromJson(menuItemDataJson);
 
@@ -223,6 +215,156 @@ class APIService {
     } catch (e) {
       return const MenuItemState(
           data: null, errorMessage: 'Failed to fetch menu item data');
+    }
+  }
+
+  Future<WaiterLogInState> logInWaiter(String email, String pin) async {
+    final path = '/$waiterEndpoint/$logInEndpoint';
+    final Object body = json.encode({'email': email, 'pin': pin});
+    final Map<String, String> headers = {'Content-type': 'application/json'};
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.post(url, body: body, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final String message = resJson["message"];
+
+        return WaiterLogInState(data: message, errorMessage: null);
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return WaiterLogInState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const WaiterLogInState(
+          data: null, errorMessage: 'Failed to log you in');
+    }
+  }
+
+  Future<WaiterSessionState> confirmLogInWaiter(
+      String email, String pin) async {
+    final path = '/$waiterEndpoint/$confirmEndpoint';
+    final Object body = json.encode({'email': email, 'pin': pin});
+    final Map<String, String> headers = {'Content-type': 'application/json'};
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.post(url, body: body, headers: headers);
+
+      if (res.statusCode == 200) {
+        if (res.headers['authorization'] == null) {
+          return const WaiterSessionState(
+            data: null,
+            errorMessage: "Bad response from the server",
+            sessionMessage: null,
+          );
+        }
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final waiterSessionData = WaiterSession.fromJson(data, res.headers);
+
+        return WaiterSessionState(
+          data: waiterSessionData,
+          errorMessage: null,
+          sessionMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return WaiterSessionState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const WaiterSessionState(
+          data: null, errorMessage: 'Failed to confirm your logging in');
+    }
+  }
+
+  Future<WaiterLogOutState> logOutWaiter(String accessToken) async {
+    final path = '/$waiterEndpoint/$logOutEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': "Bearer $accessToken",
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.post(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final String message = resJson['message'];
+
+        return WaiterLogOutState(data: message, errorMessage: null);
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return WaiterLogOutState(data: null, errorMessage: errorMessage);
+      }
+    } catch (e) {
+      return const WaiterLogOutState(
+          data: null, errorMessage: 'Failed to log you out');
+    }
+  }
+
+  Future<WaiterSessionState> getWaiterSession(String accessToken) async {
+    final path = '/$waiterEndpoint/$sessionEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': "Bearer $accessToken",
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.get(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        if (res.headers['authorization'] == null) {
+          return const WaiterSessionState(
+            data: null,
+            errorMessage: "Bad response from the server",
+            sessionMessage: null,
+          );
+        }
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final waiterSessionData = WaiterSession.fromJson(data, res.headers);
+
+        return WaiterSessionState(
+          data: waiterSessionData,
+          errorMessage: null,
+          sessionMessage: null,
+        );
+      } else if (res.statusCode >= 400 && res.statusCode < 500) {
+        final resJson = json.decode(res.body);
+        final String sessionMessage = resJson['message'];
+
+        return WaiterSessionState(
+          data: null,
+          errorMessage: null,
+          sessionMessage: sessionMessage,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return WaiterSessionState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const WaiterSessionState(
+        data: null,
+        errorMessage: 'Failed get your session',
+        sessionMessage: null,
+      );
     }
   }
 }

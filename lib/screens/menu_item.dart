@@ -2,7 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
@@ -11,7 +13,9 @@ import 'package:restazo_user_mobile/widgets/error_widgets/error_screen.dart';
 import 'package:restazo_user_mobile/widgets/loaders/menu_item_loader.dart';
 
 class MenuItemScreen extends ConsumerStatefulWidget {
-  const MenuItemScreen({super.key});
+  const MenuItemScreen({super.key, required this.fromRestaurantOverview});
+
+  final bool fromRestaurantOverview;
 
   @override
   ConsumerState<MenuItemScreen> createState() => _MenuItemScreenState();
@@ -20,7 +24,7 @@ class MenuItemScreen extends ConsumerStatefulWidget {
 class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   bool _isLoading = false;
   bool _screenInitialised = false;
-  late Future<void> _loadMenuItemDataFuture;
+  Future<void>? _loadMenuItemDataFuture;
 
   @override
   void initState() {
@@ -30,15 +34,21 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     if (!_screenInitialised) {
-      _loadMenuItemDataFuture = _loadMenuItemData();
+      if (!widget.fromRestaurantOverview) {
+        _loadMenuItemDataFuture = _loadMenuItemData();
+      }
       _screenInitialised = true;
     }
   }
 
   @override
   void dispose() {
-    _loadMenuItemDataFuture.ignore();
+    if (_loadMenuItemDataFuture != null) {
+      _loadMenuItemDataFuture!.ignore();
+    }
+
     super.dispose();
   }
 
@@ -53,8 +63,8 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
     final Map<String, String> existingParametersMap =
         GoRouterState.of(context).pathParameters;
 
-    final restaurantId = existingParametersMap['restaurant_id']!;
-    final itemId = existingParametersMap['item_id']!;
+    final restaurantId = existingParametersMap[restaurantIdParamName]!;
+    final itemId = existingParametersMap[itemIdParamName]!;
 
     if (menuItemDataState.initailMenuItemData == null) {
       await ref
@@ -70,13 +80,47 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   }
 
   Widget _buildMenuItemUi({
-    required String coverImage,
+    required String? coverImage,
     required String name,
     required String price,
     required String currency,
-    required String description,
+    required String? description,
     required String ingredients,
   }) {
+    Widget coverWidget = coverImage != null
+        ? CachedNetworkImage(
+            imageUrl: coverImage,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(50, 255, 255, 255),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+            ),
+          )
+        : Container(
+            height: 128,
+            width: 128,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: const Color.fromARGB(50, 255, 255, 255)),
+            child: Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromARGB(255, 60, 60, 60)),
+              child: const Icon(
+                Icons.food_bank_rounded,
+                color: Colors.white,
+              ),
+            ),
+          );
+
     return Padding(
       padding: const EdgeInsets.only(
         top: 24,
@@ -105,23 +149,7 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
                   borderRadius: BorderRadius.circular(20),
                   child: AspectRatio(
                     aspectRatio: 350 / 214,
-                    child: CachedNetworkImage(
-                      imageUrl: coverImage,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(50, 255, 255, 255),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 60, 60, 60)),
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    child: coverWidget,
                   ),
                 ),
               ),
@@ -178,11 +206,12 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: description != null ? 16 : 0),
                       Text(
-                        description,
+                        description ?? '',
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                               color: Colors.white,
+                              fontSize: description != null ? 12 : 0,
                             ),
                       )
                     ],
@@ -271,10 +300,19 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
     openQrScanner(context);
   }
 
+  void _shareItem() {
+    final Map<String, String> parametersMap =
+        GoRouterState.of(context).pathParameters;
+
+    Share.share(
+        "$userWebAppUrl/$restaurantsEndpoint/${parametersMap[restaurantIdParamName]}/$menuEndpoint/${parametersMap[itemIdParamName]}");
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(menuItemProvider);
     Widget content;
+    bool itemFound = false;
 
     final Widget noMealFound = Center(
       child: Text(
@@ -292,6 +330,8 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
         child: MenuItemLoader(),
       );
     } else if (state.initailMenuItemData != null) {
+      itemFound = true;
+
       content = KeyedSubtree(
           key: const ValueKey('menu_item_data'),
           child: _buildMenuItemUi(
@@ -305,6 +345,8 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
     } else if (!_isLoading &&
         state.initailMenuItemData == null &&
         state.data != null) {
+      itemFound = true;
+
       content = KeyedSubtree(
           key: const ValueKey('menu_item_data'),
           child: _buildMenuItemUi(
@@ -329,11 +371,11 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: DefaultAppBar(
+      appBar: RestazoAppBar(
         leftNavigationIconAsset: 'assets/left.png',
         leftNavigationIconAction: _navigateBack,
-        rightNavigationIconAsset: 'assets/qr-code-scan.png',
-        rightNavigationIconAction: _openQrScanner,
+        rightNavigationIconAsset: itemFound ? 'assets/external-link.png' : null,
+        rightNavigationIconAction: itemFound ? _shareItem : null,
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
