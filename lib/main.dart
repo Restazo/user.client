@@ -17,12 +17,12 @@ void main() async {
 
   const storage = FlutterSecureStorage();
   final prefs = await SharedPreferences.getInstance();
-  bool interacted = prefs.getBool('interacted') ?? false;
+  bool interacted = prefs.getBool(interactedKeyName) ?? false;
 
   String initialRoute = interacted ? '/' : '/init';
 
   if (await storage.read(key: accessTokenKeyName) != null) {
-    initialRoute = '/waiter';
+    initialRoute = '/$waiterEndpoint';
   }
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])

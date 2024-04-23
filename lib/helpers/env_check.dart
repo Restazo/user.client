@@ -25,6 +25,9 @@ void checkEnv() {
     'DEVICE_ID_KEY_NAME',
     'WAITER_NAME_KEY_NAME',
     'WAITER_EMAIL_KEY_NAME',
+    'INTERACTED_KEY_NAME',
+    'TABLE_HASH_PARAM_NAME',
+    'TABLE_ENDPOINT',
   ];
 
   // Check for missing environment variables

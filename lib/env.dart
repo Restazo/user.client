@@ -17,6 +17,7 @@ final logInEndpoint = dotenv.env['LOG_IN_ENDPOINT']!;
 final confirmEndpoint = dotenv.env['CONFIRM_ENDPOINT']!;
 final logOutEndpoint = dotenv.env['LOG_OUT_ENDPOINT']!;
 final sessionEndpoint = dotenv.env['SESSION_ENDPOINT']!;
+final tableEndpoint = dotenv.env['TABLE_ENDPOINT']!;
 
 // URL query names
 final rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
@@ -26,6 +27,7 @@ final userLatitudeQueryName = dotenv.env['USER_LATITUDE_QUERY_NAME']!;
 // URL parameter names
 final restaurantIdParamName = dotenv.env['RESTAURANT_ID_PARAM_NAME']!;
 final itemIdParamName = dotenv.env['MENU_ITEM_ID_PARAM_NAME']!;
+final tableHashParamName = dotenv.env['TABLE_HASH_PARAM_NAME']!;
 
 // Storage and preferences variables
 final searchRangeKeyName = dotenv.env['USER_SEARCH_RANGE_KEY_NAME']!;
@@ -33,3 +35,4 @@ final accessTokenKeyName = dotenv.env['ACCESS_TOKEN_KEY_NAME']!;
 final deviceIdKeyName = dotenv.env['DEVICE_ID_KEY_NAME']!;
 final waiterNameKeyName = dotenv.env['WAITER_NAME_KEY_NAME']!;
 final waiterEmailKeyName = dotenv.env['WAITER_EMAIL_KEY_NAME']!;
+final interactedKeyName = dotenv.env['INTERACTED_KEY_NAME']!;
