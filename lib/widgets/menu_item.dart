@@ -165,7 +165,7 @@ class MenuItemCard extends ConsumerWidget {
                                   Row(
                                     children: [
                                       Text(
-                                        itemData.priceAmount,
+                                        itemData.priceAmount.toString(),
                                         maxLines: 1,
                                         style: priceStyle,
                                       ),

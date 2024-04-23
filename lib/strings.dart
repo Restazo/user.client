@@ -74,4 +74,9 @@ class Strings {
   //
   static const String enableLocationMessage =
       "Let restaurant know that you are present in the area by enabling location permissions";
+  //
+  static const String unexpectedErrorTitle = "Unexpected error";
+  //
+  static const String checkInternetConnectionMessage =
+      "Something went wrong, please check your internet connection";
 }

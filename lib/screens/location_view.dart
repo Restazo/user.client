@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:location/location.dart';
+import 'package:restazo_user_mobile/helpers/check_location_permissions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/strings.dart';
@@ -27,19 +27,7 @@ class _LocationViewState extends State<LocationView> {
           value: deviceIdState.data!.deviceId); // Save device ID
     }
 
-    Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-    }
+    await checkLocationPermissions();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(interactedKeyName, true);

@@ -82,7 +82,7 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   Widget _buildMenuItemUi({
     required String? coverImage,
     required String name,
-    required String price,
+    required double price,
     required String currency,
     required String? description,
     required String ingredients,
