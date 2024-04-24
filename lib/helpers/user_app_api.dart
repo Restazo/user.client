@@ -20,6 +20,7 @@ import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 
 // Class to interact with user API, all the functions to call an API must
 // be defined here
+
 class APIService {
   // Get all the needed environment variables
 

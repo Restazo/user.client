@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:restazo_user_mobile/providers/user_location_data_provider.dart';
+import 'package:restazo_user_mobile/strings.dart';
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 
-class LocationView extends StatefulWidget {
+class LocationView extends ConsumerStatefulWidget {
   const LocationView({super.key});
 
   @override
-  State<LocationView> createState() => _LocationViewState();
+  ConsumerState<LocationView> createState() => _LocationViewState();
 }
 
-class _LocationViewState extends State<LocationView> {
+class _LocationViewState extends ConsumerState<LocationView> {
   final storage = const FlutterSecureStorage();
 
   Future _continue() async {
@@ -26,22 +28,10 @@ class _LocationViewState extends State<LocationView> {
           value: deviceIdState.data!.deviceId); // Save device ID
     }
 
-    Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-    }
+    await ref.read(userLocationDataProvider.notifier).saveCurrentLocation();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('interacted', true);
+    await prefs.setBool(interactedKeyName, true);
 
     if (mounted) {
       context.goNamed("home");
@@ -88,7 +78,7 @@ class _LocationViewState extends State<LocationView> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 4, 15, 18),
         title: Text(
-          "Your Location",
+          Strings.yourLocationTitle,
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -115,7 +105,7 @@ class _LocationViewState extends State<LocationView> {
               child: Column(
                 children: [
                   Text(
-                    'Welcome to Restazo!',
+                    Strings.tableActionsTitle,
                     style: Theme.of(context).textTheme.titleLarge!.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -124,20 +114,20 @@ class _LocationViewState extends State<LocationView> {
                   const SizedBox(height: 24),
                   _buildSection(
                       context,
-                      'Location Access',
-                      'Location only used when the app is open for feature enhancement',
+                      Strings.locationViewFirstPointTitle,
+                      Strings.locationViewFirstPointMessage,
                       'assets/magic-wand.png'),
                   const SizedBox(height: 24),
                   _buildSection(
                       context,
-                      'Privacy First',
-                      'No background tracking. Your location helps us tailor the app\'s features to you',
+                      Strings.locationViewSecondPointTitle,
+                      Strings.locationViewSecondPointMessage,
                       'assets/shield.png'),
                   const SizedBox(height: 24),
                   _buildSection(
                       context,
-                      'Secure',
-                      'No data collection or sharing. Your privacy is our priority',
+                      Strings.locationViewThirdPointTitle,
+                      Strings.locationViewThirdPointMessage,
                       'assets/padlock.png'),
                 ],
               ),
@@ -156,7 +146,7 @@ class _LocationViewState extends State<LocationView> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'Continue',
+                    Strings.continueTitle,
                     style:
                         GoogleFonts.istokWeb(fontSize: 16, color: Colors.black),
                   ),

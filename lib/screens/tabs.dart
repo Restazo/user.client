@@ -61,7 +61,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   }
 
   void _openQrScanner() {
-    openQrScanner(context);
+    openQrScanner(context, mounted);
   }
 
   @override
