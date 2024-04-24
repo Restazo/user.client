@@ -18,16 +18,16 @@ class RestaurantsNearYouNotifier
         'user_search_range_key_name',
         searchRange.toString(),
       );
-      print('Saved search range to SharedPreferences');
+      // print('Saved search range to SharedPreferences');
 
       final currentLocation = await getCurrentLocation();
       final RestaurantsNearYouState result =
           await APIService().loadRestaurantsNearYou(currentLocation);
-          print('Restaurants loaded: ${result.data?.length} found');
+      // print('Restaurants loaded: ${result.data?.length} found');
 
       state = result;
     } catch (e) {
-      print('Failed to load restaurants: $e');
+      // print('Failed to load restaurants: $e');
       state = const RestaurantsNearYouState(
           data: [], errorMessage: "Something unexpected happened");
     }
