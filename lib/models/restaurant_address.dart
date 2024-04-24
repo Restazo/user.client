@@ -15,17 +15,17 @@ class RestaurantAddress {
   final String countryCode;
   final double latitude;
   final double longitude;
-  final String distanceKm;
+  final double distanceKm;
 
   factory RestaurantAddress.fromJson(Map<String, dynamic> addressJson) {
     return RestaurantAddress(
-      addressLine: addressJson['addressLine'],
-      city: addressJson['city'],
-      countryCode: addressJson['countryCode'],
-      latitude: double.parse(addressJson['latitude'] as String),
-      longitude: double.parse(addressJson['longitude'] as String),
-      postalCode: addressJson['postalCode'],
-      distanceKm: addressJson['distanceKm'],
+      addressLine: addressJson['addressLine'] as String,
+      city: addressJson['city'] as String,
+      countryCode: addressJson['countryCode'] as String,
+      postalCode: addressJson['postalCode'] as String,
+      latitude: addressJson['latitude'] as double,
+      longitude: addressJson['longitude'] as double,
+      distanceKm: addressJson['distanceKm'] as double,
     );
   }
 }

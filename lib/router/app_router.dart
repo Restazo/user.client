@@ -1,11 +1,13 @@
 import 'package:go_router/go_router.dart';
 
-import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/screens/menu_item.dart';
 import 'package:restazo_user_mobile/screens/location_view.dart';
+import 'package:restazo_user_mobile/screens/qr_scanner.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
+import 'package:restazo_user_mobile/screens/splash.dart';
+import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/settings.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/tabs.dart';
@@ -19,20 +21,21 @@ enum ScreenNames {
   qrScanner,
   waiterHome,
   waiterSettings,
+  tableActions,
 }
 
 class AppRouter {
-  AppRouter({required this.initialLocation});
-
-  final String initialLocation;
-
   late final GoRouter router = GoRouter(
-    initialLocation: initialLocation,
+    initialLocation: '/splash',
     routes: [
       GoRoute(
         path: '/init',
         name: ScreenNames.init.name,
         builder: (context, state) => const LocationView(),
+      ),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const RestazoSplashScreen(),
       ),
       GoRoute(
         path: '/',
@@ -71,7 +74,12 @@ class AppRouter {
           GoRoute(
             path: 'qr_scanner',
             name: ScreenNames.qrScanner.name,
-            builder: (context, state) => const NotExistingScreen(),
+            builder: (context, state) => const QrScannerScreen(),
+          ),
+          GoRoute(
+            path: 'table/:$tableHashParamName',
+            name: ScreenNames.tableActions.name,
+            builder: (context, state) => const TableActionsScreen(),
           ),
           GoRoute(
             path: waiterEndpoint,

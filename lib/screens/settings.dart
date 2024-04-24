@@ -14,7 +14,7 @@ import 'package:restazo_user_mobile/helpers/cancel_button.dart';
 import 'package:restazo_user_mobile/widgets/waiter_log_in.dart';
 import 'package:restazo_user_mobile/widgets/waiter_log_in_confirmation.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
-import 'package:restazo_user_mobile/providers/restaurants_near_you.dart';
+import 'package:restazo_user_mobile/providers/restaurants_near_you_provider.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {

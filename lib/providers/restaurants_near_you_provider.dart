@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
 import 'package:restazo_user_mobile/models/api_result_states/restaurants_near_you_state.dart';
+import 'package:restazo_user_mobile/providers/user_location_data_provider.dart';
 
 class RestaurantsNearYouNotifier
     extends StateNotifier<RestaurantsNearYouState> {
-  RestaurantsNearYouNotifier()
+  RestaurantsNearYouNotifier(this.ref)
       : super(
           const RestaurantsNearYouState(
             data: [],
@@ -14,9 +14,12 @@ class RestaurantsNearYouNotifier
           ),
         );
 
+  final Ref ref;
+
   Future<void> loadRestaurantsNearYou() async {
     try {
-      final currentLocation = await getCurrentLocation();
+      final currentLocation = ref.read(userLocationDataProvider);
+
       final RestaurantsNearYouState result =
           await APIService().loadRestaurantsNearYou(currentLocation);
 
@@ -30,4 +33,4 @@ class RestaurantsNearYouNotifier
 
 final restaurantsNearYouProvider =
     StateNotifierProvider<RestaurantsNearYouNotifier, RestaurantsNearYouState>(
-        (ref) => RestaurantsNearYouNotifier());
+        (ref) => RestaurantsNearYouNotifier(ref));

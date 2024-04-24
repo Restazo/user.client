@@ -1,27 +1,12 @@
 import 'package:location/location.dart';
+import 'package:restazo_user_mobile/helpers/check_location_permissions.dart';
 
 Future<LocationData?> getCurrentLocation() async {
   final Location location = Location();
-  bool serviceEnabled;
-  PermissionStatus permissionGranted;
-  LocationData locationData;
 
-  serviceEnabled = await location.serviceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await location.requestService();
-    if (!serviceEnabled) {
-      return null;
-    }
+  if (!(await checkLocationPermissions())) {
+    return null;
   }
 
-  permissionGranted = await location.hasPermission();
-  if (permissionGranted == PermissionStatus.denied) {
-    permissionGranted = await location.requestPermission();
-    if (permissionGranted != PermissionStatus.granted) {
-      return null;
-    }
-  }
-
-  locationData = await location.getLocation();
-  return locationData;
+  return await location.getLocation();
 }

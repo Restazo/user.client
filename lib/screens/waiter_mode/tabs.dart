@@ -59,6 +59,8 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
     final result = await APIService().getWaiterSession(accessToken);
 
     if (!result.isSuccess) {
+      await storage.delete(key: accessTokenKeyName);
+
       if (mounted) {
         showCupertinoDialogWithOneAction(
           context,
