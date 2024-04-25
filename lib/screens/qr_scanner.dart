@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:restazo_user_mobile/env.dart';
 
@@ -22,6 +23,8 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     detectionSpeed: DetectionSpeed.normal,
   );
   bool _isScanned = false;
+  bool _isLoading = false;
+  Future<void>? _startSessionFuture;
 
   @override
   void initState() {
@@ -35,8 +38,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
         barcodeValue.contains('$userWebAppUrl/$tableEndpoint/')) {
       final tableHash = barcodeValue.split('/$tableEndpoint/')[1];
 
-      context.goNamed(ScreenNames.tableActions.name,
-          pathParameters: {tableHashParamName: tableHash});
+      _startSessionFuture = _startTableSession(tableHash);
     } else {
       showCupertinoDialogWithOneAction(
         context,
@@ -51,9 +53,29 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     }
   }
 
+  Future<void> _startTableSession(String tableHash) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // TODO: call an api to start the session here
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted) {
+      context.goNamed(ScreenNames.tableActions.name);
+    }
+    _isScanned = false;
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   void dispose() {
     scannerController.dispose();
+    if (_startSessionFuture != null) {
+      _startSessionFuture!.ignore();
+    }
 
     super.dispose();
   }
@@ -67,20 +89,34 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
         leftNavigationIconAsset: 'assets/left.png',
         leftNavigationIconAction: () => navigateBack(context),
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: MobileScanner(
-          controller: scannerController,
-          overlay:
-              QRScannerOverlay(overlayColour: Colors.black.withOpacity(0.2)),
-          onDetect: (capture) {
-            if (_isScanned) return;
-            final barcodes = capture.barcodes;
-            if (barcodes.isNotEmpty) {
-              handleDetection(barcodes.first);
-            }
-          },
-        ),
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: scannerController,
+            overlay:
+                QRScannerOverlay(overlayColour: Colors.black.withOpacity(0.2)),
+            onDetect: (capture) {
+              if (_isScanned) return;
+              final barcodes = capture.barcodes;
+              if (barcodes.isNotEmpty) {
+                handleDetection(barcodes.first);
+              }
+            },
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _isLoading
+                ? Container(
+                    width: double.infinity,
+                    color: Colors.black.withOpacity(0.75),
+                    child: Center(
+                      child: LoadingAnimationWidget.dotsTriangle(
+                          color: Colors.white, size: 48),
+                    ),
+                  )
+                : null,
+          )
+        ],
       ),
     );
   }

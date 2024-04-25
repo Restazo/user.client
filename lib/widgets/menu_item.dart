@@ -7,27 +7,44 @@ import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
+import 'package:restazo_user_mobile/providers/order_menu_item_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
 class MenuItemCard extends ConsumerWidget {
   const MenuItemCard({
     super.key,
     required this.itemData,
+    required this.navigateTo,
   });
 
+  final String navigateTo;
   final MenuItem itemData;
 
   void _goToItemScreen(BuildContext context, WidgetRef ref) {
-    ref.read(menuItemProvider.notifier).enterMenuItemScreen(itemData);
-    final Map<String, String> existingParametersMap =
-        GoRouterState.of(context).pathParameters;
+    switch (navigateTo) {
+      case "menuItemDetail":
+        ref.read(menuItemProvider.notifier).enterMenuItemScreen(itemData);
+        final Map<String, String> existingParametersMap =
+            GoRouterState.of(context).pathParameters;
 
-    context.goNamed(ScreenNames.menuItemDetail.name, pathParameters: {
-      itemIdParamName: itemData.id,
-      ...existingParametersMap,
-    }, extra: {
-      'fromRestaurantOverview': true,
-    });
+        context.goNamed(ScreenNames.menuItemDetail.name, pathParameters: {
+          itemIdParamName: itemData.id,
+          ...existingParametersMap,
+        }, extra: {
+          'fromRestaurantOverview': true,
+        });
+
+        break;
+      case "orderMenuItemDetail":
+        ref
+            .read(orderMenuItemProvider.notifier)
+            .enterOrderMenuItemScreen(itemData);
+
+        context.goNamed(ScreenNames.orderMenuItemDetail.name, pathParameters: {
+          itemIdParamName: itemData.id,
+        });
+        break;
+    }
   }
 
   @override

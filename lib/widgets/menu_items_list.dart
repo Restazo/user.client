@@ -4,8 +4,13 @@ import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'package:restazo_user_mobile/widgets/menu_item.dart';
 
 class MenuItemsList extends StatefulWidget {
-  const MenuItemsList({super.key, required this.menuItemsList});
+  const MenuItemsList({
+    super.key,
+    required this.menuItemsList,
+    required this.navigateTo,
+  });
 
+  final String navigateTo;
   final List<MenuItem> menuItemsList;
 
   @override
@@ -18,7 +23,7 @@ class _MenuItemsListState extends State<MenuItemsList> {
     return Column(
       children: [
         for (final menuItem in widget.menuItemsList)
-          MenuItemCard(itemData: menuItem)
+          MenuItemCard(itemData: menuItem, navigateTo: widget.navigateTo)
       ],
     );
   }

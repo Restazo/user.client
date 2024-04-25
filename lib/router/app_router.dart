@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/dummy/not_existing_screen.dart';
 
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/screens/menu_item.dart';
@@ -7,6 +8,8 @@ import 'package:restazo_user_mobile/screens/qr_scanner.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
 import 'package:restazo_user_mobile/screens/splash.dart';
+import 'package:restazo_user_mobile/screens/table_actions/order_menu_item.dart';
+import 'package:restazo_user_mobile/screens/table_actions/place_order.dart';
 import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/settings.dart';
@@ -22,11 +25,13 @@ enum ScreenNames {
   waiterHome,
   waiterSettings,
   tableActions,
+  placeOrder,
+  orderMenuItemDetail,
 }
 
 class AppRouter {
   late final GoRouter router = GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/table-actions/order',
     routes: [
       GoRoute(
         path: '/init',
@@ -77,10 +82,23 @@ class AppRouter {
             builder: (context, state) => const QrScannerScreen(),
           ),
           GoRoute(
-            path: 'table/:$tableHashParamName',
-            name: ScreenNames.tableActions.name,
-            builder: (context, state) => const TableActionsScreen(),
-          ),
+              path: 'table-actions',
+              name: ScreenNames.tableActions.name,
+              builder: (context, state) => const TableActionsScreen(),
+              routes: [
+                GoRoute(
+                    path: 'order',
+                    name: ScreenNames.placeOrder.name,
+                    builder: (context, state) => const PlaceOrderScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':$itemIdParamName',
+                        name: ScreenNames.orderMenuItemDetail.name,
+                        builder: (context, state) =>
+                            const OrderMenuItemScreen(),
+                      ),
+                    ]),
+              ]),
           GoRoute(
             path: waiterEndpoint,
             name: ScreenNames.waiterHome.name,

@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:restazo_user_mobile/env.dart';
-import 'package:restazo_user_mobile/providers/user_location_data_provider.dart';
-import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:restazo_user_mobile/providers/user_location_data_provider.dart';
+import 'package:restazo_user_mobile/env.dart';
 
 class RestazoSplashScreen extends ConsumerStatefulWidget {
   const RestazoSplashScreen({super.key});
