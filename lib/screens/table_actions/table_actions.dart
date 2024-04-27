@@ -13,6 +13,8 @@ import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_actio
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_three_actions.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_two_actions.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/providers/menu_item_bottom_button_provider.dart';
+import 'package:restazo_user_mobile/providers/place_order_button_provider.dart';
 import 'package:restazo_user_mobile/providers/place_order_provider.dart';
 import 'package:restazo_user_mobile/providers/table_session_menu_provider.dart';
 import 'package:restazo_user_mobile/providers/tabs_screen_top_right_corner_content_provider.dart';
@@ -94,6 +96,14 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
     ref
         .read(topRightCornerContentProvider.notifier)
         .updateTopRightCornerAsset('assets/qr-code-scan.png');
+
+    ref
+        .read(menuItemButtonProvider.notifier)
+        .updateButtonLabel("Scan table QR");
+
+    ref
+        .read(placeOrderButtonProvider.notifier)
+        .updateButtonLabel("Place an order");
   }
 
   Future<void> _ensureEverythingIsReadyToSendRequests() async {
@@ -113,8 +123,7 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
       if (mounted) {
         await showCupertinoDialogWithOneAction(context, "Invalid session",
             "Seems like your table session is invalid", Strings.ok, () {
-          _goBack();
-          _goBack();
+          context.goNamed(ScreenNames.home.name);
         });
       }
       setState(() {
@@ -151,10 +160,22 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
         .read(topRightCornerContentProvider.notifier)
         .updateTopRightCornerAsset('assets/reception-bell.png');
 
+    ref
+        .read(menuItemButtonProvider.notifier)
+        .updateButtonLabel("Open table session");
+
+    final storedOrderId = await storage.read(key: orderIdKeyname);
+    if (storedOrderId != null) {
+      ref
+          .read(placeOrderButtonProvider.notifier)
+          .updateButtonLabel("Check my order");
+    }
+
     final [name, logo] = await Future.wait([
       storage.read(key: tableSessionRestaurantNameKeyName),
       storage.read(key: tableSessionRestaurantLogoKeyname)
     ]);
+
     setState(() {
       restaurantLogo = logo;
       restaurantName = name;
@@ -175,8 +196,7 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
           sessionResult.errorMessage!,
           Strings.ok,
           () {
-            _goBack();
-            _goBack();
+            context.goNamed(ScreenNames.home.name);
           },
         );
       }
@@ -193,8 +213,7 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
           sessionResult.sessionMessage!,
           Strings.ok,
           () {
-            _goBack();
-            _goBack();
+            context.goNamed(ScreenNames.home.name);
           },
         );
       }
@@ -238,10 +257,6 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
       "End",
       () async {
         await _deleteStoredSessionData();
-
-        ref
-            .read(topRightCornerContentProvider.notifier)
-            .updateTopRightCornerAsset('assets/qr-code-scan.png');
 
         _goBack();
         _goBack();
@@ -318,6 +333,15 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
     context.goNamed(ScreenNames.placeOrder.name);
   }
 
+  Future<void> checkOrder() async {
+    final orderId = await storage.read(key: orderIdKeyname);
+
+    if (mounted && orderId != null) {
+      context.goNamed(ScreenNames.orderProcessing.name,
+          pathParameters: {orderIdKeyname: orderId});
+    }
+  }
+
   Widget _buildActionButton(String label, void Function() action) {
     return SizedBox(
       width: double.infinity,
@@ -355,6 +379,8 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final placeAnOrderButtonState = ref.watch(placeOrderButtonProvider);
+
     Widget validBodyContent = KeyedSubtree(
       key: const ValueKey("table_actions_valid_data_widgets"),
       child: Column(
@@ -436,7 +462,11 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
                   const SizedBox(height: 20),
                   _buildActionButton("Call waiter", _showCallWaiter),
                   const SizedBox(height: 20),
-                  _buildActionButton("Place an order", _placeAnOrder),
+                  _buildActionButton(
+                      placeAnOrderButtonState.buttonLabel,
+                      placeAnOrderButtonState.buttonLabel != "Check my order"
+                          ? _placeAnOrder
+                          : checkOrder),
                 ],
               ),
             ),

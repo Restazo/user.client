@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restazo_user_mobile/providers/menu_item_bottom_button_provider.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:restazo_user_mobile/env.dart';
@@ -25,10 +28,12 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
   bool _isLoading = false;
   bool _screenInitialised = false;
   Future<void>? _loadMenuItemDataFuture;
+  final storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
+    _updateNavigationIconAndAction();
   }
 
   @override
@@ -87,6 +92,8 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
     required String? description,
     required String ingredients,
   }) {
+    final state = ref.watch(menuItemButtonProvider);
+
     Widget coverWidget = coverImage != null
         ? CachedNetworkImage(
             imageUrl: coverImage,
@@ -274,11 +281,13 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
                   },
                 ),
               ),
-              onPressed: _openQrScanner,
+              onPressed: state.buttonLabel == "Scan table QR"
+                  ? _openQrScanner
+                  : openTableActions,
               child: Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Text(
-                  'Scan table QR',
+                  state.buttonLabel,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         color: Colors.black,
                       ),
@@ -300,12 +309,33 @@ class _MenuItemScreenState extends ConsumerState<MenuItemScreen> {
     openQrScanner(context, mounted);
   }
 
+  void openTableActions() {
+    context.goNamed(ScreenNames.tableActions.name);
+  }
+
   void _shareItem() {
     final Map<String, String> parametersMap =
         GoRouterState.of(context).pathParameters;
 
     Share.share(
         "$userWebAppUrl/$restaurantsEndpoint/${parametersMap[restaurantIdParamName]}/$menuEndpoint/${parametersMap[itemIdParamName]}");
+  }
+
+  void _updateNavigationIconAndAction() {
+    final tableSessionAccessToken =
+        storage.read(key: tableSessionAccessTokenKeyName);
+
+    tableSessionAccessToken.then((token) {
+      if (token != null) {
+        ref
+            .read(menuItemButtonProvider.notifier)
+            .updateButtonLabel('Open table session');
+      } else {
+        ref
+            .read(menuItemButtonProvider.notifier)
+            .updateButtonLabel("Scan table QR");
+      }
+    });
   }
 
   @override
