@@ -31,7 +31,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final locationData = ref.read(userLocationDataProvider);
 
     if (locationData == null) {
-      _center = const LatLng(65.0121, 25.4651); // Default to some location
+      _center = const LatLng(65.0121, 25.4651);
     } else {
       _center = LatLng(locationData.latitude!, locationData.longitude!);
     }

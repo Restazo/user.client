@@ -45,7 +45,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
 
     if (accessToken == null) {
       if (mounted) {
-        showCupertinoDialogWithOneAction(
+        await showCupertinoDialogWithOneAction(
           context,
           "Invalid session",
           "Seems like you are logged out, please log in again",
@@ -62,7 +62,7 @@ class _WaiterModeTabsScreenState extends State<WaiterModeTabsScreen> {
       await storage.delete(key: accessTokenKeyName);
 
       if (mounted) {
-        showCupertinoDialogWithOneAction(
+        await showCupertinoDialogWithOneAction(
           context,
           "Error",
           result.errorMessage!,

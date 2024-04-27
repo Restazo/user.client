@@ -95,4 +95,6 @@ class Strings {
   static const String placeOrderTitle = "Place an order";
   //
   static const String reviewOrderTitle = "Review the order";
+  //
+  static const String somethingWentWrong = "Something went wrong";
 }

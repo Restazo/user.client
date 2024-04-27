@@ -25,7 +25,7 @@ class RestaurantAddress {
       postalCode: addressJson['postalCode'] as String,
       latitude: addressJson['latitude'] as double,
       longitude: addressJson['longitude'] as double,
-      distanceKm: addressJson['distanceKm'] as double,
+      distanceKm: (addressJson['distanceKm']).toDouble() as double,
     );
   }
 }

@@ -28,6 +28,8 @@ void checkEnv() {
     'INTERACTED_KEY_NAME',
     'TABLE_HASH_PARAM_NAME',
     'TABLE_ENDPOINT',
+    'START_ENDPOINT',
+    'CALL_WAITER_ENDPOINT',
   ];
 
   // Check for missing environment variables

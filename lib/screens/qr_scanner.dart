@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:restazo_user_mobile/env.dart';
+import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/models/api_result_states/table_session_state.dart';
+import 'package:restazo_user_mobile/providers/table_session_menu_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/strings.dart';
 import 'package:restazo_user_mobile/widgets/app_bar.dart';
 import 'package:restazo_user_mobile/widgets/qr_scanner_overlay.dart';
 
-class QrScannerScreen extends StatefulWidget {
+class QrScannerScreen extends ConsumerStatefulWidget {
   const QrScannerScreen({super.key});
 
   @override
-  State<QrScannerScreen> createState() => _QrScannerScreenState();
+  ConsumerState<QrScannerScreen> createState() => _QrScannerScreenState();
 }
 
-class _QrScannerScreenState extends State<QrScannerScreen> {
+class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   MobileScannerController scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
   );
@@ -58,16 +64,80 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       _isLoading = true;
     });
 
-    // TODO: call an api to start the session here
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted) {
-      context.goNamed(ScreenNames.tableActions.name);
-    }
-    _isScanned = false;
+    final TableSessionState sessionResult =
+        await APIService().startTableSession(tableHash);
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (sessionResult.isSuccess) {
+      const storage = FlutterSecureStorage();
+      final userLocation = await getCurrentLocation();
+
+      await Future.wait([
+        storage.write(
+            key: tableSessionAccessTokenKeyName,
+            value: sessionResult.data!.tableAccessToken),
+        storage.write(
+            key: tableSessionRestaurantIdKeyName,
+            value: sessionResult.data!.restaurantId),
+        storage.write(
+            key: tableSessionRestaurantNameKeyName,
+            value: sessionResult.data!.restaurantName),
+        storage.write(
+            key: tableSessionRestaurantLogoKeyname,
+            value: sessionResult.data!.restaurantLogo),
+        ref
+            .read(tableSessionRestaurantProvider.notifier)
+            .loadRestaurantById(sessionResult.data!.restaurantId, userLocation)
+      ]);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        return context.goNamed(
+          ScreenNames.tableActions.name,
+          extra: {
+            "fromQrScan": true,
+          },
+        );
+      }
+    } else if (sessionResult.errorMessage != null) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        await showCupertinoDialogWithOneAction(
+          context,
+          "Error",
+          sessionResult.errorMessage!,
+          Strings.ok,
+          () {
+            navigateBack(context);
+          },
+        );
+      }
+    } else if (sessionResult.sessionMessage != null) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        await showCupertinoDialogWithOneAction(
+          context,
+          "Fail",
+          sessionResult.sessionMessage!,
+          Strings.ok,
+          () {
+            navigateBack(context);
+          },
+        );
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    _isScanned = false;
   }
 
   @override

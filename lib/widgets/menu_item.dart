@@ -155,7 +155,7 @@ class MenuItemCard extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               itemData.description != null
-                                  ? Flexible(
+                                  ? Expanded(
                                       child: Padding(
                                         padding:
                                             const EdgeInsets.only(right: 24),

@@ -20,10 +20,22 @@ class MenuItemsList extends StatefulWidget {
 class _MenuItemsListState extends State<MenuItemsList> {
   @override
   Widget build(BuildContext context) {
+    Map<String, MenuItem> menuItemMap = {};
+
+    for (final menuItem in widget.menuItemsList) {
+      menuItemMap[menuItem.id] =
+          menuItem; // This will overwrite any existing entry with the same ID
+    }
+
+    List<MenuItem> uniqueMenuItems = menuItemMap.values.toList();
+
     return Column(
       children: [
-        for (final menuItem in widget.menuItemsList)
-          MenuItemCard(itemData: menuItem, navigateTo: widget.navigateTo)
+        for (final menuItem in uniqueMenuItems)
+          MenuItemCard(
+              key: ValueKey(menuItem.id),
+              itemData: menuItem,
+              navigateTo: widget.navigateTo)
       ],
     );
   }

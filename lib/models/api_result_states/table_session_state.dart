@@ -1,8 +1,8 @@
 import 'package:restazo_user_mobile/helpers/api_result.dart';
-import 'package:restazo_user_mobile/models/waiter_session.dart';
+import 'package:restazo_user_mobile/models/table_session.dart';
 
-class WaiterSessionState extends APIServiceResult<WaiterSession> {
-  const WaiterSessionState(
+class TableSessionState extends APIServiceResult<TableSession> {
+  const TableSessionState(
       {required super.data,
       required super.errorMessage,
       required this.sessionMessage});

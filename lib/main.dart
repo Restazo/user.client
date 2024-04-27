@@ -21,14 +21,13 @@ void main() async {
 class App extends StatelessWidget {
   const App({super.key});
 
-  // final String initialRoute;
+  // final routeObserver = RouteObserver();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: appTheme,
       routerConfig: AppRouter().router,
-      // routerConfig: AppRouter(initialLocation: initialRoute).router,
     );
   }
 }

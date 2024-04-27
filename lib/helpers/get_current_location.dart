@@ -4,9 +4,12 @@ import 'package:restazo_user_mobile/helpers/check_location_permissions.dart';
 Future<LocationData?> getCurrentLocation() async {
   final Location location = Location();
 
-  if (!(await checkLocationPermissions())) {
+  final granted = await checkLocationPermissions();
+
+  if (!granted) {
     return null;
   }
 
-  return await location.getLocation();
+  final userLocation = await location.getLocation();
+  return userLocation;
 }

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:restazo_user_mobile/env.dart';
 
+import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/providers/tabs_screen_top_right_corner_content_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/screens/list_view.dart';
 import 'package:restazo_user_mobile/screens/map.dart';
@@ -20,6 +21,7 @@ class TabsScreen extends ConsumerStatefulWidget {
 }
 
 class _TabsScreenState extends ConsumerState<TabsScreen> {
+  final storage = const FlutterSecureStorage();
   int _selectedPageIndex = 0;
 
   List<Widget> get _pages {
@@ -32,11 +34,33 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   @override
   void initState() {
     super.initState();
-    _ensureDeviceIdPresent();
   }
 
-  Future<void> _ensureDeviceIdPresent() async {
-    const storage = FlutterSecureStorage();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateNavigationIconAndAction();
+    _initTablScreen();
+  }
+
+  void _updateNavigationIconAndAction() {
+    final tableSessionAccessToken =
+        storage.read(key: tableSessionAccessTokenKeyName);
+    tableSessionAccessToken.then((token) {
+      if (token != null) {
+        ref
+            .read(topRightCornerContentProvider.notifier)
+            .updateTopRightCornerAsset('assets/reception-bell.png');
+      } else {
+        ref
+            .read(topRightCornerContentProvider.notifier)
+            .updateTopRightCornerAsset('assets/qr-code-scan.png');
+      }
+    });
+  }
+
+  Future<void> _initTablScreen() async {
+    await storage.delete(key: deviceIdKeyName);
     final deviceId = await storage.read(key: deviceIdKeyName);
 
     if (deviceId == null) {
@@ -66,6 +90,15 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final topRightCornerAsset = ref.watch(topRightCornerContentProvider).asset;
+
+    VoidCallback? rightCornerAction;
+    if (topRightCornerAsset == 'assets/reception-bell.png') {
+      rightCornerAction = () => context.goNamed(ScreenNames.tableActions.name);
+    } else if (topRightCornerAsset == 'assets/qr-code-scan.png') {
+      rightCornerAction = () => _openQrScanner();
+    }
+
     String activePageTitle = "Near You";
 
     if (_selectedPageIndex == 1) {
@@ -79,8 +112,8 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
         title: activePageTitle,
         leftNavigationIconAsset: 'assets/setting.png',
         leftNavigationIconAction: _openSettingsScreen,
-        rightNavigationIconAsset: 'assets/qr-code-scan.png',
-        rightNavigationIconAction: _openQrScanner,
+        rightNavigationIconAsset: topRightCornerAsset,
+        rightNavigationIconAction: rightCornerAction,
       ),
       body: IndexedStack(
         index: _selectedPageIndex,
