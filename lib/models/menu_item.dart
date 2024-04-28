@@ -14,18 +14,18 @@ class MenuItem {
   final String? imageUrl;
   final String? description;
   final String ingredients;
-  final String priceAmount;
+  final double priceAmount;
   final String priceCurrency;
 
   factory MenuItem.fromJson(Map<String, dynamic> menuItemJson) {
     return MenuItem(
-      id: menuItemJson['id']!,
-      name: menuItemJson['name']!,
+      id: menuItemJson['id'],
+      name: menuItemJson['name'],
       imageUrl: menuItemJson['image'],
       description: menuItemJson['description'],
-      ingredients: menuItemJson['ingredients']!,
-      priceAmount: menuItemJson['priceAmount']!,
-      priceCurrency: menuItemJson['priceCurrency']!,
+      ingredients: menuItemJson['ingredients'],
+      priceAmount: (menuItemJson['priceAmount']).toDouble() as double,
+      priceCurrency: menuItemJson['priceCurrency'],
     );
   }
 }

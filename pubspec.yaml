@@ -44,11 +44,13 @@ dependencies:
   go_router: ^13.2.1
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
+  google_maps_flutter: ^2.6.1
   pinput: ^4.0.0
   email_validator: ^2.1.17
   loading_animation_widget: ^1.2.1
   share_plus: ^8.0.3
   mobile_scanner: ^4.0.1
+  web_socket_channel: ^2.4.5
 
 flutter_launcher_icons:
   image_path: "assets/app_icon/icon.png"
@@ -89,9 +91,16 @@ flutter:
     - assets/map.png
     - assets/left.png
     - assets/right.png
+    - assets/dark_map_style.json
     - assets/message.png
     - assets/menu.png
     - assets/external-link.png
+    - assets/app_icon/icon.png
+    - assets/minus-sign.png
+    - assets/plus-sign.png
+    - assets/reception-bell.png
+    - assets/tick.png
+    - assets/close.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

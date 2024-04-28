@@ -38,10 +38,10 @@ class ErrorScreenWithAction extends StatelessWidget {
               TextButton(
                 onPressed: buttonAction,
                 style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                      Colors.black), // Change text color
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Colors.white), // Change background color
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
                   overlayColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
                       if (states.contains(MaterialState.pressed)) {

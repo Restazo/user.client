@@ -68,7 +68,7 @@ class Strings {
   static const String confirmationTitle = "Confirmation";
   //
   static const String confirmToLeaveTableActions =
-      "Would you like to end the session?";
+      "Would you like to end the session or pause it?";
   //
   static const String lackOfPermissionsTitle = "Lack of permissions";
   //
@@ -86,4 +86,15 @@ class Strings {
   //
   static const String confirmationMessageOnCallWaiter =
       "Confirm that you would like to call a waiter";
+  //
+  static const String unexpectedErrorTitle = "Unexpected error";
+  //
+  static const String checkInternetConnectionMessage =
+      "Something went wrong, please check your internet connection";
+  //
+  static const String placeOrderTitle = "Place an order";
+  //
+  static const String reviewOrderTitle = "Review the order";
+  //
+  static const String somethingWentWrong = "Something went wrong";
 }

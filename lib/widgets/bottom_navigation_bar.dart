@@ -48,6 +48,8 @@ class _RestazoBottomNavigationBarState extends State<RestazoBottomNavigationBar>
   void _selectScreen(int index) {
     // Run the tab item animation only if it is not active
     if (_selectedPageIndex != index) {
+      // Give some light haptic feedback
+      HapticFeedback.lightImpact();
       _tabSwitchButtonAnimationController.forward(from: 0.0);
     }
 
@@ -56,9 +58,6 @@ class _RestazoBottomNavigationBarState extends State<RestazoBottomNavigationBar>
     setState(() {
       _selectedPageIndex = index;
     });
-
-    // Give some light haptic feedback
-    HapticFeedback.lightImpact();
   }
 
   BottomNavigationBarItem createBottomNavItem({

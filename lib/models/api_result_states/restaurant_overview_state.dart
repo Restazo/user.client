@@ -4,7 +4,9 @@ import 'package:restazo_user_mobile/models/restaurant_overview.dart';
 
 class RestaurantOverviewState extends APIServiceResult<RestaurantOverview> {
   const RestaurantOverviewState(
-      {super.data, super.errorMessage, this.initialRestaurantData});
+      {required super.data,
+      required super.errorMessage,
+      required this.initialRestaurantData});
 
   final RestaurantNearYou? initialRestaurantData;
 }

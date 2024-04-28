@@ -6,6 +6,11 @@ import 'package:restazo_user_mobile/screens/location_view.dart';
 import 'package:restazo_user_mobile/screens/qr_scanner.dart';
 import 'package:restazo_user_mobile/screens/restaurant_overview.dart';
 import 'package:restazo_user_mobile/screens/settings.dart';
+import 'package:restazo_user_mobile/screens/splash.dart';
+import 'package:restazo_user_mobile/screens/table_actions/confirm_order.dart';
+import 'package:restazo_user_mobile/screens/table_actions/order_menu_item.dart';
+import 'package:restazo_user_mobile/screens/table_actions/order_processing.dart';
+import 'package:restazo_user_mobile/screens/table_actions/place_order.dart';
 import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
 import 'package:restazo_user_mobile/screens/tabs.dart';
 import 'package:restazo_user_mobile/screens/waiter_mode/settings.dart';
@@ -21,20 +26,24 @@ enum ScreenNames {
   waiterHome,
   waiterSettings,
   tableActions,
+  placeOrder,
+  orderMenuItemDetail,
+  confirmOrder,
+  orderProcessing,
 }
 
 class AppRouter {
-  AppRouter({required this.initialLocation});
-
-  final String initialLocation;
-
   late final GoRouter router = GoRouter(
-    initialLocation: initialLocation,
+    initialLocation: '/splash',
     routes: [
       GoRoute(
         path: '/init',
         name: ScreenNames.init.name,
         builder: (context, state) => const LocationView(),
+      ),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const RestazoSplashScreen(),
       ),
       GoRoute(
         path: '/',
@@ -76,9 +85,43 @@ class AppRouter {
             builder: (context, state) => const QrScannerScreen(),
           ),
           GoRoute(
-            path: 'table/:$tableHashParamName',
+            path: 'table-actions',
             name: ScreenNames.tableActions.name,
-            builder: (context, state) => const TableActionsScreen(),
+            builder: (context, state) {
+              final Map<String, bool>? extra =
+                  state.extra as Map<String, bool>?;
+
+              bool fromQrScan = false;
+              if (extra != null && extra['fromQrScan'] != null) {
+                fromQrScan = true;
+              }
+
+              return TableActionsScreen(fromQrScan: fromQrScan);
+            },
+            routes: [
+              GoRoute(
+                path: 'order',
+                name: ScreenNames.placeOrder.name,
+                builder: (context, state) => const PlaceOrderScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'confirm',
+                    name: ScreenNames.confirmOrder.name,
+                    builder: (context, state) => const ConfirmOrderScreen(),
+                  ),
+                  GoRoute(
+                    path: ':$itemIdParamName',
+                    name: ScreenNames.orderMenuItemDetail.name,
+                    builder: (context, state) => const OrderMenuItemScreen(),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: ':$orderIdKeyname',
+                name: ScreenNames.orderProcessing.name,
+                builder: (context, state) => const OrderProcessingScreen(),
+              )
+            ],
           ),
           GoRoute(
             path: waiterEndpoint,
