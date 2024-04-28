@@ -1,6 +1,25 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:location/location.dart';
+import 'package:restazo_user_mobile/helpers/get_current_location.dart';
+import 'package:restazo_user_mobile/models/accept_or_decline_order.dart';
+import 'package:restazo_user_mobile/models/accept_waiter_call.dart';
+import 'package:restazo_user_mobile/models/api_result_states/accept_or_decline_order_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/accept_waiter_call_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/call_waiter_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/mark_order_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/order_id_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/table_session_state.dart';
+import 'package:restazo_user_mobile/models/call_waiter.dart';
+import 'package:restazo_user_mobile/models/mark_order.dart';
+import 'package:restazo_user_mobile/models/order_id.dart';
+import 'package:restazo_user_mobile/models/order_menu_item.dart';
+import 'package:restazo_user_mobile/models/table_session.dart';
+import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
+import 'package:restazo_user_mobile/screens/waiter_mode/ongoing_orders.dart';
+import 'package:restazo_user_mobile/strings.dart';
+import 'package:restazo_user_mobile/widgets/new_order.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -175,20 +194,30 @@ class APIService {
         // Return the state of restaurant menu
         // with menu data
         return RestaurantOverviewState(
-            data: restaurantOverviewData, errorMessage: null);
+          data: restaurantOverviewData,
+          errorMessage: null,
+          initialRestaurantData: null,
+        );
       } else {
         // Decode an error if response code is not 200
         final errorMessage = _decodeError(res);
 
         // Return the state of restaurant menu
         // with an error message and no menu data
-        return RestaurantOverviewState(data: null, errorMessage: errorMessage);
+        return RestaurantOverviewState(
+          data: null,
+          errorMessage: errorMessage,
+          initialRestaurantData: null,
+        );
       }
     } catch (e) {
       // Return the state of restaurant menu
       // with an error message and no menu data
       return const RestaurantOverviewState(
-          data: null, errorMessage: 'Failed to fetch restaurant info');
+        data: null,
+        errorMessage: 'Failed to fetch restaurant info',
+        initialRestaurantData: null,
+      );
     }
   }
 
@@ -276,11 +305,18 @@ class APIService {
       } else {
         final errorMessage = _decodeError(res);
 
-        return WaiterSessionState(data: null, errorMessage: errorMessage);
+        return WaiterSessionState(
+          data: null,
+          errorMessage: errorMessage,
+          sessionMessage: null,
+        );
       }
     } catch (e) {
       return const WaiterSessionState(
-          data: null, errorMessage: 'Failed to confirm your logging in');
+        data: null,
+        errorMessage: 'Failed to confirm your logging in',
+        sessionMessage: null,
+      );
     }
   }
 
@@ -357,6 +393,7 @@ class APIService {
         return WaiterSessionState(
           data: null,
           errorMessage: errorMessage,
+          sessionMessage: null,
         );
       }
     } catch (e) {
@@ -364,6 +401,448 @@ class APIService {
         data: null,
         errorMessage: 'Failed get your session',
         sessionMessage: null,
+      );
+    }
+  }
+
+  Future<TableSessionState> startTableSession(String tableHash) async {
+    final LocationData? userLocation = await getCurrentLocation();
+
+    if (userLocation == null) {
+      return const TableSessionState(
+        data: null,
+        errorMessage:
+            "In order to start table session you need to enable location permissions",
+        sessionMessage: null,
+      );
+    }
+
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+
+    final deviceId = await storage.read(key: deviceIdKeyName);
+
+    if (deviceId == null) {
+      return const TableSessionState(
+        data: null,
+        errorMessage: Strings.checkInternetConnectionMessage,
+        sessionMessage: null,
+      );
+    }
+
+    final path = '/$tableEndpoint-$sessionEndpoint/$startEndpoint';
+    final Map<String, String> headers = {'Content-type': 'application/json'};
+    final Object body = {
+      "deviceId": deviceId,
+      "tableHash": tableHash,
+      "userCoords": {
+        "latitude": userLocation.latitude,
+        "longitude": userLocation.longitude
+      }
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res =
+          await http.post(url, headers: headers, body: json.encode(body));
+
+      if (res.statusCode == 200) {
+        if (res.headers['authorization'] == null) {
+          return const TableSessionState(
+            data: null,
+            errorMessage: "Bad response from the server",
+            sessionMessage: null,
+          );
+        }
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final waiterSessionData = TableSession.fromJson(data, res.headers);
+
+        return TableSessionState(
+          data: waiterSessionData,
+          errorMessage: null,
+          sessionMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return TableSessionState(
+          data: null,
+          errorMessage: errorMessage,
+          sessionMessage: null,
+        );
+      }
+    } catch (e) {
+      return const TableSessionState(
+        data: null,
+        errorMessage: 'Failed to start your table session',
+        sessionMessage: null,
+      );
+    }
+  }
+
+  Future<TableSessionState> getTableSession() async {
+    final LocationData? userLocation = await getCurrentLocation();
+
+    if (userLocation == null) {
+      return const TableSessionState(
+        data: null,
+        errorMessage:
+            "In order to have table session you need to enable location permissions",
+        sessionMessage: null,
+      );
+    }
+
+    const storage = FlutterSecureStorage();
+    final tableSessionAccessToken =
+        await storage.read(key: tableSessionAccessTokenKeyName);
+
+    if (tableSessionAccessToken == null) {
+      return const TableSessionState(
+        data: null,
+        errorMessage: "No session found",
+        sessionMessage: null,
+      );
+    }
+
+    final path = '/$tableEndpoint-$sessionEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $tableSessionAccessToken'
+    };
+    final Object body = {
+      "userCoords": {
+        "latitude": userLocation.latitude,
+        "longitude": userLocation.longitude
+      }
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res =
+          await http.post(url, headers: headers, body: json.encode(body));
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final waiterSessionData = TableSession.fromJson(data, res.headers);
+
+        return TableSessionState(
+          data: waiterSessionData,
+          errorMessage: null,
+          sessionMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return TableSessionState(
+          data: null,
+          errorMessage: errorMessage,
+          sessionMessage: null,
+        );
+      }
+    } catch (e) {
+      return const TableSessionState(
+        data: null,
+        errorMessage: 'Failed to start your table session',
+        sessionMessage: null,
+      );
+    }
+  }
+
+  Future<CallWaiterState> callWaiter(CallType callType) async {
+    final LocationData? userLocation = await getCurrentLocation();
+
+    if (userLocation == null) {
+      return const CallWaiterState(
+        data: null,
+        errorMessage:
+            "In order to have table session you need to enable location permissions",
+      );
+    }
+
+    const storage = FlutterSecureStorage();
+    final tableSessionAccessToken =
+        await storage.read(key: tableSessionAccessTokenKeyName);
+
+    if (tableSessionAccessToken == null) {
+      return const CallWaiterState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/$tableEndpoint-$sessionEndpoint/$callWaiterEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $tableSessionAccessToken'
+    };
+    final Object body = {
+      "userCoords": {
+        "latitude": userLocation.latitude,
+        "longitude": userLocation.longitude
+      },
+      "requestType": callType.name,
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res =
+          await http.post(url, headers: headers, body: json.encode(body));
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = CallWaiter.fromJson(resJson);
+
+        return CallWaiterState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return CallWaiterState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const CallWaiterState(
+        data: null,
+        errorMessage: 'Failed to request waiter',
+      );
+    }
+  }
+
+  Future<OrderIdState> placeAnOrder(List<OrderProcessingMenuItem> items) async {
+    final LocationData? userLocation = await getCurrentLocation();
+
+    if (userLocation == null) {
+      return const OrderIdState(
+        data: null,
+        errorMessage:
+            "In order to have table session you need to enable location permissions",
+      );
+    }
+    const storage = FlutterSecureStorage();
+    final [tableSessionAccessToken, deviceId] = await Future.wait([
+      storage.read(key: tableSessionAccessTokenKeyName),
+      storage.read(key: deviceIdKeyName)
+    ]);
+
+    if (tableSessionAccessToken == null || deviceId == null) {
+      return const OrderIdState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/$tableEndpoint-$sessionEndpoint/$orderEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $tableSessionAccessToken'
+    };
+    final Object body = {
+      "deviceId": deviceId,
+      "userCoords": {
+        "latitude": userLocation.latitude,
+        "longitude": userLocation.longitude
+      },
+      "orderItems": items.map((menuItem) {
+        return {
+          "id": menuItem.itemId,
+          "name": menuItem.itemName,
+          "quantity": menuItem.itemAmount,
+        };
+      }).toList(),
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res =
+          await http.post(url, headers: headers, body: json.encode(body));
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final message = OrderId.fromJson(data);
+
+        return OrderIdState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return OrderIdState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const OrderIdState(
+        data: null,
+        errorMessage: 'Failed to place your waiter',
+      );
+    }
+  }
+
+  Future<AccpetWaiterCallState> acceptRequest(String tableId) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const AccpetWaiterCallState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/${tableEndpoint}s/$tableId/dismiss-request';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.delete(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = AcceptWaiterCall.fromJson(resJson);
+
+        return AccpetWaiterCallState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return AccpetWaiterCallState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const AccpetWaiterCallState(
+        data: null,
+        errorMessage: 'Failed to accept request',
+      );
+    }
+  }
+
+  Future<AcceptOrDeclineOrderState> acceptOrDeclineOrder(
+    String orderId,
+    PendingOrderAction action,
+  ) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const AcceptOrDeclineOrderState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/$orderEndpoint/$orderId';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+    Map<String, dynamic> queryParameters = {
+      "action": action.name,
+    };
+
+    final url = getUrl(path: path, queryParameters: queryParameters);
+
+    try {
+      final res = await http.put(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = AcceptOrDeclineOrder.fromJson(resJson);
+
+        return AcceptOrDeclineOrderState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return AcceptOrDeclineOrderState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const AcceptOrDeclineOrderState(
+        data: null,
+        errorMessage: 'Failed to take an action on order',
+      );
+    }
+  }
+
+  Future<MarkTableOrdersState> markTableOrders(
+    String tableId,
+    MarkTableOrdersAs action,
+  ) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const MarkTableOrdersState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/${tableEndpoint}s/$tableId/${orderEndpoint}s';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+    Map<String, dynamic> queryParameters = {
+      "mark": action.name,
+    };
+
+    final url = getUrl(path: path, queryParameters: queryParameters);
+
+    try {
+      final res = await http.put(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = MarkTableOrders.fromJson(resJson);
+
+        return MarkTableOrdersState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return MarkTableOrdersState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const MarkTableOrdersState(
+        data: null,
+        errorMessage: 'Failed mark the order',
       );
     }
   }

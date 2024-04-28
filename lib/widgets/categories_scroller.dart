@@ -22,7 +22,7 @@ class CategoriesScroller extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: Colors.white.withOpacity(0.1),
+        color: const Color.fromARGB(255, 29, 38, 41),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.25),
@@ -33,7 +33,7 @@ class CategoriesScroller extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(48),
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: menu.length,

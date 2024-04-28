@@ -336,7 +336,6 @@ class _RestaurantOverviewScreenState
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: content,
-        // child: Text('hello'),
       ),
     );
   }

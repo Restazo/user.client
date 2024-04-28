@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:restazo_user_mobile/models/menu_category.dart';
+import 'package:restazo_user_mobile/router/app_router.dart';
 import 'package:restazo_user_mobile/widgets/categories_scroller.dart';
 import 'package:restazo_user_mobile/widgets/menu_items_list.dart';
 
@@ -27,6 +28,7 @@ class _RestaurantOverviewMenuSectionState
       return KeyedSubtree(
         key: PageStorageKey<String>(category.categoryId),
         child: MenuItemsList(
+          navigateTo: ScreenNames.menuItemDetail.name,
           menuItemsList: category.categoryItems,
         ),
       );

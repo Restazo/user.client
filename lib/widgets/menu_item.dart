@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,27 +8,46 @@ import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
 import 'package:restazo_user_mobile/models/menu_item.dart';
 import 'package:restazo_user_mobile/providers/menu_item_provider.dart';
+import 'package:restazo_user_mobile/providers/order_menu_item_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
 
 class MenuItemCard extends ConsumerWidget {
   const MenuItemCard({
     super.key,
     required this.itemData,
+    this.navigateTo,
+    this.itemAmount,
   });
 
+  final String? navigateTo;
   final MenuItem itemData;
+  final int? itemAmount;
 
   void _goToItemScreen(BuildContext context, WidgetRef ref) {
-    ref.read(menuItemProvider.notifier).enterMenuItemScreen(itemData);
-    final Map<String, String> existingParametersMap =
-        GoRouterState.of(context).pathParameters;
+    switch (navigateTo) {
+      case "menuItemDetail":
+        ref.read(menuItemProvider.notifier).enterMenuItemScreen(itemData);
+        final Map<String, String> existingParametersMap =
+            GoRouterState.of(context).pathParameters;
 
-    context.goNamed(ScreenNames.menuItemDetail.name, pathParameters: {
-      itemIdParamName: itemData.id,
-      ...existingParametersMap,
-    }, extra: {
-      'fromRestaurantOverview': true,
-    });
+        context.goNamed(ScreenNames.menuItemDetail.name, pathParameters: {
+          itemIdParamName: itemData.id,
+          ...existingParametersMap,
+        }, extra: {
+          'fromRestaurantOverview': true,
+        });
+
+        break;
+      case "orderMenuItemDetail":
+        ref
+            .read(orderMenuItemProvider.notifier)
+            .enterOrderMenuItemScreen(itemData);
+
+        context.goNamed(ScreenNames.orderMenuItemDetail.name, pathParameters: {
+          itemIdParamName: itemData.id,
+        });
+        break;
+    }
   }
 
   @override
@@ -91,9 +111,11 @@ class MenuItemCard extends ConsumerWidget {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
-            onTap: () {
-              _goToItemScreen(context, ref);
-            },
+            onTap: navigateTo != null
+                ? () {
+                    _goToItemScreen(context, ref);
+                  }
+                : null,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -119,17 +141,39 @@ class MenuItemCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          itemData.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    height: 1,
-                                    letterSpacing: 0,
-                                  ),
+                        Row(
+                          children: [
+                            if (itemAmount != null)
+                              Text(
+                                "$itemAmount X ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                      color: const Color.fromARGB(
+                                          255, 0, 122, 255),
+                                      fontSize: 16,
+                                      height: 1,
+                                      letterSpacing: 0,
+                                    ),
+                              ),
+                            Flexible(
+                              child: Text(
+                                itemData.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      height: 1,
+                                      letterSpacing: 0,
+                                    ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         SizedBox(
@@ -138,7 +182,7 @@ class MenuItemCard extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               itemData.description != null
-                                  ? Flexible(
+                                  ? Expanded(
                                       child: Padding(
                                         padding:
                                             const EdgeInsets.only(right: 24),

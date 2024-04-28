@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:restazo_user_mobile/env.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:restazo_user_mobile/app_block/theme.dart';
 import 'package:restazo_user_mobile/helpers/env_check.dart';
@@ -24,14 +21,11 @@ void main() async {
 class App extends StatelessWidget {
   const App({super.key});
 
-  // final String initialRoute;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: appTheme,
       routerConfig: AppRouter().router,
-      // routerConfig: AppRouter(initialLocation: initialRoute).router,
     );
   }
 }

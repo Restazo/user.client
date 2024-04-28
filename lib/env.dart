@@ -7,6 +7,7 @@ final env = dotenv.env['ENV']!;
 final protocol = dotenv.env['HTTP_PROTOCOL']!;
 final userAppApiUrl = dotenv.env['USER_APP_API_URL']!;
 final userWebAppUrl = dotenv.env['USER_WEB_APP_URL']!;
+final wsServerUrl = dotenv.env['WS_SERVER_URL']!;
 
 // URL path names
 final restaurantsEndpoint = dotenv.env['RESTAURANTS_ENDPOINT']!;
@@ -18,6 +19,9 @@ final confirmEndpoint = dotenv.env['CONFIRM_ENDPOINT']!;
 final logOutEndpoint = dotenv.env['LOG_OUT_ENDPOINT']!;
 final sessionEndpoint = dotenv.env['SESSION_ENDPOINT']!;
 final tableEndpoint = dotenv.env['TABLE_ENDPOINT']!;
+final startEndpoint = dotenv.env['START_ENDPOINT']!;
+final callWaiterEndpoint = dotenv.env['CALL_WAITER_ENDPOINT']!;
+final orderEndpoint = dotenv.env['ORDER_ENDPOINT']!;
 
 // URL query names
 final rangeQueryName = dotenv.env['RANGE_QUERY_NAME']!;
@@ -36,3 +40,12 @@ final deviceIdKeyName = dotenv.env['DEVICE_ID_KEY_NAME']!;
 final waiterNameKeyName = dotenv.env['WAITER_NAME_KEY_NAME']!;
 final waiterEmailKeyName = dotenv.env['WAITER_EMAIL_KEY_NAME']!;
 final interactedKeyName = dotenv.env['INTERACTED_KEY_NAME']!;
+final tableSessionAccessTokenKeyName =
+    dotenv.env['TABLE_SESSION_ACCESS_TOKEN_KEY_NAME']!;
+final tableSessionRestaurantIdKeyName =
+    dotenv.env['TABLE_SESSION_RESTAURANT_ID_KEY_NAME']!;
+final tableSessionRestaurantNameKeyName =
+    dotenv.env['TABLE_SESSION_RESTAURANT_NAME_KEY_NAME']!;
+final tableSessionRestaurantLogoKeyname =
+    dotenv.env['TABLE_SESSION_RESTAURANT_LOGO_KEY_NAME']!;
+final orderIdKeyname = dotenv.env['ORDER_ID_KEY_NAME']!;

@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void showCupertinoDialogWithOneAction(
+Future<void> showCupertinoDialogWithOneAction(
   BuildContext context,
   String title,
   String message,
   String actionText,
   void Function() action,
-) {
-  showCupertinoDialog(
+) async {
+  await showCupertinoDialog(
     context: context,
     builder: (context) {
       return CupertinoAlertDialog(

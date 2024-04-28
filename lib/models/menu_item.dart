@@ -24,7 +24,7 @@ class MenuItem {
       imageUrl: menuItemJson['image'],
       description: menuItemJson['description'],
       ingredients: menuItemJson['ingredients'],
-      priceAmount: menuItemJson['priceAmount'].toDouble(),
+      priceAmount: (menuItemJson['priceAmount']).toDouble() as double,
       priceCurrency: menuItemJson['priceCurrency'],
     );
   }

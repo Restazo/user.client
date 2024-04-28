@@ -3,7 +3,9 @@ import 'package:restazo_user_mobile/models/waiter_session.dart';
 
 class WaiterSessionState extends APIServiceResult<WaiterSession> {
   const WaiterSessionState(
-      {super.data, super.errorMessage, this.sessionMessage});
+      {required super.data,
+      required super.errorMessage,
+      required this.sessionMessage});
 
   final String? sessionMessage;
 }
