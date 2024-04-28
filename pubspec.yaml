@@ -99,6 +99,8 @@ flutter:
     - assets/minus-sign.png
     - assets/plus-sign.png
     - assets/reception-bell.png
+    - assets/tick.png
+    - assets/close.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

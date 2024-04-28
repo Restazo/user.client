@@ -60,7 +60,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   }
 
   Future<void> _initTablScreen() async {
-    await storage.delete(key: deviceIdKeyName);
     final deviceId = await storage.read(key: deviceIdKeyName);
 
     if (deviceId == null) {

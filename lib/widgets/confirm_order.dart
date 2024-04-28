@@ -5,9 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:restazo_user_mobile/env.dart';
 import 'package:restazo_user_mobile/helpers/currency.dart';
+import 'package:restazo_user_mobile/helpers/renavigations.dart';
+import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_one_action.dart';
+import 'package:restazo_user_mobile/helpers/user_app_api.dart';
+import 'package:restazo_user_mobile/models/order_menu_item.dart';
 import 'package:restazo_user_mobile/providers/place_order_button_provider.dart';
 import 'package:restazo_user_mobile/providers/place_order_provider.dart';
 import 'package:restazo_user_mobile/router/app_router.dart';
+import 'package:restazo_user_mobile/strings.dart';
 
 class ConfirmOrderPopUp extends ConsumerStatefulWidget {
   const ConfirmOrderPopUp({
@@ -32,11 +37,29 @@ class _ConfirmOrderPopUpState extends ConsumerState<ConfirmOrderPopUp> {
     });
     const storage = FlutterSecureStorage();
 
-    // TODO: call API to create new order
-    await Future.delayed(const Duration(seconds: 1));
-    const orderId = "this_is_new_order_id";
+    final fullOrderData = ref.read(placeOrderProvider);
 
-    await storage.write(key: orderIdKeyname, value: orderId);
+    final processingOrderData = fullOrderData
+        .map((fullItemData) => OrderProcessingMenuItem(
+              itemAmount: fullItemData.itemAmount,
+              itemId: fullItemData.itemData.id,
+              itemName: fullItemData.itemData.name,
+            ))
+        .toList();
+
+    final orderResult = await APIService().placeAnOrder(processingOrderData);
+
+    if (!orderResult.isSuccess) {
+      if (mounted) {
+        showCupertinoDialogWithOneAction(
+            context, "Fail", orderResult.errorMessage!, Strings.ok, () {
+          navigateBack(context);
+        });
+      }
+      return;
+    }
+
+    await storage.write(key: orderIdKeyname, value: orderResult.data!.orderId);
     ref.read(placeOrderProvider.notifier).deleteOrderData();
     ref
         .read(placeOrderButtonProvider.notifier)
@@ -48,7 +71,7 @@ class _ConfirmOrderPopUpState extends ConsumerState<ConfirmOrderPopUp> {
     if (mounted) {
       context.goNamed(
         ScreenNames.orderProcessing.name,
-        pathParameters: {orderIdKeyname: orderId},
+        pathParameters: {orderIdKeyname: orderResult.data!.orderId},
       );
     }
   }

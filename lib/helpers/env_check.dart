@@ -30,6 +30,8 @@ void checkEnv() {
     'TABLE_ENDPOINT',
     'START_ENDPOINT',
     'CALL_WAITER_ENDPOINT',
+    'ORDER_ENDPOINT',
+    'WS_SERVER_URL',
   ];
 
   // Check for missing environment variables

@@ -34,7 +34,7 @@ enum ScreenNames {
 
 class AppRouter {
   late final GoRouter router = GoRouter(
-    initialLocation: '/table-actions',
+    initialLocation: '/splash',
     routes: [
       GoRoute(
         path: '/init',

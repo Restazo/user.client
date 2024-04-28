@@ -89,7 +89,6 @@ class _OrderMenuItemScreenState extends ConsumerState<OrderMenuItemScreen> {
           .toList();
 
       int itemAmount = 0;
-      // print(itemState);
       if (itemState.isNotEmpty) {
         itemAmount = itemState[0].itemAmount;
       }

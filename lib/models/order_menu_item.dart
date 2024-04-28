@@ -20,4 +20,12 @@ class OrderProcessingMenuItem {
   final String itemName;
   final String itemId;
   final int itemAmount;
+
+  factory OrderProcessingMenuItem.fromJson(Map<String, dynamic> menuItemJson) {
+    return OrderProcessingMenuItem(
+      itemId: menuItemJson['id'],
+      itemName: menuItemJson['name'],
+      itemAmount: menuItemJson['quantity'],
+    );
+  }
 }

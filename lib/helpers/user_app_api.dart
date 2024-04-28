@@ -4,8 +4,11 @@ import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:restazo_user_mobile/helpers/get_current_location.dart';
 import 'package:restazo_user_mobile/models/api_result_states/call_waiter_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/order_id_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/table_session_state.dart';
 import 'package:restazo_user_mobile/models/call_waiter.dart';
+import 'package:restazo_user_mobile/models/order_id.dart';
+import 'package:restazo_user_mobile/models/order_menu_item.dart';
 import 'package:restazo_user_mobile/models/table_session.dart';
 import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
 import 'package:restazo_user_mobile/strings.dart';
@@ -200,7 +203,6 @@ class APIService {
         );
       }
     } catch (e) {
-      print(e);
       // Return the state of restaurant menu
       // with an error message and no menu data
       return const RestaurantOverviewState(
@@ -605,6 +607,81 @@ class APIService {
       return const CallWaiterState(
         data: null,
         errorMessage: 'Failed to request waiter',
+      );
+    }
+  }
+
+  Future<OrderIdState> placeAnOrder(List<OrderProcessingMenuItem> items) async {
+    final LocationData? userLocation = await getCurrentLocation();
+
+    if (userLocation == null) {
+      return const OrderIdState(
+        data: null,
+        errorMessage:
+            "In order to have table session you need to enable location permissions",
+      );
+    }
+    const storage = FlutterSecureStorage();
+    final [tableSessionAccessToken, deviceId] = await Future.wait([
+      storage.read(key: tableSessionAccessTokenKeyName),
+      storage.read(key: deviceIdKeyName)
+    ]);
+
+    if (tableSessionAccessToken == null || deviceId == null) {
+      return const OrderIdState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/$tableEndpoint-$sessionEndpoint/$orderEndpoint';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $tableSessionAccessToken'
+    };
+    final Object body = {
+      "deviceId": deviceId,
+      "userCoords": {
+        "latitude": userLocation.latitude,
+        "longitude": userLocation.longitude
+      },
+      "orderItems": items.map((menuItem) {
+        return {
+          "id": menuItem.itemId,
+          "name": menuItem.itemName,
+          "quantity": menuItem.itemAmount,
+        };
+      }).toList(),
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res =
+          await http.post(url, headers: headers, body: json.encode(body));
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+        final Map<String, dynamic> data = resJson['data'];
+
+        final message = OrderId.fromJson(data);
+
+        return OrderIdState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return OrderIdState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const OrderIdState(
+        data: null,
+        errorMessage: 'Failed to place your waiter',
       );
     }
   }
