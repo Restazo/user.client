@@ -3,15 +3,23 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:restazo_user_mobile/helpers/get_current_location.dart';
+import 'package:restazo_user_mobile/models/accept_or_decline_order.dart';
+import 'package:restazo_user_mobile/models/accept_waiter_call.dart';
+import 'package:restazo_user_mobile/models/api_result_states/accept_or_decline_order_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/accept_waiter_call_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/call_waiter_state.dart';
+import 'package:restazo_user_mobile/models/api_result_states/mark_order_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/order_id_state.dart';
 import 'package:restazo_user_mobile/models/api_result_states/table_session_state.dart';
 import 'package:restazo_user_mobile/models/call_waiter.dart';
+import 'package:restazo_user_mobile/models/mark_order.dart';
 import 'package:restazo_user_mobile/models/order_id.dart';
 import 'package:restazo_user_mobile/models/order_menu_item.dart';
 import 'package:restazo_user_mobile/models/table_session.dart';
 import 'package:restazo_user_mobile/screens/table_actions/table_actions.dart';
+import 'package:restazo_user_mobile/screens/waiter_mode/ongoing_orders.dart';
 import 'package:restazo_user_mobile/strings.dart';
+import 'package:restazo_user_mobile/widgets/new_order.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -682,6 +690,159 @@ class APIService {
       return const OrderIdState(
         data: null,
         errorMessage: 'Failed to place your waiter',
+      );
+    }
+  }
+
+  Future<AccpetWaiterCallState> acceptRequest(String tableId) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const AccpetWaiterCallState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/${tableEndpoint}s/$tableId/dismiss-request';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+
+    final url = getUrl(path: path);
+
+    try {
+      final res = await http.delete(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = AcceptWaiterCall.fromJson(resJson);
+
+        return AccpetWaiterCallState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return AccpetWaiterCallState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const AccpetWaiterCallState(
+        data: null,
+        errorMessage: 'Failed to accept request',
+      );
+    }
+  }
+
+  Future<AcceptOrDeclineOrderState> acceptOrDeclineOrder(
+    String orderId,
+    PendingOrderAction action,
+  ) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const AcceptOrDeclineOrderState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/$orderEndpoint/$orderId';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+    Map<String, dynamic> queryParameters = {
+      "action": action.name,
+    };
+
+    final url = getUrl(path: path, queryParameters: queryParameters);
+
+    try {
+      final res = await http.put(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = AcceptOrDeclineOrder.fromJson(resJson);
+
+        return AcceptOrDeclineOrderState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return AcceptOrDeclineOrderState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const AcceptOrDeclineOrderState(
+        data: null,
+        errorMessage: 'Failed to take an action on order',
+      );
+    }
+  }
+
+  Future<MarkTableOrdersState> markTableOrders(
+    String tableId,
+    MarkTableOrdersAs action,
+  ) async {
+    const storage = FlutterSecureStorage();
+    final waiterAccessToken = await storage.read(key: accessTokenKeyName);
+
+    if (waiterAccessToken == null) {
+      return const MarkTableOrdersState(
+        data: null,
+        errorMessage: "No session found",
+      );
+    }
+
+    final path = '/${tableEndpoint}s/$tableId/${orderEndpoint}s';
+    final Map<String, String> headers = {
+      'Content-type': 'application/json',
+      'Authorization': 'Bearer $waiterAccessToken'
+    };
+    Map<String, dynamic> queryParameters = {
+      "mark": action.name,
+    };
+
+    final url = getUrl(path: path, queryParameters: queryParameters);
+
+    try {
+      final res = await http.put(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        final resJson = json.decode(res.body);
+
+        final message = MarkTableOrders.fromJson(resJson);
+
+        return MarkTableOrdersState(
+          data: message,
+          errorMessage: null,
+        );
+      } else {
+        final errorMessage = _decodeError(res);
+
+        return MarkTableOrdersState(
+          data: null,
+          errorMessage: errorMessage,
+        );
+      }
+    } catch (e) {
+      return const MarkTableOrdersState(
+        data: null,
+        errorMessage: 'Failed mark the order',
       );
     }
   }

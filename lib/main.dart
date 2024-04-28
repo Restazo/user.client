@@ -21,8 +21,6 @@ void main() async {
 class App extends StatelessWidget {
   const App({super.key});
 
-  // final routeObserver = RouteObserver();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
