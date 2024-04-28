@@ -10,6 +10,8 @@ Future<LocationData?> getCurrentLocation() async {
     return null;
   }
 
-  final userLocation = await location.getLocation();
+  // final userLocation = await location.getLocation();
+  final userLocation =
+      LocationData.fromMap({"latitude": 65.0580989, "longitude": 25.4691244});
   return userLocation;
 }

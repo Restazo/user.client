@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:restazo_user_mobile/helpers/renavigations.dart';
 import 'package:restazo_user_mobile/helpers/show_cupertino_dialog_with_three_actions.dart';
 
@@ -50,14 +52,25 @@ class _PendingOrderTileState extends State<PendingOrderTile> {
     super.dispose();
   }
 
+  String formatWaitingTime(Duration waitingTime) {
+    if (waitingTime.inSeconds + 3 < 60) {
+      return "${waitingTime.inSeconds + 3}s";
+    } else if (waitingTime.inMinutes < 60) {
+      return "${waitingTime.inMinutes}m";
+    } else {
+      return "${waitingTime.inHours}h";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime currentUtcTime = DateTime.now().toUtc();
     Duration waitingDuration = currentUtcTime.difference(_createdAtDateTime);
+    String waitingTime = formatWaitingTime(waitingDuration);
 
     Color indicatorColor = const Color.fromARGB(255, 255, 59, 47);
 
-    if (waitingDuration.inSeconds <= 60) {
+    if (waitingDuration.inSeconds + 3 < 60) {
       indicatorColor = Colors.white;
     } else if (waitingDuration.inMinutes <= 2) {
       indicatorColor = const Color.fromARGB(255, 248, 104, 0);
@@ -80,98 +93,99 @@ class _PendingOrderTileState extends State<PendingOrderTile> {
       ),
       child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Table ${widget.orderData.tableLabel} placed an order",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(color: Colors.white, fontSize: 16),
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Text(
-                      "Waiting ",
+          Expanded(
+            flex: 220,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Table ${widget.orderData.tableLabel} placed an order",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                  const Spacer(),
+                  Expanded(
+                    child: Text(
+                      "Waiting $waitingTime",
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
                           .copyWith(color: indicatorColor, fontSize: 16),
                     ),
-                    Text(
-                      "●",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: indicatorColor, fontSize: 16),
-                    )
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const Spacer(),
-          TextButton(
-            onPressed: () {
-              showModalBottomSheetWithMenuItems(
-                context,
-                "Order from table ${widget.orderData.tableLabel}",
-                widget.orderData.orderItems,
-                "Cancel",
-                () {
-                  navigateBack(context);
-                },
-                "Action",
-                () {
-                  showCupertinoDialogWithThreeActions(
-                      context,
-                      "Order action",
-                      "Accept ot decline this order from table ${widget.orderData.tableLabel}",
-                      "Accept",
-                      () async {
-                        if (mounted) {
+          // const Spacer(),
+          Expanded(
+            flex: 130,
+            child: TextButton(
+              onPressed: () {
+                showModalBottomSheetWithMenuItems(
+                  context,
+                  "Order from table ${widget.orderData.tableLabel}",
+                  widget.orderData.orderItems,
+                  "Cancel",
+                  () {
+                    navigateBack(context);
+                  },
+                  "Action",
+                  () {
+                    showCupertinoDialogWithThreeActions(
+                        context,
+                        "Order action",
+                        "Accept ot decline this order from table ${widget.orderData.tableLabel}",
+                        "Accept",
+                        () async {
+                          if (mounted) {
+                            navigateBack(context);
+                            navigateBack(context);
+                          }
+                          await widget.onPressed(widget.orderData.orderId,
+                              PendingOrderAction.accept);
+                        },
+                        "Decline",
+                        () async {
+                          if (mounted) {
+                            navigateBack(context);
+                            navigateBack(context);
+                          }
+                          await widget.onPressed(widget.orderData.orderId,
+                              PendingOrderAction.decline);
+                        },
+                        "Cancel",
+                        () {
                           navigateBack(context);
-                          navigateBack(context);
-                        }
-                        await widget.onPressed(widget.orderData.orderId,
-                            PendingOrderAction.accept);
-                      },
-                      "Decline",
-                      () async {
-                        if (mounted) {
-                          navigateBack(context);
-                          navigateBack(context);
-                        }
-                        await widget.onPressed(widget.orderData.orderId,
-                            PendingOrderAction.decline);
-                      },
-                      "Cancel",
-                      () {
-                        navigateBack(context);
-                      });
-                },
-              );
-            },
-            style: ButtonStyle(
-              padding: MaterialStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 32, vertical: 30),
+                        });
+                  },
+                );
+              },
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 32, vertical: 30),
+                ),
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomRight: Radius.circular(10)))),
               ),
-              backgroundColor: MaterialStateProperty.all(Colors.white),
-              shape: MaterialStateProperty.all(const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomRight: Radius.circular(10)))),
-            ),
-            child: Text(
-              "Review",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    fontSize: 20,
-                    color: Colors.black,
-                  ),
+              child: Text(
+                "Review",
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontSize: 20,
+                      color: Colors.black,
+                    ),
+              ),
             ),
           )
         ],
