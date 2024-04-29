@@ -300,7 +300,7 @@ class _TableActionsScreenState extends ConsumerState<TableActionsScreen> {
     setState(() {
       _isSubmitting = true;
     });
-    final result = await APIService().callWaiter(CallType.waiter);
+    final result = await APIService().callWaiter(callType);
 
     if (result.isSuccess) {
       if (mounted) {

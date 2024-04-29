@@ -53,8 +53,8 @@ class _PendingOrderTileState extends State<PendingOrderTile> {
   }
 
   String formatWaitingTime(Duration waitingTime) {
-    if (waitingTime.inSeconds + 3 < 60) {
-      return "${waitingTime.inSeconds + 3}s";
+    if (waitingTime.inSeconds < 60) {
+      return "${waitingTime.inSeconds}s";
     } else if (waitingTime.inMinutes < 60) {
       return "${waitingTime.inMinutes}m";
     } else {
@@ -70,7 +70,7 @@ class _PendingOrderTileState extends State<PendingOrderTile> {
 
     Color indicatorColor = const Color.fromARGB(255, 255, 59, 47);
 
-    if (waitingDuration.inSeconds + 3 < 60) {
+    if (waitingDuration.inSeconds < 60) {
       indicatorColor = Colors.white;
     } else if (waitingDuration.inMinutes <= 2) {
       indicatorColor = const Color.fromARGB(255, 248, 104, 0);
